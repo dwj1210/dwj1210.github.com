@@ -259,7 +259,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/07/iOS应用安全测试/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/18/iOS应用安全测试/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="代伟佳WeChat:337223400">
@@ -278,7 +278,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2018/03/07/iOS应用安全测试/" itemprop="url">Unbenannt</a></h1>
+                <a class="post-title-link" href="/2018/03/18/iOS应用安全测试/" itemprop="url">iOS应用安全测试</a></h1>
         
 
         <div class="post-meta">
@@ -290,8 +290,8 @@
               
                 <span class="post-meta-item-text">Veröffentlicht am</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-03-07T21:38:44+08:00">
-                2018-03-07
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-03-18T11:00:07+08:00">
+                2018-03-18
               </time>
             
 
@@ -330,8 +330,7 @@
       
         
           
-            <p>#iOS应用安全测试</p>
-<p>####0x01 不安全的数据存储<br>a.账号密码使用Plist或者NSUserDefaults明文储存在沙盒中。<br>检查方法：使用cycript勾住DamnVulnerableIOSApp 打印沙盒路径 然后把沙盒的内容拷贝到电脑。NSUserDefaults保存在Library/Perferences/目录下。<br>b.Core Data存储<br>Core Data会以sqlite文件存储在沙盒中，使用Navicat可以清晰的看到保存的数据。<br>c.重要数据存储在钥匙串中<br>在非越狱设备上数据储存在钥匙串中是相对安全的，但是在越狱设备上我们也可以很容易从钥匙串中拿到关键数据。Snoop可以检测钥匙串数据库文件上的读取写入等操作，我们也可以使用Keychain Dumper导出钥匙串中的文件数据。<br>d.当图片或者一些重要文件需要 保存在本地的时候，我们可以使用加密文件的方式增加黑客破解的难度。</p>
+            <p>####0x01 不安全的数据存储<br>a.账号密码使用Plist或者NSUserDefaults明文储存在沙盒中。<br>检查方法：使用cycript勾住DamnVulnerableIOSApp 打印沙盒路径 然后把沙盒的内容拷贝到电脑。NSUserDefaults保存在Library/Perferences/目录下。<br>b.Core Data存储<br>Core Data会以sqlite文件存储在沙盒中，使用Navicat可以清晰的看到保存的数据。<br>c.重要数据存储在钥匙串中<br>在非越狱设备上数据储存在钥匙串中是相对安全的，但是在越狱设备上我们也可以很容易从钥匙串中拿到关键数据。Snoop可以检测钥匙串数据库文件上的读取写入等操作，我们也可以使用Keychain Dumper导出钥匙串中的文件数据。<br>d.当图片或者一些重要文件需要 保存在本地的时候，我们可以使用加密文件的方式增加黑客破解的难度。</p>
 <p>####0x02 越狱检测<br>a.检测常见越狱文件路径 /Applications/Cydia.app /Library/MobileSubstrate/MobileSubstrate.dylib /bin/bash /usr/sbin/sshd /etc/apt<br>b.检测Cydia的URL scheme(cydia://)<br>c.检测SSH Daemon<br>d.检测是否有权限读写沙盒之外的文件。</p>
 <p>####0x03 绕过登录验证<br>a.如果是一个方法检测账号密码是否正确，并且返回值是BOOL类型。直接使用lldb附加到进程断点到方法最后一行，然后直接修改x0寄存器的值为1。<br>b.如果在方法中验证了密码是否正确，就在汇编代码和逻辑图中分析发现有一个比较x8如果等于0就弹出密码错误弹框，所以直接下断点修改x8寄存器的值。</p>
 <p>####0x04 寻找内存中的敏感信息<br>有一些敏感数据我们在存储到本地时会对它进行加密，但是当程序运行中，这些信息往往还没有被加密，所以应该立即将他们释放。<br>a.一些数据在程序运行中，我们可以使用cycript来调试找到内存中还没有被释放的数据。</p>

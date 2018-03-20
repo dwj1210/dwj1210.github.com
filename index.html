@@ -550,7 +550,7 @@ void disable_gdb() {
 <li>Mac版本微信QQ</li>
 </ul>
 <p>我是一个刚刚接触逆向的iOS开发者，本着实践出真知的理念在网上搜索资料，开始自己动手研究。看完这篇文章您将实现Mac版本微信QQ的消息防撤回功能。</p>
-<h4 id="一、Mac版本微信"><a href="#一、Mac版本微信" class="headerlink" title="一、Mac版本微信"></a>一、Mac版本微信</h4><p>1.首先从App Store下载微信安装。<br>2.找到应用程序中的微信，右击显示包内容，找到MacOS文件夹下面的WeChat，这就是微信的可执行文件。</p>
+<h4 id="Mac版本微信"><a href="#Mac版本微信" class="headerlink" title="Mac版本微信"></a>Mac版本微信</h4><p>1.首先从App Store下载微信安装。<br>2.找到应用程序中的微信，右击显示包内容，找到MacOS文件夹下面的WeChat，这就是微信的可执行文件。</p>
 <p><img src="http://upload-images.jianshu.io/upload_images/4263020-415230e3090ed99e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="微信位置.png"></p>
 <p><img src="http://upload-images.jianshu.io/upload_images/4263020-5558878b7fed8f35.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="微信可执行文件.png"></p>
 <p>3.把微信的可执行文件WeChat拷贝到桌面备用。<br>4.这时候要拿出我们的关键工具：hopper disassembler  ，把桌面的WeChat直接拖到hopper里面进行编译。这个时候需要等待的时间可能会久一点。</p>
@@ -560,7 +560,7 @@ void disable_gdb() {
 <p><img src="http://upload-images.jianshu.io/upload_images/4263020-5bd5979d26051447.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="修改汇编代码.png"></p>
 <p>8.此时点击 <code>hift + Command + E</code>  重新生成修改后的微信可执行文件。</p>
 <p>9.把修改后的WeChat复制到 <code>/Applications/WeChat.app/Contents/MacOS</code> 替换原来的WeChat，并关闭微信重新打开，此时别人无法撤回你的消息。Well done!  </p>
-<h4 id="二、Mac版本QQ"><a href="#二、Mac版本QQ" class="headerlink" title="二、Mac版本QQ"></a>二、Mac版本QQ</h4><p>1.准备工作同上。首先从App Store下载QQ安装，去应用程序里面找到QQ，右击显示包内容，找到Contents/MacOS/QQ，把QQ复制到桌面，然后把QQ拖进hopper编译。<br>2.左侧搜索<code>handleRecallNotify</code>函数，鼠标点击函数中第一行的 <code>rbp</code>，然后按 <code>Option + A</code>，输入<code>ret</code>，并点击 <code>Assembler and Go Next</code>，此时窗口会跳到下一行，点击 <code>ESC</code> 退出。最后点击 <code>hift + Command + E</code>  重新生成修改后的QQ可QQ执行文件。<br>3.把修改后的QQ复制到 <code>/Applications/QQ.app/Contents/MacOS</code> 替换原来的QQ。重新打开QQ。</p>
+<h4 id="Mac版本QQ"><a href="#Mac版本QQ" class="headerlink" title="Mac版本QQ"></a>Mac版本QQ</h4><p>1.准备工作同上。首先从App Store下载QQ安装，去应用程序里面找到QQ，右击显示包内容，找到Contents/MacOS/QQ，把QQ复制到桌面，然后把QQ拖进hopper编译。<br>2.左侧搜索<code>handleRecallNotify</code>函数，鼠标点击函数中第一行的 <code>rbp</code>，然后按 <code>Option + A</code>，输入<code>ret</code>，并点击 <code>Assembler and Go Next</code>，此时窗口会跳到下一行，点击 <code>ESC</code> 退出。最后点击 <code>hift + Command + E</code>  重新生成修改后的QQ可QQ执行文件。<br>3.把修改后的QQ复制到 <code>/Applications/QQ.app/Contents/MacOS</code> 替换原来的QQ。重新打开QQ。</p>
 <p>以后还会更新关于逆向的文章，有兴趣的伙伴可以多多交流。我的WeChat：<code>337223400</code>。</p>
 
           

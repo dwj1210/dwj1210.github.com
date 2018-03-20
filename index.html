@@ -336,10 +336,12 @@
 <h4 id="0x04-寻找内存中的敏感信息"><a href="#0x04-寻找内存中的敏感信息" class="headerlink" title="0x04 寻找内存中的敏感信息"></a>0x04 寻找内存中的敏感信息</h4><p>有一些敏感数据我们在存储到本地时会对它进行加密，但是当程序运行中，这些信息往往还没有被加密，所以应该立即将他们释放。<br>例如：在DVIA中，有一个寻找内存中的敏感信息的挑战，我们可以使用cycript勾住这个进程，然后找到当前显示的页面，可以看到他所有的方法属性，以及内存中的值。<br>安全风险：低危<br>如何修复：如果有一些重要的属性或实例变量不是必需的,他们应该释放内存。</p>
 <h4 id="0x05-检测盗版"><a href="#0x05-检测盗版" class="headerlink" title="0x05 检测盗版"></a>0x05 检测盗版</h4><p>在项目中我们需要对软件是否盗版进行验证。<br>例如：在QQ中进行修改bundleid重签名双开会提示对不起，您的QQ签名错误。原理：a.每个签名都含有开发者证书的ID信息。b.开发者证书的ID没有相同的。<br>安全风险：低危<br>如何修复：bundleID检测。APP启动时，检查APP的签名，读取开发者证书ID字符串是否一致。</p>
 <h4 id="0x06-URL-Schems漏洞"><a href="#0x06-URL-Schems漏洞" class="headerlink" title="0x06 URL Schems漏洞"></a>0x06 URL Schems漏洞</h4><p>在生活中比如微信登录支付宝支付都使用了这一功能，由于相同的URL Scheme可能同时被多个App使用，我们就可以做到截获其他应用的URL。<br>例如：我们可以伪装天天炫斗微信登录来截取用户的登录信息，新建一个项目，在plist文件中添加一个和天天炫斗微信登录相同的URL Scheme：wx63124814f356e266，并且把Bundle id设置为A，来确保回调的优先级，在AppDelegate中添加如下代码：</p>
-<pre><code>-(BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation{
+<pre><code>
+-(BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation{
    NSLog(@"%@",url);
    return YES;
-}</code></pre>这时我们通过天天炫斗微信登录在微信回调的时候就会跳转到我们的demo，并且通过打印截获了带参数的url，我们可以通过这个来远程登录天天炫斗游戏。
+}</code></pre>
+这时我们通过天天炫斗微信登录在微信回调的时候就会跳转到我们的demo，并且通过打印截获了带参数的url，我们可以通过这个来远程登录天天炫斗游戏。
 安全风险：高危
 如何修复：在App使用快捷登录的时候，最好同时将设备号或者某个本地保存的标志绑定，防止恶意的第三方借此获取用户的信息。
 
@@ -378,11 +380,13 @@ c.Charles第三方抓包工具
 抓包工具可以通过截获真实客户端的https请求，伪装客户端向真实服务端发送https请求和接受真实服务器响应，用自己的证书伪装服务端向真实客户端发送数据内容，我们将私有CA签发的数字证书安装到手机中并且作为受信任证书保存。
 安全风险：高危
 如何修复：我们可以使用AFNetworking网络框架来进行证书验证，我们需要对AFSecurityPolicy类的AFSSLPinningMode这个枚举来配置，并使用AFSSLPinningModeCertificate对证书进行完整校验。
-<pre><code> typedef NS_ENUM(NSUInteger, AFSSLPinningMode) {
+<pre><code> 
+typedef NS_ENUM(NSUInteger, AFSSLPinningMode) {
     AFSSLPinningModeNone, // 不进行验证
     AFSSLPinningModePublicKey, // 验证PublicKey
     AFSSLPinningModeCertificate, // 对证书的所有内容进行验证
-};</code></pre>一般做法是将服务器生成的证书打包，导入客户端内，使用包的二进制数据，进行全部校验，但是，打包进app会有被反编译出的风险，一般做法是将二进制数据转换成base64的字符串，存入代码内。
+};</code></pre>
+一般做法是将服务器生成的证书打包，导入客户端内，使用包的二进制数据，进行全部校验，但是，打包进app会有被反编译出的风险，一般做法是将二进制数据转换成base64的字符串，存入代码内。
 
 
 
@@ -408,7 +412,8 @@ c.RSA：RSA加密算法是目前最有影响力的公钥加密算法，并且被
 Ptrace是一个系统调用，防止一个进程挂载到app上。
 a.当一个应用被调试的时候，会给进程设置一个标识（P_TRACED），我们可以通过检测该进程是否有设置这个标识来检测进程是否正在被调试。
 
-<pre><code>#import &lt;dlfcn.h&gt;
+<pre><code>
+#import &lt;dlfcn.h&gt;
 #import &lt;sys/types.h&gt;
 typedef int (*ptrace_ptr_t)(int _request, pid_t _pid, caddr_t _addr, int _data);
 #if !defined(PT_DENY_ATTACH)

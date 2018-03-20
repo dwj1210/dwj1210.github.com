@@ -100,7 +100,7 @@
 <meta property="og:url" content="http://yoursite.com/2018/03/18/iOS应用安全测试/index.html">
 <meta property="og:site_name" content="代伟佳">
 <meta property="og:description" content="####0x01 不安全的数据存储Documents: 保存应⽤运行时生成的需要持久化的数据,iTunes同步设备时会备份该目录。tmp: 保存应⽤运行时所需的临时数据,使⽤完毕后再将相应的文件从该目录删除。应用没有运行时,系统也可能会清除该目录下的文件。iTunes同步设备时不会备份该目录。Library/Caches: 保存应用运行时⽣成的需要持久化的数据,iTunes同步设备时不会备份该目录">
-<meta property="og:updated_time" content="2018-03-20T10:25:40.212Z">
+<meta property="og:updated_time" content="2018-03-20T10:27:27.986Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="iOS应用安全测试">
 <meta name="twitter:description" content="####0x01 不安全的数据存储Documents: 保存应⽤运行时生成的需要持久化的数据,iTunes同步设备时会备份该目录。tmp: 保存应⽤运行时所需的临时数据,使⽤完毕后再将相应的文件从该目录删除。应用没有运行时,系统也可能会清除该目录下的文件。iTunes同步设备时不会备份该目录。Library/Caches: 保存应用运行时⽣成的需要持久化的数据,iTunes同步设备时不会备份该目录">
@@ -340,18 +340,21 @@
 }</code></pre>这时我们通过天天炫斗微信登录在微信回调的时候就会跳转到我们的demo，并且通过打印截获了带参数的url，我们可以通过这个来远程登录天天炫斗游戏。
 安全风险：高危
 如何修复：在App使用快捷登录的时候，最好同时将设备号或者某个本地保存的标志绑定，防止恶意的第三方借此获取用户的信息。
+
 ####0x07 UIWebView漏洞
 例如：我们如果对用户输入框输入的数据没有进行过滤，恶意数据通过用户组件，URL scheme handlers或者notifications传递给了UIWebView组件，并且UIWebView组件没有验证该数据的合法性。
 UIWebView通过loadHTMLString:baseURL：这个方法从本地html读取代码，然后加载，我们可以替换为一个恶意的本地HTML，这样可以读取所有的保存在该应用里的cookie，绕过同源策略做一些非法的操作，攻击者将用户的像cookie，session等敏感数据传递给攻击者，或者重定向用户页面到攻击者控制的服务器上，或者诱导用户输入一些敏感数据，然后传递到攻击者的服务器上，实现钓鱼攻击。
 安全风险：高危
 如何修复：对输入框内的数据进行关键词过滤（如“script”字符串），避免输入恶意脚本语言。 
 在加载网页的内容之前，会用dataWithContentsOfURL方法将加载的网页的内容提取出来放入NSData中，在使用loadHTMLString之前可以对NSData的内容过滤。
+
 ####0x08 攻击第三方库
 我们的iOS App中一般会用到很多的第三方库，比如统计，IM，直播等。而这些SDK通常需要App key，App Secret来完成初始化注册。此时我们就可以通过动态调试或者hopper的反汇编很容易拿到这些SDK的秘钥。
 当我们拿到这个重要的key，就几乎可以使用这个第三方库的所有功能。
 例如：在油战线App中使用了融云的聊天功能，当我拿到这个key的时候，在自己的demo中进行融云SDK的注册初始化，并修改为bundleid油战线的bundleid，就可以开始无限制的发消息，并且由油战线App付费。
 安全风险：高危
 如何修复：可以通过远程从服务器上获取后再使用，可以登录的时候初始化获取。
+
 ####0x09 HTTPS漏洞
 HTTPS协议其实是有两部分组成：HTTP + SSL / TLS，也就是在HTTP上又加了一层处理加密信息的模块。
 a.SSL证书伪造
@@ -368,6 +371,7 @@ c.Charles第三方抓包工具
     AFSSLPinningModePublicKey, // 验证PublicKey
     AFSSLPinningModeCertificate, // 对证书的所有内容进行验证
 };</code></pre>一般做法是将服务器生成的证书打包，导入客户端内，使用包的二进制数据，进行全部校验，但是，打包进app会有被反编译出的风险，一般做法是将二进制数据转换成base64的字符串，存入代码内。
+
 ####0x0a 常见加密算法及密钥的保存
 常见的加密算法有DES，AES，RSA等。而AES和DES都属于对称加密算法，RSA则属于非对称加密。
 a.DES：DES加密算法是一种分组密码，以64位为分组对数据加密，它的密钥长度是56位，加密解密用同一算法。

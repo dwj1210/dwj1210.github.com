@@ -100,7 +100,7 @@
 <meta property="og:url" content="http://yoursite.com/2018/03/18/iOS应用安全测试/index.html">
 <meta property="og:site_name" content="代伟佳">
 <meta property="og:description" content="####0x01 不安全的数据存储Documents: 保存应⽤运行时生成的需要持久化的数据,iTunes同步设备时会备份该目录。tmp: 保存应⽤运行时所需的临时数据,使⽤完毕后再将相应的文件从该目录删除。应用没有运行时,系统也可能会清除该目录下的文件。iTunes同步设备时不会备份该目录。Library/Caches: 保存应用运行时⽣成的需要持久化的数据,iTunes同步设备时不会备份该目录">
-<meta property="og:updated_time" content="2018-03-20T10:28:30.061Z">
+<meta property="og:updated_time" content="2018-03-20T10:30:42.644Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="iOS应用安全测试">
 <meta name="twitter:description" content="####0x01 不安全的数据存储Documents: 保存应⽤运行时生成的需要持久化的数据,iTunes同步设备时会备份该目录。tmp: 保存应⽤运行时所需的临时数据,使⽤完毕后再将相应的文件从该目录删除。应用没有运行时,系统也可能会清除该目录下的文件。iTunes同步设备时不会备份该目录。Library/Caches: 保存应用运行时⽣成的需要持久化的数据,iTunes同步设备时不会备份该目录">
@@ -337,10 +337,10 @@
 <pre><code>-(BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation{
    NSLog(@"%@",url);
    return YES;
-}</code></pre>这时我们通过天天炫斗微信登录在微信回调的时候就会跳转到我们的demo，并且通过打印截获了带参数的url，我们可以通过这个来远程登录天天炫斗游戏。
+}</code></pre>
+这时我们通过天天炫斗微信登录在微信回调的时候就会跳转到我们的demo，并且通过打印截获了带参数的url，我们可以通过这个来远程登录天天炫斗游戏。
 安全风险：高危
 如何修复：在App使用快捷登录的时候，最好同时将设备号或者某个本地保存的标志绑定，防止恶意的第三方借此获取用户的信息。
-
 
 ####0x07 UIWebView漏洞
 例如：我们如果对用户输入框输入的数据没有进行过滤，恶意数据通过用户组件，URL scheme handlers或者notifications传递给了UIWebView组件，并且UIWebView组件没有验证该数据的合法性。

@@ -100,7 +100,7 @@
 <meta property="og:url" content="http://yoursite.com/2018/03/18/iOS应用安全测试/index.html">
 <meta property="og:site_name" content="代伟佳">
 <meta property="og:description" content="0x01 不安全的数据存储Documents: 保存应⽤运行时生成的需要持久化的数据,iTunes同步设备时会备份该目录。tmp: 保存应⽤运行时所需的临时数据,使⽤完毕后再将相应的文件从该目录删除。应用没有运行时,系统也可能会清除该目录下的文件。iTunes同步设备时不会备份该目录。Library/Caches: 保存应用运行时⽣成的需要持久化的数据,iTunes同步设备时不会备份该目录。一般存">
-<meta property="og:updated_time" content="2018-03-20T10:38:00.160Z">
+<meta property="og:updated_time" content="2018-03-20T10:39:32.456Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="iOS应用安全测试">
 <meta name="twitter:description" content="0x01 不安全的数据存储Documents: 保存应⽤运行时生成的需要持久化的数据,iTunes同步设备时会备份该目录。tmp: 保存应⽤运行时所需的临时数据,使⽤完毕后再将相应的文件从该目录删除。应用没有运行时,系统也可能会清除该目录下的文件。iTunes同步设备时不会备份该目录。Library/Caches: 保存应用运行时⽣成的需要持久化的数据,iTunes同步设备时不会备份该目录。一般存">
@@ -329,7 +329,7 @@
 
       
         <h4 id="0x01-不安全的数据存储"><a href="#0x01-不安全的数据存储" class="headerlink" title="0x01 不安全的数据存储"></a>0x01 不安全的数据存储</h4><p>Documents: 保存应⽤运行时生成的需要持久化的数据,iTunes同步设备时会备份该目录。<br>tmp: 保存应⽤运行时所需的临时数据,使⽤完毕后再将相应的文件从该目录删除。应用没有运行时,系统也可能会清除该目录下的文件。iTunes同步设备时不会备份该目录。<br>Library/Caches: 保存应用运行时⽣成的需要持久化的数据,iTunes同步设备时不会备份该目录。一般存储体积大、不需要备份的非重要数据，比如网络数据缓存存储到Caches下。<br>a.账号密码使用Plist或者NSUserDefaults明文储存在沙盒中。<br>检查方法：使用cycript勾住DamnVulnerableIOSApp 打印沙盒路径 然后把沙盒的内容拷贝到电脑。NSUserDefaults保存在Library/Perferences/目录下。<br>b.Core Data存储<br>Core Data会以sqlite文件存储在沙盒中，使用Navicat可以清晰的看到保存的数据。<br>c.重要数据存储在钥匙串中<br>在非越狱设备上数据储存在Keychain中是相对安全的，它所存储的数据在 /private/var/Keychains/keychain-2.db SQLite数据库中，是一个拥有有限访问权限的SQLite数据库（AES256加密），但是在越狱设备上我们也可以很容易从钥匙串中拿到关键数据。Snoop可以检测钥匙串数据库文件上的读取写入等操作，我们也可以使用Keychain Dumper导出钥匙串中的文件数据。<br>d.当图片或者一些重要文件需要 保存在本地的时候，我们可以使用加密文件的方式增加黑客破解的难度。<br>安全风险：中危<br>如何修复：当我们需要主动存储在app内的重要的、涉及隐私的信息需要加密处理，增加攻击者破解难度。<br>对于一些非主动的存储行为如网络缓存，涉及重要信息，做到用完即删。<br>对于数据库的存储我们应当进行数据加密，比如使用如AES加密算法对数据进行安全加密后再存入数据库中，或者使用第三方的SQLite扩展库，对数据库进行整体的加密。</p>
-<h4 id="0x02应用进入后台时的截屏"><a href="#0x02应用进入后台时的截屏" class="headerlink" title="0x02应用进入后台时的截屏"></a>0x02应用进入后台时的截屏</h4><p>当应用进入后台时，系统会自动在当前应用的页面截屏并存储到手机内，如果当前页面涉及敏感信息时，被攻击会造成泄密。而图片一般会储存到/Library/Caches/Snapshots/目录下。<br>安全风险：低危<br>修复方法：我们可以在ch鞥徐即将进入后台时，在当前页面添加一层模糊效果，在应用重新进入前台时，删除模糊效果。</p>
+<h4 id="0x02-应用进入后台时的截屏"><a href="#0x02-应用进入后台时的截屏" class="headerlink" title="0x02 应用进入后台时的截屏"></a>0x02 应用进入后台时的截屏</h4><p>当应用进入后台时，系统会自动在当前应用的页面截屏并存储到手机内，如果当前页面涉及敏感信息时，被攻击会造成泄密。而图片一般会储存到/Library/Caches/Snapshots/目录下。<br>安全风险：低危<br>修复方法：我们可以在ch鞥徐即将进入后台时，在当前页面添加一层模糊效果，在应用重新进入前台时，删除模糊效果。</p>
 <h4 id="0x03-越狱检测"><a href="#0x03-越狱检测" class="headerlink" title="0x03 越狱检测"></a>0x03 越狱检测</h4><p>a.检测常见越狱文件路径 /Applications/Cydia.app /Library/MobileSubstrate/MobileSubstrate.dylib /bin/bash /usr/sbin/sshd /etc/apt<br>b.检测Cydia的URL scheme(cydia://)<br>c.检测SSH Daemon<br>d.检测是否有权限读写沙盒之外的文件。</p>
 <h4 id="0x04-寻找内存中的敏感信息"><a href="#0x04-寻找内存中的敏感信息" class="headerlink" title="0x04 寻找内存中的敏感信息"></a>0x04 寻找内存中的敏感信息</h4><p>有一些敏感数据我们在存储到本地时会对它进行加密，但是当程序运行中，这些信息往往还没有被加密，所以应该立即将他们释放。<br>例如：在DVIA中，有一个寻找内存中的敏感信息的挑战，我们可以使用cycript勾住这个进程，然后找到当前显示的页面，可以看到他所有的方法属性，以及内存中的值。<br>安全风险：低危<br>如何修复：如果有一些重要的属性或实例变量不是必需的,他们应该释放内存。</p>
 <h4 id="0x05-检测盗版"><a href="#0x05-检测盗版" class="headerlink" title="0x05 检测盗版"></a>0x05 检测盗版</h4><p>在项目中我们需要对软件是否盗版进行验证。<br>例如：在QQ中进行修改bundleid重签名双开会提示对不起，您的QQ签名错误。原理：a.每个签名都含有开发者证书的ID信息。b.开发者证书的ID没有相同的。<br>安全风险：低危<br>如何修复：bundleID检测。APP启动时，检查APP的签名，读取开发者证书ID字符串是否一致。</p>
@@ -341,6 +341,10 @@
 安全风险：高危
 如何修复：在App使用快捷登录的时候，最好同时将设备号或者某个本地保存的标志绑定，防止恶意的第三方借此获取用户的信息。
 
+
+
+
+
 #### 0x07 UIWebView漏洞
 例如：我们如果对用户输入框输入的数据没有进行过滤，恶意数据通过用户组件，URL scheme handlers或者notifications传递给了UIWebView组件，并且UIWebView组件没有验证该数据的合法性。
 UIWebView通过loadHTMLString:baseURL：这个方法从本地html读取代码，然后加载，我们可以替换为一个恶意的本地HTML，这样可以读取所有的保存在该应用里的cookie，绕过同源策略做一些非法的操作，攻击者将用户的像cookie，session等敏感数据传递给攻击者，或者重定向用户页面到攻击者控制的服务器上，或者诱导用户输入一些敏感数据，然后传递到攻击者的服务器上，实现钓鱼攻击。
@@ -348,12 +352,18 @@ UIWebView通过loadHTMLString:baseURL：这个方法从本地html读取代码，
 如何修复：对输入框内的数据进行关键词过滤（如“script”字符串），避免输入恶意脚本语言。 
 在加载网页的内容之前，会用dataWithContentsOfURL方法将加载的网页的内容提取出来放入NSData中，在使用loadHTMLString之前可以对NSData的内容过滤。
 
+
+
+
 #### 0x08 攻击第三方库
 我们的iOS App中一般会用到很多的第三方库，比如统计，IM，直播等。而这些SDK通常需要App key，App Secret来完成初始化注册。此时我们就可以通过动态调试或者hopper的反汇编很容易拿到这些SDK的秘钥。
 当我们拿到这个重要的key，就几乎可以使用这个第三方库的所有功能。
 例如：在油战线App中使用了融云的聊天功能，当我拿到这个key的时候，在自己的demo中进行融云SDK的注册初始化，并修改为bundleid油战线的bundleid，就可以开始无限制的发消息，并且由油战线App付费。
 安全风险：高危
 如何修复：可以通过远程从服务器上获取后再使用，可以登录的时候初始化获取。
+
+
+
 
 #### 0x09 HTTPS漏洞
 HTTPS协议其实是有两部分组成：HTTP + SSL / TLS，也就是在HTTP上又加了一层处理加密信息的模块。
@@ -372,6 +382,10 @@ c.Charles第三方抓包工具
     AFSSLPinningModeCertificate, // 对证书的所有内容进行验证
 };</code></pre>一般做法是将服务器生成的证书打包，导入客户端内，使用包的二进制数据，进行全部校验，但是，打包进app会有被反编译出的风险，一般做法是将二进制数据转换成base64的字符串，存入代码内。
 
+
+
+
+
 #### 0x0a 常见加密算法及密钥的保存
 常见的加密算法有DES，AES，RSA等。而AES和DES都属于对称加密算法，RSA则属于非对称加密。
 a.DES：DES加密算法是一种分组密码，以64位为分组对数据加密，它的密钥长度是56位，加密解密用同一算法。
@@ -383,6 +397,10 @@ c.RSA：RSA加密算法是目前最有影响力的公钥加密算法，并且被
 秘钥保存例如：在目前大多数的App保存秘钥都是直接放在本地，然后通过读取文件来拿到秘钥进行加密解密的操作，但是这很容易让攻击者获取秘钥。
 安全风险：高危
 如何修复：我们可以定义一种文件格式，把重要信息放在自定义文件的后面并使用秘钥加密，前面加上一个文件头metadata。我们可以在metadata中放入我们的秘钥，来对文件进行加解密。但是我们不可以明文储存秘钥。这个时候就需要有一个管理（加密“密钥”的密钥）模块，通常会把这个叫做KMC(Key Management Center)。我们可以使用非对称加密，服务器需要产生一对key，公钥由客户端保管，客户端用公钥讲文件秘钥加密，放在文件头中。当需要解密时，客户端发送metadata到服务器，服务器使用私钥解开文件内容秘钥，并返回给客户端，客户端就可以使用文件秘钥加密文件了。
+
+
+
+
 
 #### 0x0b iOS的反调试与破解
 Ptrace是一个系统调用，防止一个进程挂载到app上。
@@ -553,7 +571,7 @@ void disable_gdb() {
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#0x01-不安全的数据存储"><span class="nav-number">1.</span> <span class="nav-text">0x01 不安全的数据存储</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#0x02应用进入后台时的截屏"><span class="nav-number">2.</span> <span class="nav-text">0x02应用进入后台时的截屏</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#0x03-越狱检测"><span class="nav-number">3.</span> <span class="nav-text">0x03 越狱检测</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#0x04-寻找内存中的敏感信息"><span class="nav-number">4.</span> <span class="nav-text">0x04 寻找内存中的敏感信息</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#0x05-检测盗版"><span class="nav-number">5.</span> <span class="nav-text">0x05 检测盗版</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#0x06-URL-Schems漏洞"><span class="nav-number">6.</span> <span class="nav-text">0x06 URL Schems漏洞</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#0x0c-常用工具介绍"><span class="nav-number">7.</span> <span class="nav-text">0x0c 常用工具介绍</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#0x01-不安全的数据存储"><span class="nav-number">1.</span> <span class="nav-text">0x01 不安全的数据存储</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#0x02-应用进入后台时的截屏"><span class="nav-number">2.</span> <span class="nav-text">0x02 应用进入后台时的截屏</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#0x03-越狱检测"><span class="nav-number">3.</span> <span class="nav-text">0x03 越狱检测</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#0x04-寻找内存中的敏感信息"><span class="nav-number">4.</span> <span class="nav-text">0x04 寻找内存中的敏感信息</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#0x05-检测盗版"><span class="nav-number">5.</span> <span class="nav-text">0x05 检测盗版</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#0x06-URL-Schems漏洞"><span class="nav-number">6.</span> <span class="nav-text">0x06 URL Schems漏洞</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#0x0c-常用工具介绍"><span class="nav-number">7.</span> <span class="nav-text">0x0c 常用工具介绍</span></a></li></ol></div>
             
 
           </div>

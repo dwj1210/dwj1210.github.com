@@ -335,14 +335,13 @@
 <p>####0x03 越狱检测<br>a.检测常见越狱文件路径 /Applications/Cydia.app /Library/MobileSubstrate/MobileSubstrate.dylib /bin/bash /usr/sbin/sshd /etc/apt<br>b.检测Cydia的URL scheme(cydia://)<br>c.检测SSH Daemon<br>d.检测是否有权限读写沙盒之外的文件。</p>
 <p>####0x04 寻找内存中的敏感信息<br>有一些敏感数据我们在存储到本地时会对它进行加密，但是当程序运行中，这些信息往往还没有被加密，所以应该立即将他们释放。<br>例如：在DVIA中，有一个寻找内存中的敏感信息的挑战，我们可以使用cycript勾住这个进程，然后找到当前显示的页面，可以看到他所有的方法属性，以及内存中的值。<br>安全风险：低危<br>如何修复：如果有一些重要的属性或实例变量不是必需的,他们应该释放内存。</p>
 <p>####0x05 检测盗版<br>在项目中我们需要对软件是否盗版进行验证。<br>例如：在QQ中进行修改bundleid重签名双开会提示对不起，您的QQ签名错误。原理：a.每个签名都含有开发者证书的ID信息。b.开发者证书的ID没有相同的。<br>安全风险：低危<br>如何修复：bundleID检测。APP启动时，检查APP的签名，读取开发者证书ID字符串是否一致。</p>
-<p>####0x06 URL Schems漏洞<br>在生活中比如微信登录支付宝支付都使用了这一功能，由于相同的URL Scheme可能同时被多个App使用，我们就可以做到截获其他应用的URL。<br>例如：我们可以伪装天天炫斗微信登录来截取用户的登录信息，新建一个项目，在plist文件中添加一个和天天炫斗微信登录相同的URL Scheme：wx63124814f356e266，并且把Bundle id设置为A，来确保回调的优先级，在AppDelegate中添加如下代码：</p>
+<p>####0x06 URL Schems漏洞<br>&lt;!–在生活中比如微信登录支付宝支付都使用了这一功能，由于相同的URL Scheme可能同时被多个App使用，我们就可以做到截获其他应用的URL。<br>例如：我们可以伪装天天炫斗微信登录来截取用户的登录信息，新建一个项目，在plist文件中添加一个和天天炫斗微信登录相同的URL Scheme：wx63124814f356e266，并且把Bundle id设置为A，来确保回调的优先级，在AppDelegate中添加如下代码：</p>
 <pre><code>-(BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation{
    NSLog(@"%@",url);
    return YES;
-}</code></pre>
-这时我们通过天天炫斗微信登录在微信回调的时候就会跳转到我们的demo，并且通过打印截获了带参数的url，我们可以通过这个来远程登录天天炫斗游戏。
+}</code></pre>这时我们通过天天炫斗微信登录在微信回调的时候就会跳转到我们的demo，并且通过打印截获了带参数的url，我们可以通过这个来远程登录天天炫斗游戏。
 安全风险：高危
-如何修复：在App使用快捷登录的时候，最好同时将设备号或者某个本地保存的标志绑定，防止恶意的第三方借此获取用户的信息。
+如何修复：在App使用快捷登录的时候，最好同时将设备号或者某个本地保存的标志绑定，防止恶意的第三方借此获取用户的信息。-->
 
 ####0x07 UIWebView漏洞
 例如：我们如果对用户输入框输入的数据没有进行过滤，恶意数据通过用户组件，URL scheme handlers或者notifications传递给了UIWebView组件，并且UIWebView组件没有验证该数据的合法性。

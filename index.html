@@ -337,58 +337,13 @@
 <h4 id="检测盗版"><a href="#检测盗版" class="headerlink" title="检测盗版"></a>检测盗版</h4><p>在项目中我们需要对软件是否盗版进行验证。<br>例如：在QQ中进行修改bundleid重签名双开会提示对不起，您的QQ签名错误。原理：a.每个签名都含有开发者证书的ID信息。b.开发者证书的ID没有相同的。<br>安全风险：低危<br>如何修复：bundleID检测。APP启动时，检查APP的签名，读取开发者证书ID字符串是否一致。</p>
 <h4 id="URL-Schems漏洞"><a href="#URL-Schems漏洞" class="headerlink" title="URL Schems漏洞"></a>URL Schems漏洞</h4><p>在生活中比如微信登录支付宝支付都使用了这一功能，由于相同的URL Scheme可能同时被多个App使用，我们就可以做到截获其他应用的URL。<br>例如：我们可以伪装天天炫斗微信登录来截取用户的登录信息，新建一个项目，在plist文件中添加一个和天天炫斗微信登录相同的URL Scheme：wx63124814f356e266，并且把Bundle id设置为A，来确保回调的优先级，在AppDelegate中添加如下代码：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">-(BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation&#123;</span><br><span class="line">   NSLog(@&quot;%@&quot;,url);</span><br><span class="line">   return YES;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
 <p>这时我们通过天天炫斗微信登录在微信回调的时候就会跳转到我们的demo，并且通过打印截获了带参数的url，我们可以通过这个来远程登录天天炫斗游戏。<br>安全风险：高危<br>如何修复：在App使用快捷登录的时候，最好同时将设备号或者某个本地保存的标志绑定，防止恶意的第三方借此获取用户的信息。</p>
-<p><br></p>
 <h4 id="UIWebView漏洞"><a href="#UIWebView漏洞" class="headerlink" title="UIWebView漏洞"></a>UIWebView漏洞</h4><p>例如：我们如果对用户输入框输入的数据没有进行过滤，恶意数据通过用户组件，URL scheme handlers或者notifications传递给了UIWebView组件，并且UIWebView组件没有验证该数据的合法性。<br>UIWebView通过loadHTMLString:baseURL：这个方法从本地html读取代码，然后加载，我们可以替换为一个恶意的本地HTML，这样可以读取所有的保存在该应用里的cookie，绕过同源策略做一些非法的操作，攻击者将用户的像cookie，session等敏感数据传递给攻击者，或者重定向用户页面到攻击者控制的服务器上，或者诱导用户输入一些敏感数据，然后传递到攻击者的服务器上，实现钓鱼攻击。<br>安全风险：高危<br>如何修复：对输入框内的数据进行关键词过滤（如“script”字符串），避免输入恶意脚本语言。<br>在加载网页的内容之前，会用dataWithContentsOfURL方法将加载的网页的内容提取出来放入NSData中，在使用loadHTMLString之前可以对NSData的内容过滤。</p>
 <h4 id="攻击第三方库"><a href="#攻击第三方库" class="headerlink" title="攻击第三方库"></a>攻击第三方库</h4><p>我们的iOS App中一般会用到很多的第三方库，比如统计，IM，直播等。而这些SDK通常需要App key，App Secret来完成初始化注册。此时我们就可以通过动态调试或者hopper的反汇编很容易拿到这些SDK的秘钥。<br>当我们拿到这个重要的key，就几乎可以使用这个第三方库的所有功能。<br>例如：在油战线App中使用了融云的聊天功能，当我拿到这个key的时候，在自己的demo中进行融云SDK的注册初始化，并修改为bundleid油战线的bundleid，就可以开始无限制的发消息，并且由油战线App付费。<br>安全风险：高危<br>如何修复：可以通过远程从服务器上获取后再使用，可以登录的时候初始化获取。</p>
-<h4 id="HTTPS漏洞"><a href="#HTTPS漏洞" class="headerlink" title="HTTPS漏洞"></a>HTTPS漏洞</h4><p>HTTPS协议其实是有两部分组成：HTTP + SSL / TLS，也就是在HTTP上又加了一层处理加密信息的模块。<br>a.SSL证书伪造<br>我们可以通过ARP欺骗、DNS劫持甚至网关劫持等，将客户端的访问重定向到攻击者的机器，让App与攻击者机器建立HTTPS连接（使用伪造证书），而攻击者机器再跟服务端连接。这样用户在客户端看到的是相同域名的网站。<br>b.SSL剥离攻击<br>有些网站或者服务端也并非全站https，只有在传输重要信息时会使用https，这时就会产生漏洞。<br>攻击者在劫持了客户端与服务端的http会话后，将http页面里面所有的”<a href="https://”都换成”http://”，用户在点击相应的链接时，是使用http协议来进行访问；这样，就算服务器对相应的URL只支持https链接，但中间人一样可以和服务建立https连接之后，将数据使用http协议转发给客户端，实现会话劫持。" target="_blank" rel="noopener">https://”都换成”http://”，用户在点击相应的链接时，是使用http协议来进行访问；这样，就算服务器对相应的URL只支持https链接，但中间人一样可以和服务建立https连接之后，将数据使用http协议转发给客户端，实现会话劫持。</a><br>c.Charles第三方抓包工具<br>抓包工具可以通过截获真实客户端的https请求，伪装客户端向真实服务端发送https请求和接受真实服务器响应，用自己的证书伪装服务端向真实客户端发送数据内容，我们将私有CA签发的数字证书安装到手机中并且作为受信任证书保存。<br>安全风险：高危<br>如何修复：我们可以使用AFNetworking网络框架来进行证书验证，我们需要对AFSecurityPolicy类的AFSSLPinningMode这个枚举来配置，并使用AFSSLPinningModeCertificate对证书进行完整校验。</p>
-<pre><code> 
-typedef NS_ENUM(NSUInteger, AFSSLPinningMode) {
-    AFSSLPinningModeNone, // 不进行验证
-    AFSSLPinningModePublicKey, // 验证PublicKey
-    AFSSLPinningModeCertificate, // 对证书的所有内容进行验证
-};</code></pre>
-一般做法是将服务器生成的证书打包，导入客户端内，使用包的二进制数据，进行全部校验，但是，打包进app会有被反编译出的风险，一般做法是将二进制数据转换成base64的字符串，存入代码内。
-
-
-
-
-
-#### 常见加密算法及密钥的保存
-常见的加密算法有DES，AES，RSA等。而AES和DES都属于对称加密算法，RSA则属于非对称加密。
-a.DES：DES加密算法是一种分组密码，以64位为分组对数据加密，它的密钥长度是56位，加密解密用同一算法。
-b.AES：AES加密算法是密码学中的高级加密标准，该加密算法采用对称分组密码体制，密钥长度的最少支持为128、192、256，分组长度128位，算法应易于各种硬件和软件实现。
-c.RSA：RSA加密算法是目前最有影响力的公钥加密算法，并且被普遍认为是目前最优秀的加密方案之一。RSA是第一个能同时用于加密和数宇签名的算法，它能够抵抗到目前为止已知的所有密码攻击，已被ISO推荐为公钥数据加密标准。
-传输安全例如：我们需要给服务端传输用户实名认证的姓名和身份证号，如果单纯使用AES加密传输，就不安全，因为攻击者可以拿到秘钥来进行解密。
-安全风险：高危
-如何修复：客户端使用RSA + AES对重要信息进行加密。客户端需要做的是，客户端随机产生AES的密钥，对身份证信息（重要信息）进行AES加密，通过使用RSA对AES密钥进行公钥加密。这样在传输过程中，即便加密后的AES密钥被别人截取，对其也无济于事。
-秘钥保存例如：在目前大多数的App保存秘钥都是直接放在本地，然后通过读取文件来拿到秘钥进行加密解密的操作，但是这很容易让攻击者获取秘钥。
-安全风险：高危
-如何修复：我们可以定义一种文件格式，把重要信息放在自定义文件的后面并使用秘钥加密，前面加上一个文件头metadata。我们可以在metadata中放入我们的秘钥，来对文件进行加解密。但是我们不可以明文储存秘钥。这个时候就需要有一个管理（加密“密钥”的密钥）模块，通常会把这个叫做KMC(Key Management Center)。我们可以使用非对称加密，服务器需要产生一对key，公钥由客户端保管，客户端用公钥讲文件秘钥加密，放在文件头中。当需要解密时，客户端发送metadata到服务器，服务器使用私钥解开文件内容秘钥，并返回给客户端，客户端就可以使用文件秘钥加密文件了。
-
-
-
-
-
-#### iOS的反调试与破解
-Ptrace是一个系统调用，防止一个进程挂载到app上。
-a.当一个应用被调试的时候，会给进程设置一个标识（P_TRACED），我们可以通过检测该进程是否有设置这个标识来检测进程是否正在被调试。
-
-<pre><code>
-#import &lt;dlfcn.h&gt;
-#import &lt;sys/types.h&gt;
-typedef int (*ptrace_ptr_t)(int _request, pid_t _pid, caddr_t _addr, int _data);
-#if !defined(PT_DENY_ATTACH)
-#define PT_DENY_ATTACH 31
-#endif  // !defined(PT_DENY_ATTACH)
-
-void disable_gdb() {
-  void* handle = dlopen(0, RTLD_GLOBAL | RTLD_NOW);
-  ptrace_ptr_t ptrace_ptr = dlsym(handle, "ptrace");
-  ptrace_ptr(PT_DENY_ATTACH, 0, 0, 0);
-  dlclose(handle);
-}
-</code></pre>
-
+<h4 id="HTTPS漏洞"><a href="#HTTPS漏洞" class="headerlink" title="HTTPS漏洞"></a>HTTPS漏洞</h4><p>HTTPS协议其实是有两部分组成：HTTP + SSL / TLS，也就是在HTTP上又加了一层处理加密信息的模块。<br>a.SSL证书伪造<br>我们可以通过ARP欺骗、DNS劫持甚至网关劫持等，将客户端的访问重定向到攻击者的机器，让App与攻击者机器建立HTTPS连接（使用伪造证书），而攻击者机器再跟服务端连接。这样用户在客户端看到的是相同域名的网站。<br>b.SSL剥离攻击<br>有些网站或者服务端也并非全站https，只有在传输重要信息时会使用https，这时就会产生漏洞。<br>攻击者在劫持了客户端与服务端的http会话后，将http页面里面所有的”<a href="https://”都换成”http://”，用户在点击相应的链接时，是使用http协议来进行访问；这样，就算服务器对相应的URL只支持https链接，但中间人一样可以和服务建立https连接之后，将数据使用http协议转发给客户端，实现会话劫持。" target="_blank" rel="noopener">https://”都换成”http://”，用户在点击相应的链接时，是使用http协议来进行访问；这样，就算服务器对相应的URL只支持https链接，但中间人一样可以和服务建立https连接之后，将数据使用http协议转发给客户端，实现会话劫持。</a><br>c.Charles第三方抓包工具<br>抓包工具可以通过截获真实客户端的https请求，伪装客户端向真实服务端发送https请求和接受真实服务器响应，用自己的证书伪装服务端向真实客户端发送数据内容，我们将私有CA签发的数字证书安装到手机中并且作为受信任证书保存。<br>安全风险：高危<br>如何修复：我们可以使用AFNetworking网络框架来进行证书验证，我们需要对AFSecurityPolicy类的AFSSLPinningMode这个枚举来配置，并使用AFSSLPinningModeCertificate对证书进行完整校验。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">typedef NS_ENUM(NSUInteger, AFSSLPinningMode) &#123;</span><br><span class="line">    AFSSLPinningModeNone, // 不进行验证</span><br><span class="line">    AFSSLPinningModePublicKey, // 验证PublicKey</span><br><span class="line">    AFSSLPinningModeCertificate, // 对证书的所有内容进行验证</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></p>
+<p>一般做法是将服务器生成的证书打包，导入客户端内，使用包的二进制数据，进行全部校验，但是，打包进app会有被反编译出的风险，一般做法是将二进制数据转换成base64的字符串，存入代码内。</p>
+<h4 id="常见加密算法及密钥的保存"><a href="#常见加密算法及密钥的保存" class="headerlink" title="常见加密算法及密钥的保存"></a>常见加密算法及密钥的保存</h4><p>常见的加密算法有DES，AES，RSA等。而AES和DES都属于对称加密算法，RSA则属于非对称加密。<br>a.DES：DES加密算法是一种分组密码，以64位为分组对数据加密，它的密钥长度是56位，加密解密用同一算法。<br>b.AES：AES加密算法是密码学中的高级加密标准，该加密算法采用对称分组密码体制，密钥长度的最少支持为128、192、256，分组长度128位，算法应易于各种硬件和软件实现。<br>c.RSA：RSA加密算法是目前最有影响力的公钥加密算法，并且被普遍认为是目前最优秀的加密方案之一。RSA是第一个能同时用于加密和数宇签名的算法，它能够抵抗到目前为止已知的所有密码攻击，已被ISO推荐为公钥数据加密标准。<br>传输安全例如：我们需要给服务端传输用户实名认证的姓名和身份证号，如果单纯使用AES加密传输，就不安全，因为攻击者可以拿到秘钥来进行解密。<br>安全风险：高危<br>如何修复：客户端使用RSA + AES对重要信息进行加密。客户端需要做的是，客户端随机产生AES的密钥，对身份证信息（重要信息）进行AES加密，通过使用RSA对AES密钥进行公钥加密。这样在传输过程中，即便加密后的AES密钥被别人截取，对其也无济于事。<br>秘钥保存例如：在目前大多数的App保存秘钥都是直接放在本地，然后通过读取文件来拿到秘钥进行加密解密的操作，但是这很容易让攻击者获取秘钥。<br>安全风险：高危<br>如何修复：我们可以定义一种文件格式，把重要信息放在自定义文件的后面并使用秘钥加密，前面加上一个文件头metadata。我们可以在metadata中放入我们的秘钥，来对文件进行加解密。但是我们不可以明文储存秘钥。这个时候就需要有一个管理（加密“密钥”的密钥）模块，通常会把这个叫做KMC(Key Management Center)。我们可以使用非对称加密，服务器需要产生一对key，公钥由客户端保管，客户端用公钥讲文件秘钥加密，放在文件头中。当需要解密时，客户端发送metadata到服务器，服务器使用私钥解开文件内容秘钥，并返回给客户端，客户端就可以使用文件秘钥加密文件了。</p>
+<h4 id="iOS的反调试与破解"><a href="#iOS的反调试与破解" class="headerlink" title="iOS的反调试与破解"></a>iOS的反调试与破解</h4><p>Ptrace是一个系统调用，防止一个进程挂载到app上。<br>a.当一个应用被调试的时候，会给进程设置一个标识（P_TRACED），我们可以通过检测该进程是否有设置这个标识来检测进程是否正在被调试。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">#import &amp;lt;dlfcn.h&amp;gt;</span><br><span class="line">#import &amp;lt;sys/types.h&amp;gt;</span><br><span class="line">typedef int (*ptrace_ptr_t)(int _request, pid_t _pid, caddr_t _addr, int _data);</span><br><span class="line">#if !defined(PT_DENY_ATTACH)</span><br><span class="line">#define PT_DENY_ATTACH 31</span><br><span class="line">#endif  // !defined(PT_DENY_ATTACH)</span><br><span class="line"></span><br><span class="line">void disable_gdb() &#123;</span><br><span class="line">  void* handle = dlopen(0, RTLD_GLOBAL | RTLD_NOW);</span><br><span class="line">  ptrace_ptr_t ptrace_ptr = dlsym(handle, &quot;ptrace&quot;);</span><br><span class="line">  ptrace_ptr(PT_DENY_ATTACH, 0, 0, 0);</span><br><span class="line">  dlclose(handle);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>b.关于绕过ptrace一般是使用lldb断点在进入ptrace函数时，直接return 0，即可绕过ptrace的检测。</p>
 <h4 id="常用工具介绍"><a href="#常用工具介绍" class="headerlink" title="常用工具介绍"></a>常用工具介绍</h4><p>a.Cycript:它是混合了objective-c与javascript语法的一个工具，让开发者在命令行下和应用交互，在运行时查看和修改应用。关于cycript详细内容：<a href="http://www.cycript.org/" target="_blank" rel="noopener">Cycript</a><br>b.LLDB:它是XCode内置的为我们开发者提供的调试工具,能够带给我们更丰富的流程控制和数据检测的调试功能。关于lldb详细内容：<a href="http://https://lldb.llvm.org/" target="_blank" rel="noopener">LLDB</a><br>c.IDA和Hopper：IDA是目前最棒的一个静态反编译软件。而Hopper类似于IDA，但是功能没有那么强大，支持静态分析反汇编，流程控制图，伪代码，以及二进制代码。<br>关于IDA详细内容：<a href="http://https://www.hex-rays.com/" target="_blank" rel="noopener">IDA</a><br>关于Hopper详细内容：<a href="http://https://www.hopperapp.com/" target="_blank" rel="noopener">Hopper</a><br>d.Snoop-it：这个工具也很强大，支持查看钥匙串中储存的数据，查看app文件的属性和方法，分析网络流量等。关于Snoop-it详细内容：<a href="https://code.google.com/p/snoop-it/" target="_blank" rel="noopener">Snoop-it</a><br>e.MonleyDev:支持非越狱调试，以及hook方法编写，动态调试，自动集成了Cycript，Reveal，ANYMethodLog，dump头文件等功能。关于MonkeyDev详细内容：<a href="https://github.com/AloneMonkey/MonkeyDev" target="_blank" rel="noopener">MonkeyDev</a><br>f.ANYMethodLog 可以打印oc类中的任何方法，支持动态打印。关于ANYMethodLog详细内容：<a href="http://https://github.com/qhd/ANYMethodLog" target="_blank" rel="noopener">ANYMethodLog</a></p>
 

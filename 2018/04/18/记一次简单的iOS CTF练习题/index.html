@@ -100,17 +100,18 @@
 <meta property="og:url" content="http://yoursite.com/2018/04/18/记一次简单的iOS CTF练习题/index.html">
 <meta property="og:site_name" content="代伟佳">
 <meta property="og:description" content="何为CTF：​    夺旗（CTF）是一项计算机安全竞赛。CTF竞赛通常旨在作为一种教育活动，为参与者提供固定机器的经验，以及对现实世界中发现的这类攻击进行反应。逆向工程，网络嗅探，协议分析，系统管理，编程和密码分析都是DEF CT先前的CTF竞赛所需的技能。有两种主要的比赛形式：攻击/防守和危险。（wikipage中的定义） 参考地址：​    这次的iOS CTF的练习题是我在Ivan R B">
+<meta property="og:image" content="http://yoursite.com/images/屏幕快照%202018-04-17%20下午6.36.24">
 <meta property="og:image" content="http://yoursite.com/Users/weijia.dai/Desktop/屏幕快照%202018-04-17%20下午6.36.24.png">
 <meta property="og:image" content="http://yoursite.com/Users/weijia.dai/Desktop/屏幕快照%202018-04-17%20下午6.47.13.png">
 <meta property="og:image" content="http://yoursite.com/Users/weijia.dai/Desktop/屏幕快照%202018-04-17%20下午6.54.49.png">
 <meta property="og:image" content="http://yoursite.com/Users/weijia.dai/Desktop/屏幕快照%202018-04-18%20上午9.49.41.png">
 <meta property="og:image" content="http://yoursite.com/Users/weijia.dai/Desktop/屏幕快照%202018-04-18%20上午9.53.36.png">
 <meta property="og:image" content="http://yoursite.com/Users/weijia.dai/Desktop/屏幕快照%202018-04-18%20上午9.56.47.png">
-<meta property="og:updated_time" content="2018-04-18T02:12:32.680Z">
+<meta property="og:updated_time" content="2018-04-18T02:18:36.568Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="记一次简单的iOS CTF练习题">
 <meta name="twitter:description" content="何为CTF：​    夺旗（CTF）是一项计算机安全竞赛。CTF竞赛通常旨在作为一种教育活动，为参与者提供固定机器的经验，以及对现实世界中发现的这类攻击进行反应。逆向工程，网络嗅探，协议分析，系统管理，编程和密码分析都是DEF CT先前的CTF竞赛所需的技能。有两种主要的比赛形式：攻击/防守和危险。（wikipage中的定义） 参考地址：​    这次的iOS CTF的练习题是我在Ivan R B">
-<meta name="twitter:image" content="http://yoursite.com/Users/weijia.dai/Desktop/屏幕快照%202018-04-17%20下午6.36.24.png">
+<meta name="twitter:image" content="http://yoursite.com/images/屏幕快照%202018-04-17%20下午6.36.24">
 
 
 
@@ -211,7 +212,7 @@
             
               <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
             
-            Accueil
+            Startseite
           </a>
         </li>
       
@@ -221,7 +222,7 @@
             
               <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
             
-            Archives
+            Archiv
           </a>
         </li>
       
@@ -295,7 +296,7 @@
                 <i class="fa fa-calendar-o"></i>
               </span>
               
-                <span class="post-meta-item-text">Posté le</span>
+                <span class="post-meta-item-text">Veröffentlicht am</span>
               
               <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-04-18T10:12:07+08:00">
                 2018-04-18
@@ -341,6 +342,7 @@
 <p>Headbook-v1.0 找到了一个flag</p>
 <p>Headbook-v2.0 找到了两个flag</p>
 <h3 id="Headbook-v1-0："><a href="#Headbook-v1-0：" class="headerlink" title="Headbook-v1.0："></a>Headbook-v1.0：</h3><p>解压下载的ipa，然后打开.app文件找到Mach-O拖到IDA里面分析。</p>
+<p><img src="/images/屏幕快照 2018-04-17 下午6.36.24" alt=""></p>
 <p><img src="/Users/weijia.dai/Desktop/屏幕快照 2018-04-17 下午6.36.24.png" alt="屏幕快照 2018-04-17 下午6.36.24"></p>
 <p>在 <figure class="highlight plain"><figcaption><span>applicationWillTerminate:]``` 中发现有一句输出打印。此时把ipa装到手机运行之后，双击home键上划，触发 ```applicationWillTerminate``` 方法，发现打印出了 ```flag-9861DA53-C08C-47C4-84D6-B48463AB738A``` ，我们就直接找到了flag。</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">![屏幕快照 2018-04-17 下午6.18.30](/Users/weijia.dai/Desktop/屏幕快照 2018-04-17 下午6.18.30.png)</span><br><span class="line"></span><br><span class="line">拿到flag去提交验证发现正确，大功告成。</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">###### 总结：</span><br><span class="line"></span><br><span class="line">Headbook-v1.0只是一个练手的题目很简单，让我们准备好迎接2.0版本。</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">### Headbook-v2.0：</span><br><span class="line"></span><br><span class="line">- ###### 第一个flag</span><br><span class="line"></span><br><span class="line">  同样解压下载的ipa，然后打开.app文件找到Mach-O拖到IDA里面分析。</span><br><span class="line"></span><br><span class="line">![屏幕快照 2018-04-17 下午6.36.52](/Users/weijia.dai/Desktop/屏幕快照 2018-04-17 下午6.36.52.png)</span><br><span class="line"></span><br><span class="line">​	直接把ipa运行在手机上发现直接打印出了一句话：```Good thing this flag is encrypted: Ov630qDn5AbOWX4JIUUeurVdgNdsjqiaM8ywYCT2Yj1eiMcT/MEPJJ5W9icdC5qb</span><br></pre></td></tr></table></figure></p>
 <p>​    在IDA中查看发现这句话是在 <code>[AppDelegate application:didFinishLaunchingWithOptions:]</code> 中打印的。<img src="/Users/weijia.dai/Desktop/屏幕快照 2018-04-17 下午6.47.13.png" alt="屏幕快照 2018-04-17 下午6.47.13"></p>
@@ -444,10 +446,10 @@
       
         <ul class="sidebar-nav motion-element">
           <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
-            Table Des Matières
+            Inhaltsverzeichnis
           </li>
           <li class="sidebar-nav-overview" data-target="site-overview">
-            Ensemble
+            Übersicht
           </li>
         </ul>
       
@@ -468,7 +470,7 @@
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
                 <span class="site-state-item-count">5</span>
-                <span class="site-state-item-name">articles</span>
+                <span class="site-state-item-name">Artikel</span>
               </a>
             </div>
           
@@ -538,11 +540,11 @@
 
 
 <div class="powered-by">
-  Powered by <a class="theme-link" href="https://hexo.io">Hexo</a>
+  Erstellt mit  <a class="theme-link" href="https://hexo.io">Hexo</a>
 </div>
 
 <div class="theme-info">
-  Thème -
+  Theme -
   <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
     NexT.Muse
   </a>

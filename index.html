@@ -202,7 +202,7 @@
             
               <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
             
-            Startseite
+            Home
           </a>
         </li>
       
@@ -212,7 +212,7 @@
             
               <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
             
-            Archiv
+            Archives
           </a>
         </li>
       
@@ -288,7 +288,7 @@
                 <i class="fa fa-calendar-o"></i>
               </span>
               
-                <span class="post-meta-item-text">Veröffentlicht am</span>
+                <span class="post-meta-item-text">Posted on</span>
               
               <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-04-18T10:12:07+08:00">
                 2018-04-18
@@ -363,6 +363,19 @@
 <p><img src="/images/image7.png" alt="DownloadTask"><img src="/images/image8.png" alt="DownloadTask"></p>
 <p>​    看到这个方法，第一时间想到去本地找下载的文件，但是并没有找到。然后我的做法是hook了 <code>[NSURL URLWithString:]</code> 方法，拿到了下载文件的地址 <code>https://ctf.ivrodriguez.com/analytics</code> ，其实在IDA中也完全可以看到。</p>
 <p>​    把地址直接粘贴到浏览器发现下载了一个txt文件，打开txt文件就找到了第二个flag： <code>flag-4056CEF3-DCCB-4D9B-9D0E-64428E9A50E3</code> 。</p>
+<ul>
+<li><h6 id="第三个flag"><a href="#第三个flag" class="headerlink" title="第三个flag"></a>第三个flag</h6></li>
+</ul>
+<p>这个ipa文件方法并不多，我们挨个查看寻找线索，发现了一个 <code>[AppDelegate key]</code> 方法。</p>
+<p><img src="/images/image3.png" alt="AppDelegate key"></p>
+<p><img src="/images/image10.png" alt="AppDelegate key"></p>
+<p>通过观察可以看到这个方法是去本地bundle目录下通过 <code>enc_key</code> 这个key拿到了一个加密的值。</p>
+<p>我是使用Monkeydev编写代码主动调用，并且打印出来 <code>[AppDelegate key]</code> 的返回值。    </p>
+<p><img src="/images/image11.png" alt="CaptainHook"></p>
+<p>运行程序此时打印出来：<code>AppDelegate key - flag-F72ECAE7-0BBE-4D1D-BF49-3B75BD6F9DCA</code>。</p>
+<p>其实也可以通过去本地bundle寻找，也可以找到这个flag。</p>
+<p><img src="/images/image11.png" alt="CaptainHook"></p>
+<p>拿到flag提交验证，我们就找到了第三个flag。</p>
 
           
         
@@ -440,7 +453,7 @@
                 <i class="fa fa-calendar-o"></i>
               </span>
               
-                <span class="post-meta-item-text">Veröffentlicht am</span>
+                <span class="post-meta-item-text">Posted on</span>
               
               <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-04-16T14:00:07+08:00">
                 2018-04-16
@@ -591,7 +604,7 @@
                 <i class="fa fa-calendar-o"></i>
               </span>
               
-                <span class="post-meta-item-text">Veröffentlicht am</span>
+                <span class="post-meta-item-text">Posted on</span>
               
               <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-03-18T11:00:07+08:00">
                 2018-03-18
@@ -764,7 +777,7 @@
                 <i class="fa fa-calendar-o"></i>
               </span>
               
-                <span class="post-meta-item-text">Veröffentlicht am</span>
+                <span class="post-meta-item-text">Posted on</span>
               
               <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-02-06T11:00:07+08:00">
                 2018-02-06
@@ -901,7 +914,7 @@
                 <i class="fa fa-calendar-o"></i>
               </span>
               
-                <span class="post-meta-item-text">Veröffentlicht am</span>
+                <span class="post-meta-item-text">Posted on</span>
               
               <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-01-20T10:38:32+08:00">
                 2018-01-20
@@ -1034,7 +1047,7 @@
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
                 <span class="site-state-item-count">5</span>
-                <span class="site-state-item-name">Artikel</span>
+                <span class="site-state-item-name">posts</span>
               </a>
             </div>
           
@@ -1088,7 +1101,7 @@
 
 
 <div class="powered-by">
-  Erstellt mit  <a class="theme-link" href="https://hexo.io">Hexo</a>
+  Powered by <a class="theme-link" href="https://hexo.io">Hexo</a>
 </div>
 
 <div class="theme-info">

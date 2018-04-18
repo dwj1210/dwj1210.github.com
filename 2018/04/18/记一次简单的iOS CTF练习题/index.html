@@ -102,13 +102,13 @@
 <meta property="og:description" content="何为CTF：​    夺旗（CTF）是一项计算机安全竞赛。CTF竞赛通常旨在作为一种教育活动，为参与者提供固定机器的经验，以及对现实世界中发现的这类攻击进行反应。逆向工程，网络嗅探，协议分析，系统管理，编程和密码分析都是DEF CT先前的CTF竞赛所需的技能。有两种主要的比赛形式：攻击/防守和危险。（wikipage中的定义） 参考地址：​    这次的iOS CTF的练习题是我在Ivan R B">
 <meta property="og:image" content="http://yoursite.com/images/image2.png">
 <meta property="og:image" content="http://yoursite.com/images/image1.png">
-<meta property="og:image" content="http://yoursite.com/images/image3.png">
+<meta property="og:image" content="http://yoursite.com/images/image9.png">
 <meta property="og:image" content="http://yoursite.com/images/image4.png">
 <meta property="og:image" content="http://yoursite.com/images/image5.png">
 <meta property="og:image" content="http://yoursite.com/images/image6.png">
 <meta property="og:image" content="http://yoursite.com/images/image7.png">
 <meta property="og:image" content="http://yoursite.com/images/image8.png">
-<meta property="og:updated_time" content="2018-04-18T03:40:48.450Z">
+<meta property="og:updated_time" content="2018-04-18T03:42:17.656Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="记一次简单的iOS CTF练习题">
 <meta name="twitter:description" content="何为CTF：​    夺旗（CTF）是一项计算机安全竞赛。CTF竞赛通常旨在作为一种教育活动，为参与者提供固定机器的经验，以及对现实世界中发现的这类攻击进行反应。逆向工程，网络嗅探，协议分析，系统管理，编程和密码分析都是DEF CT先前的CTF竞赛所需的技能。有两种主要的比赛形式：攻击/防守和危险。（wikipage中的定义） 参考地址：​    这次的iOS CTF的练习题是我在Ivan R B">
@@ -213,7 +213,7 @@
             
               <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
             
-            Startseite
+            Home
           </a>
         </li>
       
@@ -223,7 +223,7 @@
             
               <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
             
-            Archiv
+            Archives
           </a>
         </li>
       
@@ -297,7 +297,7 @@
                 <i class="fa fa-calendar-o"></i>
               </span>
               
-                <span class="post-meta-item-text">Veröffentlicht am</span>
+                <span class="post-meta-item-text">Posted on</span>
               
               <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-04-18T10:12:07+08:00">
                 2018-04-18
@@ -344,6 +344,7 @@
 <p>Headbook-v2.0 找到了两个flag</p>
 <h3 id="Headbook-v1-0："><a href="#Headbook-v1-0：" class="headerlink" title="Headbook-v1.0："></a>Headbook-v1.0：</h3><p>解压下载的ipa，然后打开.app文件找到Mach-O拖到IDA里面分析。</p>
 <p><img src="/images/image2.png" alt="bundle目录"></p>
+<p>啊啊啊</p>
 <p><img src="/images/image1.png" alt="applicationWillTerminate"></p>
 <p>拿到flag去提交验证发现正确，大功告成。</p>
 <h6 id="总结："><a href="#总结：" class="headerlink" title="总结："></a>总结：</h6><p>Headbook-v1.0只是一个练手的题目很简单，让我们准备好迎接2.0版本。</p>
@@ -351,7 +352,7 @@
 <li><h6 id="第一个flag"><a href="#第一个flag" class="headerlink" title="第一个flag"></a>第一个flag</h6><p>同样解压下载的ipa，然后打开.app文件找到Mach-O拖到IDA里面分析。</p>
 </li>
 </ul>
-<p><img src="/images/image3.png" alt="bundle目录"></p>
+<p><img src="/images/image9.png" alt="bundle目录"></p>
 <p>​    直接把ipa运行在手机上发现直接打印出了一句话：<code>Good thing this flag is encrypted: Ov630qDn5AbOWX4JIUUeurVdgNdsjqiaM8ywYCT2Yj1eiMcT/MEPJJ5W9icdC5qb</code></p>
 <p>​    在IDA中查看发现这句话是在 <code>[AppDelegate application:didFinishLaunchingWithOptions:]</code> 中打印的。</p>
 <p><img src="/images/image4.png" alt="application:didFinishLaunchingWithOptions"></p>
@@ -457,10 +458,10 @@
       
         <ul class="sidebar-nav motion-element">
           <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
-            Inhaltsverzeichnis
+            Table of Contents
           </li>
           <li class="sidebar-nav-overview" data-target="site-overview">
-            Übersicht
+            Overview
           </li>
         </ul>
       
@@ -481,7 +482,7 @@
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
                 <span class="site-state-item-count">5</span>
-                <span class="site-state-item-name">Artikel</span>
+                <span class="site-state-item-name">posts</span>
               </a>
             </div>
           
@@ -551,7 +552,7 @@
 
 
 <div class="powered-by">
-  Erstellt mit  <a class="theme-link" href="https://hexo.io">Hexo</a>
+  Powered by <a class="theme-link" href="https://hexo.io">Hexo</a>
 </div>
 
 <div class="theme-info">

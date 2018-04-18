@@ -202,7 +202,7 @@
             
               <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
             
-            Home
+            Startseite
           </a>
         </li>
       
@@ -212,7 +212,7 @@
             
               <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
             
-            Archives
+            Archiv
           </a>
         </li>
       
@@ -288,7 +288,7 @@
                 <i class="fa fa-calendar-o"></i>
               </span>
               
-                <span class="post-meta-item-text">Posted on</span>
+                <span class="post-meta-item-text">Veröffentlicht am</span>
               
               <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-04-18T10:12:07+08:00">
                 2018-04-18
@@ -337,7 +337,7 @@
 <p>Headbook-v2.0 找到了两个flag</p>
 <h3 id="Headbook-v1-0："><a href="#Headbook-v1-0：" class="headerlink" title="Headbook-v1.0："></a>Headbook-v1.0：</h3><p>解压下载的ipa，然后打开.app文件找到Mach-O拖到IDA里面分析。</p>
 <p><img src="/images/image2.png" alt="bundle目录"></p>
-<p>啊啊啊</p>
+<p>在<code>[AppDelegate applicationWillTerminate:]</code>中发现有一句输出打印。此时把ipa撞到手机运行之后，双击home键上划，触发<code>applicationWillTerminate</code> 方法，发现打印出来falg： <code>flag-9861DA53-C08C-47C4-84D6-B48463AB738A</code>。</p>
 <p><img src="/images/image1.png" alt="applicationWillTerminate"></p>
 <p>拿到flag去提交验证发现正确，大功告成。</p>
 <h6 id="总结："><a href="#总结：" class="headerlink" title="总结："></a>总结：</h6><p>Headbook-v1.0只是一个练手的题目很简单，让我们准备好迎接2.0版本。</p>
@@ -355,16 +355,13 @@
 <p><img src="/images/image5.png" alt="CaptainHook"></p>
 <p>​    运行代码，就在控制台打印出了： <code>AppDelegate-decryptText:flag-71F5243A-A55D-4E97-893A-8C3C4B34A938</code> ， 此时现在这个flag跟版本1中flag的结构一致，所以我们就直接提交flag验证发现猜想正确。</p>
 <ul>
-<li><h6 id="第二个flag"><a href="#第二个flag" class="headerlink" title="第二个flag"></a>第二个flag</h6><p>​</p>
+<li><h6 id="第二个flag"><a href="#第二个flag" class="headerlink" title="第二个flag"></a>第二个flag</h6></li>
+</ul>
 <p>在主界面中点击 <code>Enter</code> 可以进入到第二个界面，发现名为 <code>DownloadViewController</code> ，顾名思义是个负责下载的控制器了。<img src="/images/image6.png" alt="CaptainHook"></p>
 <p>查看 <code>ViewDidLoad</code>方法发现该控制器初始化了一个 <code>DownloadTask</code> ，并且调用了 <code>[DownloadTask start]</code> 方法。 </p>
 <p><img src="/images/image7.png" alt="DownloadTask"><img src="/images/image8.png" alt="DownloadTask"></p>
 <p>​    看到这个方法，第一时间想到去本地找下载的文件，但是并没有找到。然后我的做法是hook了 <code>[NSURL URLWithString:]</code> 方法，拿到了下载文件的地址 <code>https://ctf.ivrodriguez.com/analytics</code> ，其实在IDA中也完全可以看到。</p>
 <p>​    把地址直接粘贴到浏览器发现下载了一个txt文件，打开txt文件就找到了第二个flag： <code>flag-4056CEF3-DCCB-4D9B-9D0E-64428E9A50E3</code> 。</p>
-<p>​</p>
-</li>
-</ul>
-<p>在<code>[AppDelegate applicationWillTerminate:]</code>中发现有一句输出打印。此时把ipa撞到手机运行之后，双击home键上划，触发 <code>applicationWillTerminate</code> 方法，发现打印出来falg： <code>flag-9861DA53-C08C-47C4-84D6-B48463AB738A</code>。</p>
 
           
         
@@ -442,7 +439,7 @@
                 <i class="fa fa-calendar-o"></i>
               </span>
               
-                <span class="post-meta-item-text">Posted on</span>
+                <span class="post-meta-item-text">Veröffentlicht am</span>
               
               <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-04-16T14:00:07+08:00">
                 2018-04-16
@@ -593,7 +590,7 @@
                 <i class="fa fa-calendar-o"></i>
               </span>
               
-                <span class="post-meta-item-text">Posted on</span>
+                <span class="post-meta-item-text">Veröffentlicht am</span>
               
               <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-03-18T11:00:07+08:00">
                 2018-03-18
@@ -766,7 +763,7 @@
                 <i class="fa fa-calendar-o"></i>
               </span>
               
-                <span class="post-meta-item-text">Posted on</span>
+                <span class="post-meta-item-text">Veröffentlicht am</span>
               
               <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-02-06T11:00:07+08:00">
                 2018-02-06
@@ -903,7 +900,7 @@
                 <i class="fa fa-calendar-o"></i>
               </span>
               
-                <span class="post-meta-item-text">Posted on</span>
+                <span class="post-meta-item-text">Veröffentlicht am</span>
               
               <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-01-20T10:38:32+08:00">
                 2018-01-20
@@ -1036,7 +1033,7 @@
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
                 <span class="site-state-item-count">5</span>
-                <span class="site-state-item-name">posts</span>
+                <span class="site-state-item-name">Artikel</span>
               </a>
             </div>
           
@@ -1090,7 +1087,7 @@
 
 
 <div class="powered-by">
-  Powered by <a class="theme-link" href="https://hexo.io">Hexo</a>
+  Erstellt mit  <a class="theme-link" href="https://hexo.io">Hexo</a>
 </div>
 
 <div class="theme-info">

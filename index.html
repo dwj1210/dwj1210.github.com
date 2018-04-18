@@ -343,9 +343,9 @@
 <p>总结：</p>
 <p>Headbook-v1.0只是一个练手的题目很简单，让我们准备好迎接2.0版本。</p>
 <h4 id="Headbook-v2-0："><a href="#Headbook-v2-0：" class="headerlink" title="Headbook-v2.0："></a>Headbook-v2.0：</h4><ul>
-<li><h6 id="第一个flag"><a href="#第一个flag" class="headerlink" title="第一个flag"></a>第一个flag</h6><p>同样解压下载的ipa，然后打开.app文件找到Mach-O拖到IDA里面分析。</p>
-</li>
+<li><h5 id="第一个flag"><a href="#第一个flag" class="headerlink" title="第一个flag"></a>第一个flag</h5></li>
 </ul>
+<p>同样解压下载的ipa，然后打开.app文件找到Mach-O拖到IDA里面分析。</p>
 <p><img src="/images/image9.png" alt="bundle目录"></p>
 <p>​    直接把ipa运行在手机上发现直接打印出了一句话： <code>Good thing this flag is encrypted: Ov630qDn5AbOWX4JIUUeurVdgNdsjqiaM8ywYCT2Yj1eiMcT/MEPJJ5W9icdC5qb</code></p>
 <p>​    在IDA中查看发现这句话是在 <code>[AppDelegate application:didFinishLaunchingWithOptions:]</code> 中打印的。</p>
@@ -356,7 +356,7 @@
 <p><img src="/images/image5.png" alt="CaptainHook"></p>
 <p>​    运行代码，就在控制台打印出了： <code>AppDelegate-decryptText:flag-71F5243A-A55D-4E97-893A-8C3C4B34A938</code> ， 此时现在这个flag跟版本1中flag的结构一致，所以我们就直接提交flag验证发现猜想正确。</p>
 <ul>
-<li><h6 id="第二个flag"><a href="#第二个flag" class="headerlink" title="第二个flag"></a>第二个flag</h6></li>
+<li><h5 id="第二个flag"><a href="#第二个flag" class="headerlink" title="第二个flag"></a>第二个flag</h5></li>
 </ul>
 <p>在主界面中点击 <code>Enter</code> 可以进入到第二个界面，发现名为 <code>DownloadViewController</code> ，顾名思义是个负责下载的控制器了。<img src="/images/image6.png" alt="CaptainHook"></p>
 <p>查看 <code>ViewDidLoad</code>方法发现该控制器初始化了一个 <code>DownloadTask</code> ，并且调用了 <code>[DownloadTask start]</code> 方法。 </p>
@@ -364,7 +364,7 @@
 <p>​    看到这个方法，第一时间想到去本地找下载的文件，但是并没有找到。然后我的做法是hook了 <code>[NSURL URLWithString:]</code> 方法，拿到了下载文件的地址 <code>https://ctf.ivrodriguez.com/analytics</code> ，其实在IDA中也完全可以看到。</p>
 <p>​    把地址直接粘贴到浏览器发现下载了一个txt文件，打开txt文件就找到了第二个flag： <code>flag-4056CEF3-DCCB-4D9B-9D0E-64428E9A50E3</code> 。</p>
 <ul>
-<li><h6 id="第三个flag"><a href="#第三个flag" class="headerlink" title="第三个flag"></a>第三个flag</h6></li>
+<li><h5 id="第三个flag"><a href="#第三个flag" class="headerlink" title="第三个flag"></a>第三个flag</h5></li>
 </ul>
 <p>这个ipa文件方法并不多，我们挨个查看寻找线索，发现了一个 <code>[TextHandler mainFunc]</code> 方法。</p>
 <p><img src="/images/image3.png" alt="TextHandler mainFunc"></p>

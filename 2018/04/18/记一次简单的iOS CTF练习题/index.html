@@ -113,7 +113,7 @@
 <meta property="og:image" content="http://yoursite.com/images/image10.png">
 <meta property="og:image" content="http://yoursite.com/images/image13.png">
 <meta property="og:image" content="http://yoursite.com/images/image11.png">
-<meta property="og:updated_time" content="2018-05-15T09:19:51.540Z">
+<meta property="og:updated_time" content="2018-05-15T10:30:29.939Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="记一次简单的iOS CTF练习题">
 <meta name="twitter:description" content="何为CTF：​    夺旗（CTF）是一项计算机安全竞赛。CTF竞赛通常旨在作为一种教育活动，为参与者提供固定机器的经验，以及对现实世界中发现的这类攻击进行反应。逆向工程，网络嗅探，协议分析，系统管理，编程和密码分析都是DEF CT先前的CTF竞赛所需的技能。有两种主要的比赛形式：攻击/防守和危险。（wikipage中的定义） 参考地址：​    这次的iOS CTF的练习题是我在Ivan R B">
@@ -345,7 +345,7 @@
         <h4 id="何为CTF："><a href="#何为CTF：" class="headerlink" title="何为CTF："></a>何为CTF：</h4><p>​    夺旗（CTF）是一项计算机安全竞赛。CTF竞赛通常旨在作为一种教育活动，为参与者提供固定机器的经验，以及对现实世界中发现的这类攻击进行反应。逆向工程，网络嗅探，协议分析，系统管理，编程和密码分析都是DEF CT先前的CTF竞赛所需的技能。有两种主要的比赛形式：攻击/防守和危险。（wikipage中的定义）</p>
 <h4 id="参考地址："><a href="#参考地址：" class="headerlink" title="参考地址："></a>参考地址：</h4><p>​    这次的iOS CTF的练习题是我在<a href="https://www.ivrodriguez.com/mobile-ctf/" target="_blank" rel="noopener">Ivan R Blog</a>中找到的，针对于初学者的iOS CTF。 <a href="http://www.google.com/" target="_blank" rel="noopener">这里</a>是ipa文件的下载地址，而<a href="https://ctf.ivrodriguez.com/" target="_blank" rel="noopener">这里</a>则是提交并检验找到的flag是否正确的地方。</p>
 <h4 id="版本详情："><a href="#版本详情：" class="headerlink" title="版本详情："></a>版本详情：</h4><p>下载的ipa包含两个版本：Headbook-v1.0 和 Headbook-v2.0</p>
-<p>Headbook-v1.0 找到了一个flag</p>
+<p>Headbook-v1.0 找到了两个flag</p>
 <p>Headbook-v2.0 找到了三个flag</p>
 <h4 id="Headbook-v1-0："><a href="#Headbook-v1-0：" class="headerlink" title="Headbook-v1.0："></a>Headbook-v1.0：</h4><ul>
 <li><h5 id="第一个flag"><a href="#第一个flag" class="headerlink" title="第一个flag"></a>第一个flag</h5></li>
@@ -358,7 +358,7 @@
 <ul>
 <li><h5 id="第二个flag"><a href="#第二个flag" class="headerlink" title="第二个flag"></a>第二个flag</h5></li>
 </ul>
-<p>反编译完成的IDA左侧是 <code>Fuuction Windoow</code> ，在这里我们可以看到一些很奇怪的方法名称，但是却和我们的flag很相似，所以试着把这几个奇怪的方法名由上到下拼到一起，看能不能得到flag。</p>
+<p>反编译完成的IDA左侧是 <code>Function Windoow</code> ，在这里我们可以看到一些很奇怪的方法名称，但是却和我们的flag很相似，所以试着把这几个奇怪的方法名由上到下拼到一起，看能不能得到flag。</p>
 <p><img src="/images/image14.png" alt="bundle目录"></p>
 <p>拿到flag，验证正确～  <code>flag-BD570736-D304-400A-A6B7-F61B02173428</code> </p>
 <p>总结：</p>

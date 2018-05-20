@@ -114,12 +114,12 @@
 <meta property="og:image" content="http://yoursite.com/images/Xnip2018-05-21_02-44-02.jpg">
 <meta property="og:image" content="http://yoursite.com/images/Xnip2018-05-21_02-43-01.jpg">
 <meta property="og:image" content="http://yoursite.com/images/Xnip2018-05-21_02-54-56.jpg">
-<meta property="og:image" content="http://yoursite.com/Users/weijia.dai/Desktop/Xnip2018-05-21_02-56-51.jpg">
+<meta property="og:image" content="http://yoursite.com/images/Xnip2018-05-21_02-56-51.jpg">
 <meta property="og:image" content="http://yoursite.com/images/Xnip2018-05-21_02-15-39%202.jpg">
 <meta property="og:image" content="http://yoursite.com/images/Xnip2018-05-21_02-15-39%203.jpg">
 <meta property="og:image" content="http://yoursite.com/images/Xnip2018-05-21_03-20-04.jpg">
 <meta property="og:image" content="http://yoursite.com/images/IMG_0015.PNG">
-<meta property="og:updated_time" content="2018-05-20T19:37:01.746Z">
+<meta property="og:updated_time" content="2018-05-20T19:39:07.198Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="WriteUp">
 <meta name="twitter:description" content="准备  今天拿到了一道题，首先解压缩包括一个ipa和一个deb文件。 拿到题目我一般会先干两件事，一是把Mach-O扔到IDA里面反编译。二是把ipa装到手机上跑起来。我是习惯使用MonkeyDev来安装调试的。  开始  首先把程序跑到手机上，而这个应用也就只有一个界面。  看到这个界面的第一反应就是去找这个 getflag 按钮的点击事件。  点击红线处按钮使程序暂停下来，在右侧可以看到按钮">
@@ -389,7 +389,7 @@
 <p>接下来我们就应该向ipa中注入动态库，最简单的办法就是把这个 <code>dylib</code> 拷贝到 <code>/Library/MobileSubstrate/DynamicLibraries/</code> 目录下，让程序运行的时候加载他。</p>
 <p><img src="/images/Xnip2018-05-21_02-54-56.jpg" alt="Terminal"></p>
 <p>重新运行程序，输入 <code>n0_jok1ng_7hi2_real1y_n0t_fla9:(</code> 。我们发现 <code>fg</code> 和 <code>pd</code> 都如我们预期发现了变化。</p>
-<p><img src="/Users/weijia.dai/Desktop/Xnip2018-05-21_02-56-51.jpg" alt="MonkeyDev"></p>
+<p><img src="/images/Xnip2018-05-21_02-56-51.jpg" alt="MonkeyDev"></p>
 <p>接下来我们就可以好好研究验证 <code>flag</code> 的这段代码了。</p>
 <p><img src="/images/Xnip2018-05-21_02-15-39 2.jpg" alt="IDA"></p>
 <p> 先来分析标注的这段代码，发现这 <code>flag</code> 的前16位应该和 <code>pd</code> 的前16位是相等的。</p>

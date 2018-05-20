@@ -112,14 +112,14 @@
 <meta property="og:image" content="http://yoursite.com/images/Xnip2018-05-21_02-15-39.jpg">
 <meta property="og:image" content="http://yoursite.com/images/Xnip2018-05-21_02-35-53.jpg">
 <meta property="og:image" content="http://yoursite.com/images/Xnip2018-05-21_02-44-02.jpg">
-<meta property="og:image" content="http://yoursite.com/Users/weijia.dai/Desktop/Xnip2018-05-21_02-43-01.jpg">
+<meta property="og:image" content="http://yoursite.com/images/Xnip2018-05-21_02-43-01.jpg">
 <meta property="og:image" content="http://yoursite.com/images/Xnip2018-05-21_02-54-56.jpg">
 <meta property="og:image" content="http://yoursite.com/Users/weijia.dai/Desktop/Xnip2018-05-21_02-56-51.jpg">
 <meta property="og:image" content="http://yoursite.com/images/Xnip2018-05-21_02-15-39%202.jpg">
 <meta property="og:image" content="http://yoursite.com/images/Xnip2018-05-21_02-15-39%203.jpg">
 <meta property="og:image" content="http://yoursite.com/images/Xnip2018-05-21_03-20-04.jpg">
-<meta property="og:image" content="http://yoursite.com/images/Desktop/IMG_0015.PNG">
-<meta property="og:updated_time" content="2018-05-20T19:34:40.407Z">
+<meta property="og:image" content="http://yoursite.com/images/IMG_0015.PNG">
+<meta property="og:updated_time" content="2018-05-20T19:37:01.746Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="WriteUp">
 <meta name="twitter:description" content="准备  今天拿到了一道题，首先解压缩包括一个ipa和一个deb文件。 拿到题目我一般会先干两件事，一是把Mach-O扔到IDA里面反编译。二是把ipa装到手机上跑起来。我是习惯使用MonkeyDev来安装调试的。  开始  首先把程序跑到手机上，而这个应用也就只有一个界面。  看到这个界面的第一反应就是去找这个 getflag 按钮的点击事件。  点击红线处按钮使程序暂停下来，在右侧可以看到按钮">
@@ -384,7 +384,7 @@
 <p>这一筹莫展之际，我们想到了：哎。。不对啊，还有一个deb文件还没用上呢。怎么把他给忘了。</p>
 <p>解压缩deb文件发现里面有个 <code>Tweak.dylib</code> ，先把他扔到IDA里面看看是干啥的。</p>
 <p><img src="/images/Xnip2018-05-21_02-44-02.jpg" alt="IDA"></p>
-<p>首先看到一个 <code>InitFunc</code> 里面使用 <code>MSHookMessageEx</code> hook了 <code>generate</code> 方法。双击 <code>sub_7BC8</code> 进去看看。<img src="/Users/weijia.dai/Desktop/Xnip2018-05-21_02-43-01.jpg" alt="IDA"></p>
+<p>首先看到一个 <code>InitFunc</code> 里面使用 <code>MSHookMessageEx</code> hook了 <code>generate</code> 方法。双击 <code>sub_7BC8</code> 进去看看。<img src="/images/Xnip2018-05-21_02-43-01.jpg" alt="IDA"></p>
 <p>我们发现他重写了 <code>generate</code> ，而先前 <code>generate</code> 又是给 <code>pd</code>  赋值的方法，并发现 <code>fg</code> 的值也和他有关。因为之前是判断 <code>pd</code> 的值如果等于 <code>233333333333</code> 并且和 <code>1</code> 做了一次抑或，所以 <code>fg</code> 的值为 <code>false</code> ，而现在 <code>pd</code> 的值变了，所以 <code>fg</code> 也随之会变成 <code>true</code> 。这样一切都能解释的通了。</p>
 <p>接下来我们就应该向ipa中注入动态库，最简单的办法就是把这个 <code>dylib</code> 拷贝到 <code>/Library/MobileSubstrate/DynamicLibraries/</code> 目录下，让程序运行的时候加载他。</p>
 <p><img src="/images/Xnip2018-05-21_02-54-56.jpg" alt="Terminal"></p>
@@ -398,7 +398,7 @@
 <p>下面是我用OC写的代码：<img src="/images/Xnip2018-05-21_03-20-04.jpg" alt="code"></p>
 <p>运行打印：<code>_3asy_23333333:)</code></p>
 <p>之后和 <code>pd</code> 的前半段相拼接。得到：<code>by_7he0s_ho0k_ls_3asy_23333333:)</code> 。</p>
-<p><img src="/images/Desktop/IMG_0015.PNG" alt="success"></p>
+<p><img src="/images/IMG_0015.PNG" alt="success"></p>
 <p>拿到 <code>flag</code> 验证，发现正确，大功告成～</p>
 
       

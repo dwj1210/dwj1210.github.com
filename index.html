@@ -330,60 +330,25 @@
       
         
           
-            <ul>
-<li><h5 id="准备"><a href="#准备" class="headerlink" title="准备"></a>准备</h5></li>
-</ul>
-<p>今天拿到了一道题，首先解压缩包括一个ipa和一个deb文件。<img src="/images/Xnip2018-05-21_01-50-42.jpg" alt="Xnip2018-05-21_01-50-42"></p>
-<p>拿到题目我一般会先干两件事，一是把Mach-O扔到IDA里面反编译。二是把ipa装到手机上跑起来。我是习惯使用MonkeyDev来安装调试的。</p>
-<ul>
-<li><h5 id="开始"><a href="#开始" class="headerlink" title="开始"></a>开始</h5></li>
-</ul>
-<p>首先把程序跑到手机上，而这个应用也就只有一个界面。</p>
-<p><img src="/images/IMG_1322.PNG" alt="main"></p>
-<p>看到这个界面的第一反应就是去找这个 <code>getflag</code> 按钮的点击事件。</p>
-<p><img src="/images/屏幕快照 2018-05-21 上午2.00.55.png" alt="MonkeyDev"></p>
-<p>点击红线处按钮使程序暂停下来，在右侧可以看到按钮在内存中的地址。之后使用lldb命令拿到按钮的点击事件 <code>getflag:</code> 。</p>
-<p>此时找到了按钮的点击事件，那么处理输入内容是否正确的验证也一定在这里面。我们这就去IDA里面看看这个方法。</p>
-<p><img src="/images/Xnip2018-05-21_02-05-07.jpg" alt="IDA"></p>
-<p>下面我们就来一点一点分析这个方法。</p>
-<p><img src="/images/Xnip2018-05-21_02-06-19.jpg" alt="IDA"></p>
-<p>首先进入到这个方法，可以看到他从名为 <code>password</code> 的<code>UITextField</code> 里面取了输入的flag，又拿到了flag的长度，并对长度做了比较，如果长度不等于32直接跳到 <code>LABEL_15</code> 。</p>
-<p><img src="/images/Xnip2018-05-21_02-10-23.jpg" alt="IDA"></p>
-<p>所以我们拿到了第一条重要的信息：flag的长度一定是32。</p>
-<p>接着继续往下分析代码。<img src="/images/Xnip2018-05-21_02-12-37.jpg" alt="IDA"></p>
-<p>可以看到他拿到我们输入的 <code>flag</code> 和 <code>plain</code> 属性的值分别进行了一次MD5加密，之后做了一次比较。如果两个值相等就弹框提示 <code>Sorry, you missed the flag!</code> 。</p>
-<p>到现在，我认为我们不用着急往下继续看代码，先验证一下之前的推测。</p>
-<p>先看一下 <code>viewDidLoad</code> 方法。发现 <code>plain</code> 是从本地文件读取出来的。我们直接找这个文件看看 <code>plain</code> 到底是什么。<img src="/images/Xnip2018-05-21_02-23-47.jpg" alt="IDA"></p>
-<p>打开文件看到这个字符串以 <code>=</code> 号结尾，首先想到的是 <code>base64</code> 编码。所以直接解码拿到这段字符串 <code>n0_jok1ng_7hi2_real1y_n0t_fla9:(</code> 。</p>
-<p><img src="/images/Xnip2018-05-21_02-26-05.jpg" alt="base64"></p>
-<p>拿到 <code>plain</code> 的值之后回到程序，把它输入弹框中，发现确实得到了一个 <code>Sorry, you missed the flag!</code> 的提示，也验证了我们之前的分析。</p>
-<p>好的，我们继续往下看代码。</p>
-<p><img src="/images/Xnip2018-05-21_02-15-39.jpg" alt="IDA"></p>
-<p>大致瞅了一眼发现先是进行了各种骚操作验证并且弹了个框提示 <code>Congratulation!</code> ，看起来这里就是验证flag是否正确的地方。</p>
-<p>但是最开始是先判断 <code>self.fg</code> 才可以进来的，那么我们就动态调试一下看看到底能不能进这个if判断。</p>
-<p>使用 <code>MonkeyDev</code> 编写hook代码，hook <code>getflag:</code> 方法并设置断点。在输入框中输入 <code>n0_jok1ng_7hi2_real1y_n0t_fla9:(</code> ，发现程序停下来后 <code>fg</code> 的值 为 <code>false</code> 。这就让我们十分纳闷。代码中并没有改变 <code>fg</code> 的值，但他是 <code>false</code> 的话是永远不可能进入到验证 <code>flag</code> 是否正确的函数中的。</p>
-<p><img src="/images/Xnip2018-05-21_02-35-53.jpg" alt="Xnip2018-05-21_02-35-53"></p>
-<p>这一筹莫展之际，我们想到了：哎。。不对啊，还有一个deb文件还没用上呢。怎么把他给忘了。</p>
-<p>解压缩deb文件发现里面有个 <code>Tweak.dylib</code> ，先把他扔到IDA里面看看是干啥的。</p>
-<p><img src="/images/Xnip2018-05-21_02-44-02.jpg" alt="IDA"></p>
-<p>首先看到一个 <code>InitFunc</code> 里面使用 <code>MSHookMessageEx</code> hook了 <code>generate</code> 方法。双击 <code>sub_7BC8</code> 进去看看。<img src="/images/Xnip2018-05-21_02-43-01.jpg" alt="IDA"></p>
-<p>我们发现他重写了 <code>generate</code> ，而先前 <code>generate</code> 又是给 <code>pd</code>  赋值的方法，并发现 <code>fg</code> 的值也和他有关。因为之前是判断 <code>pd</code> 的值如果等于 <code>233333333333</code> 并且和 <code>1</code> 做了一次抑或，所以 <code>fg</code> 的值为 <code>false</code> ，而现在 <code>pd</code> 的值变了，所以 <code>fg</code> 也随之会变成 <code>true</code> 。这样一切都能解释的通了。</p>
-<p>接下来我们就应该向ipa中注入动态库，最简单的办法就是把这个 <code>dylib</code> 拷贝到 <code>/Library/MobileSubstrate/DynamicLibraries/</code> 目录下，让程序运行的时候加载他。</p>
-<p><img src="/images/Xnip2018-05-21_02-54-56.jpg" alt="Terminal"></p>
-<p>重新运行程序，输入 <code>n0_jok1ng_7hi2_real1y_n0t_fla9:(</code> 。我们发现 <code>fg</code> 和 <code>pd</code> 都如我们预期发现了变化。</p>
-<p><img src="/images/Xnip2018-05-21_02-56-51.jpg" alt="MonkeyDev"></p>
-<p>接下来我们就可以好好研究验证 <code>flag</code> 的这段代码了。</p>
-<p><img src="/images/Xnip2018-05-21_02-15-39 2.jpg" alt="IDA"></p>
-<p> 先来分析标注的这段代码，发现这 <code>flag</code> 的前16位应该和 <code>pd</code> 的前16位是相等的。</p>
-<p><img src="/images/Xnip2018-05-21_02-15-39 3.jpg" alt="IDA"></p>
-<p>看完这段代码，整个验证过程就很清晰明了了。接下来要做的就是写个脚本拿到16位之后的后半段 <code>flag</code> 。</p>
-<p>下面是我用OC写的代码：<img src="/images/Xnip2018-05-21_03-20-04.jpg" alt="code"></p>
-<p>运行打印：<code>_3asy_23333333:)</code></p>
-<p>之后和 <code>pd</code> 的前半段相拼接。得到：<code>by_7he0s_ho0k_ls_3asy_23333333:)</code> 。</p>
-<p><img src="/images/IMG_0015.PNG" alt="success"></p>
-<p>拿到 <code>flag</code> 验证，发现正确，大功告成～</p>
-
           
+准备
+
+今天拿到了一道题，首先解压缩包括一个ipa和一个deb文件。
+拿到题目我一般会先干两件事，一是把Mach-O扔到IDA里面反编译。二是把ipa装到手机上跑起来。我是习惯使用MonkeyDev来安装调试的。
+
+开始
+
+首先把程序跑到手机上，而这个应用也就只有一个界面。
+
+看到这个界面的第一反
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2018/05/21/WriteUp/#more" rel="contents">
+              Weiterlesen &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -501,49 +466,22 @@
       
         
           
-            <ul>
-<li><h5 id="说在前面"><a href="#说在前面" class="headerlink" title="说在前面"></a>说在前面</h5></li>
-</ul>
-<p>在本文公开的时候，微博陌陌等应用已经修复了该漏洞，本文仅供学习使用。</p>
-<ul>
-<li><h5 id="什么是ZipperDown"><a href="#什么是ZipperDown" class="headerlink" title="什么是ZipperDown"></a>什么是ZipperDown</h5></li>
-</ul>
-<p>盘古实验室在针对不同客户的iOS应用安全审计过程中，发现了一类通用的安全漏洞。创建漏洞指纹后，盘古实验室在<a href="https://www.appscan.io/" target="_blank" rel="noopener">Janus平台</a>上进行溯源分析和相似漏洞检索，结果发现约10%的iOS应用可能受此漏洞的影响。经过手工分析，确认微博、陌陌、网易云音乐、QQ音乐、快手等流行应用受影响。</p>
-<p><a href="https://zipperdown.org/" target="_blank" rel="noopener">ZipperDown漏洞</a></p>
-<p>早在5月12号，<a href="https://github.com/turingH" target="_blank" rel="noopener">turing.huang</a>就在GitHub提了Issues。但是截止到目前为止（5月16号），这个第三方框架的漏洞还没有被修复。</p>
-<p><img src="/images/upload_f4008f8973ebff81c21f1367b8bbb3f6.png" alt="屏幕快照 2018-05-16 下午6.33.40"></p>
-<p>结合这段话和盘古团队公开的文章，我们可以看出来，应该就是常见的路径穿越漏洞导致的任意代码执行。</p>
-<p>不了解路径穿越漏洞的同学请点击<a href="https://www.cnblogs.com/vo-ov/p/3745651.html" target="_blank" rel="noopener">这里</a>。</p>
-<ul>
-<li><h5 id="ZipperDown如何重现"><a href="#ZipperDown如何重现" class="headerlink" title="ZipperDown如何重现"></a>ZipperDown如何重现</h5></li>
-</ul>
-<p>通过对本地存储的分析，在 <code>/private/var/mobile/Containers/Data/Application/XXX/Documents/WBPkgFixFile/27222/843_msg_newscard/hotfix_test.js</code> 发现了一个可疑文件 <code>hotfix_test.js</code> ，仔细看一下这个js文件，应该是使用了 <code>JSPatch</code> 来热修复的。所以我们可以先通过直接替换js文件的方式来看看会不会有效果。</p>
-<p>我的做法是把 <code>hotfix_test.js</code> 文件拷贝到电脑，然后在js代码中加一个弹框，接着拷贝回沙盒目录中替换原来的文件。<img src="/images/upload_c8bdff3e59089ada24370035580f9c59-1.png" alt="屏幕快照 2018-05-17 上午11.14.42"></p>
-<p>之后我们登录微博，再杀死微博的进程，重新打开就看到了一个弹框 <code>Your Weibo is Pwned</code>。</p>
-<p>到此为止我们可以确定这个js文件确实可以被执行。接下来要做的是通过抓包来劫持zip的下载，来替换成我们精心构造的js文件。</p>
-<p>通过使用Clarles抓包发现微博在安装完成第一次打开时会下载多个压缩文件。我便随便挑选了一个劫持并使用 <code>Map Local</code> 映射到本地已经构造好的zip文件。</p>
-<p><img src="/images/upload_0c34fdccf05608d1b359b2bc93416725.png" alt="屏幕快照 2018-05-17 上午11.35.56"></p>
-<p>在完成以上这些准备工作之后，删除微博重新安装。安装完成后打开微博，完成登录操作，杀死微博的进程，重新打开，这时候出现了弹框。说明我们劫持了zip包的下载，通过路径穿越成功覆盖了原本的 <code>hotfix_test.js</code></p>
-<p>文件，且成功执行了js文件中的“恶意”代码。</p>
-<ul>
-<li><h5 id="如何修复漏洞"><a href="#如何修复漏洞" class="headerlink" title="如何修复漏洞"></a>如何修复漏洞</h5></li>
-</ul>
-<p>想要知道如何修漏洞，肯定需要知道问题为什么会出现。而路径穿漏洞就是因为 <code>../</code> 代表了上层目录，而多个 <code>../</code> 则可以去到根目录下，这样就可访问任意文件。我们要做的就是在解压文件时，过滤掉这些带 <code>../</code>  的“恶意”文件。</p>
-<p>如果用到了 <code>SSZipArchive</code> 库，需要修改一下源码。在下面这个方法中对最终解压的strPath进行检测，如果出现可能造成目录穿越的 <code>../</code> 字符串时进行拦截过滤。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">+ (BOOL)unzipFileAtPath:(NSString *)path toDestination:(NSString *)destination preserveAttributes:(BOOL)preserveAttributes overwrite:(BOOL)overwrite nestedZipLevel:(NSInteger)nestedZipLevel password:(nullable NSString *)password error:(NSError **)error</span><br><span class="line"> delegate:(nullable id&lt;SSZipArchiveDelegate&gt;)delegate progressHandler:(void (^_Nullable)(NSString *entry, unz_file_info zipInfo, long entryNumber, long total))progressHandler completionHandler:(void (^_Nullable)(NSString *path, BOOL succeeded, NSError * _Nullable error))completionHandler;</span><br></pre></td></tr></table></figure>
-<p>另外，Hotpatch包除了传输过程中要加密外，在本地也需要加密保存，并且运行前做完整性校验。虽然漏洞覆盖某些重要的文件可能会造成拒绝服务攻击，但至少不会造成代码执行。</p>
-<ul>
-<li><h5 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h5></li>
-</ul>
-<p>路径穿越漏洞并不是一个新出现的漏洞，但是这次却有上万应用可能受此漏洞影响，不得不让我们提高在开发中对安全的重视程度。</p>
-<p>​    </p>
-<ul>
-<li><h5 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h5></li>
-</ul>
-<p><a href="https://zipperdown.org/" target="_blank" rel="noopener">https://zipperdown.org</a></p>
-<p><a href="https://github.com/ZipArchive/ZipArchive/issues/453" target="_blank" rel="noopener">https://github.com/ZipArchive/ZipArchive/issues/453</a></p>
-
           
+说在前面
+
+在本文公开的时候，微博陌陌等应用已经修复了该漏洞，本文仅供学习使用。
+
+什么是ZipperDown
+
+盘古实验室在针对不同客户的iOS应用安全审计过程中，发现了一类通用的安全漏洞。创建漏洞指纹后，盘古实验室在Janus平台上进行溯源分析和相似漏洞检索，结果发现约10%的iOS应用可能受
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2018/05/16/ZipperDown漏洞浅析/#more" rel="contents">
+              Weiterlesen &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -661,80 +599,15 @@
       
         
           
-            <h4 id="何为CTF："><a href="#何为CTF：" class="headerlink" title="何为CTF："></a>何为CTF：</h4><p>​    夺旗（CTF）是一项计算机安全竞赛。CTF竞赛通常旨在作为一种教育活动，为参与者提供固定机器的经验，以及对现实世界中发现的这类攻击进行反应。逆向工程，网络嗅探，协议分析，系统管理，编程和密码分析都是DEF CT先前的CTF竞赛所需的技能。有两种主要的比赛形式：攻击/防守和危险。（wikipage中的定义）</p>
-<h4 id="参考地址："><a href="#参考地址：" class="headerlink" title="参考地址："></a>参考地址：</h4><p>​    这次的iOS CTF的练习题是我在<a href="https://www.ivrodriguez.com/mobile-ctf/" target="_blank" rel="noopener">Ivan R Blog</a>中找到的，针对于初学者的iOS CTF。 <a href="http://www.google.com/" target="_blank" rel="noopener">这里</a>是ipa文件的下载地址，而<a href="https://ctf.ivrodriguez.com/" target="_blank" rel="noopener">这里</a>则是提交并检验找到的flag是否正确的地方。</p>
-<h4 id="版本详情："><a href="#版本详情：" class="headerlink" title="版本详情："></a>版本详情：</h4><p>下载的ipa包含两个版本：Headbook-v1.0 和 Headbook-v2.0</p>
-<p>Headbook-v1.0 找到了五个flag</p>
-<p>Headbook-v2.0 找到了三个flag</p>
-<h4 id="Headbook-v1-0："><a href="#Headbook-v1-0：" class="headerlink" title="Headbook-v1.0："></a>Headbook-v1.0：</h4><ul>
-<li><h5 id="第一个flag"><a href="#第一个flag" class="headerlink" title="第一个flag"></a>第一个flag</h5></li>
-</ul>
-<p>解压下载的ipa，然后打开.app文件找到Mach-O拖到IDA里面分析。</p>
-<p><img src="/images/image2.png" alt="bundle目录"></p>
-<p>在 <code>[AppDelegate applicationWillTerminate:]</code> 中发现有一句输出打印。此时把ipa装手机运行之后，双击home键上划，触发<code>applicationWillTerminate</code> 方法，发现打印出来falg：  <code>flag-9861DA53-C08C-47C4-84D6-B48463AB738A</code> 。</p>
-<p><img src="/images/image1.png" alt="applicationWillTerminate"></p>
-<p>拿到flag去提交验证发现正确，大功告成。</p>
-<ul>
-<li><h5 id="第二个flag"><a href="#第二个flag" class="headerlink" title="第二个flag"></a>第二个flag</h5></li>
-</ul>
-<p>反编译完成的IDA左侧是 <code>Function Windoow</code> ，在这里我们可以看到一些很奇怪的方法名称，但是却和我们的flag很相似，所以试着把这几个奇怪的方法名由上到下拼到一起，看能不能得到flag。</p>
-<p><img src="/images/image14.png" alt="Function Window"></p>
-<p>拿到flag，验证正确～  <code>flag-BD570736-D304-400A-A6B7-F61B02173428</code> </p>
-<ul>
-<li><h5 id="第三个flag"><a href="#第三个flag" class="headerlink" title="第三个flag"></a>第三个flag</h5></li>
-</ul>
-<p>在二进制文件中苦苦寻觅并没有得到什么有效的线索，该换个思路去别的地方找找了。这个时候我们去本地文件里面看一下，打开bundle目录下的plist文件，结果立马发现了一个新鲜flag。 <code>flag-EC840814-CEBA-4731-8620-CB991D850B14</code></p>
-<p><img src="/images/image15.png" alt="info.plist"></p>
-<ul>
-<li><h5 id="第四个flag"><a href="#第四个flag" class="headerlink" title="第四个flag"></a>第四个flag</h5></li>
-</ul>
-<p>从plist文件中找到了一个flag，所以会不会在资源文件里也会有呢，带着猜想我们试试解压资源文件 <code>Assets.car</code> ，不知道该用什么工具解压的同学<a href="https://github.com/insidegui/AssetCatalogTinkerer/raw/master/releases/AssetCatalogTinkerer_latest.zip" target="_blank" rel="noopener">点这里</a>。</p>
-<p>解压文件以后惊喜的发现flag居然藏在了图片里面。</p>
-<p><img src="/images/image16.png" alt="flag_Normal@3x"></p>
-<p>在这里不得不佩服作者的思路。</p>
-<ul>
-<li><h5 id="第五个flag"><a href="#第五个flag" class="headerlink" title="第五个flag"></a>第五个flag</h5></li>
-</ul>
-<p>乘胜追击，看看bundle目录下还有哪里可能藏着我们要找的flag。</p>
-<p><img src="/images/image17.png" alt="Main.storyboardc"></p>
-<p>使用<a href="https://atom.io/" target="_blank" rel="noopener">ATOM</a>打开 <code>Main.storyboardc</code> 文件，直接搜索flag。<br><img src="/images/image18.png" alt="ATOM"></p>
-<p>这样我们便找到了第五个flag <code>flag-5932744F-4810-4A6C-BD8F-66FF3E115ED6</code> ，至此圆满完成。</p>
-<p>总结：</p>
-<p>Headbook-v1.0只是一个练手的题目很简单，但是我们不得不佩服作者的思路，同时也对CTF题目有了更深刻的认识，集巧妙趣味于一身，让人深深被其吸引。</p>
-<h4 id="Headbook-v2-0："><a href="#Headbook-v2-0：" class="headerlink" title="Headbook-v2.0："></a>Headbook-v2.0：</h4><ul>
-<li><h5 id="第一个flag-1"><a href="#第一个flag-1" class="headerlink" title="第一个flag"></a>第一个flag</h5></li>
-</ul>
-<p>同样解压下载的ipa，然后打开.app文件找到Mach-O拖到IDA里面分析。</p>
-<p><img src="/images/image9.png" alt="bundle目录"></p>
-<p>​    直接把ipa运行在手机上发现直接打印出了一句话： <code>Good thing this flag is encrypted: Ov630qDn5AbOWX4JIUUeurVdgNdsjqiaM8ywYCT2Yj1eiMcT/MEPJJ5W9icdC5qb</code></p>
-<p>​    在IDA中查看发现这句话是在 <code>[AppDelegate application:didFinishLaunchingWithOptions:]</code> 中打印的。</p>
-<p><img src="/images/image4.png" alt="application:didFinishLaunchingWithOptions"></p>
-<p>​    这不明摆着告诉我们：这个flag是个好东西，并且他被加密了。    </p>
-<p>​    接下来我们就要去寻找解密方法了，直接在IDA中搜索 <code>decrypt</code> ，直接找到了 <code>[AppDelegate decryptText:]</code> 方法。很明显这是一个解密方法，但是不确定是不是我们要找的，所以我们就验证一下。</p>
-<p>​    这里我使用了<a href="https://github.com/AloneMonkey/MonkeyDev" target="_blank" rel="noopener">MonkeyDev</a>来编写hook代码，验证我们的猜想。</p>
-<p><img src="/images/image5.png" alt="CaptainHook"></p>
-<p>​    运行代码，就在控制台打印出了： <code>AppDelegate-decryptText:flag-71F5243A-A55D-4E97-893A-8C3C4B34A938</code> ， 此时现在这个flag跟版本1中flag的结构一致，所以我们就直接提交flag验证发现猜想正确。</p>
-<ul>
-<li><h5 id="第二个flag-1"><a href="#第二个flag-1" class="headerlink" title="第二个flag"></a>第二个flag</h5></li>
-</ul>
-<p>在主界面中点击 <code>Enter</code> 可以进入到第二个界面，发现名为 <code>DownloadViewController</code> ，顾名思义是个负责下载的控制器了。<img src="/images/image6.png" alt="CaptainHook"></p>
-<p>查看 <code>ViewDidLoad</code>方法发现该控制器初始化了一个 <code>DownloadTask</code> ，并且调用了 <code>[DownloadTask start]</code> 方法。 </p>
-<p><img src="/images/image7.png" alt="DownloadTask"><img src="/images/image8.png" alt="DownloadTask"></p>
-<p>​    看到这个方法，第一时间想到去本地找下载的文件，但是并没有找到。然后我的做法是hook了 <code>[NSURL URLWithString:]</code> 方法，拿到了下载文件的地址 <code>https://ctf.ivrodriguez.com/analytics</code> ，其实在IDA中也完全可以看到。</p>
-<p>​    把地址直接粘贴到浏览器发现下载了一个txt文件，打开txt文件就找到了第二个flag： <code>flag-4056CEF3-DCCB-4D9B-9D0E-64428E9A50E3</code> 。</p>
-<ul>
-<li><h5 id="第三个flag-1"><a href="#第三个flag-1" class="headerlink" title="第三个flag"></a>第三个flag</h5></li>
-</ul>
-<p>这个ipa文件方法并不多，我们挨个查看寻找线索，发现了一个 <code>[TextHandler mainFunc]</code> 方法。</p>
-<p><img src="/images/image3.png" alt="TextHandler mainFunc"></p>
-<p><img src="/images/image10.png" alt="TextHandler mainFunc"></p>
-<p><img src="/images/image13.png" alt="TextHandler mainFunc"></p>
-<p>我是使用Monkeydev编写代码主动调用，并且打印出来 <code>[TextHandler mainFunc]</code> 的返回值。    </p>
-<p><img src="/images/image11.png" alt="CaptainHook"></p>
-<p>运行程序此时打印出来： <code>TextHandler-mainFunc:flag-F72ECAE7-0BBE-4D1D-BF49-3B75BD6F9DCA</code>。</p>
-<p>拿到flag提交验证，我们就找到了第三个flag。</p>
-
-          
+          何为CTF：​    夺旗（CTF）是一项计算机安全竞赛。CTF竞赛通常旨在作为一种教育活动，为参与者提供固定机器的经验，以及对现实世界中发现的这类攻击进行反应。逆向工程，网络嗅探，协议分析，系统管理，编程和密码分析都是DEF CT先前的CTF竞赛所需的技能。有两种主要的比赛形式：攻击/防守和危险。
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2018/04/18/记一次简单的iOS CTF练习题/#more" rel="contents">
+              Weiterlesen &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -852,40 +725,17 @@
       
         
           
-            <p>密钥是AES算法实现加密和解密的根本。对称加密算法之所以对称，是因为这类算法对明文的加密和解密需要使用同一个密钥</p>
-<h4 id="AES加密时需要统一的几个参数"><a href="#AES加密时需要统一的几个参数" class="headerlink" title="AES加密时需要统一的几个参数"></a>AES加密时需要统一的几个参数</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">密钥长度（Key Size）</span><br><span class="line">工作模式（Cipher Mode）</span><br><span class="line">填充方式（Padding）</span><br><span class="line">初始向量（Initialization Vector）</span><br></pre></td></tr></table></figure>
-<h4 id="密钥长度"><a href="#密钥长度" class="headerlink" title="密钥长度"></a>密钥长度</h4><p>AES支持三种长度的密钥：128位，192位，256位。</p>
-<p>平时大家所说的AES128，AES192，AES256，实际上就是指的AES算法对不同长度密钥的使用。</p>
-<h4 id="工作模式"><a href="#工作模式" class="headerlink" title="工作模式"></a>工作模式</h4><p>工作模式要解决的问题即明文数据流怎样按分组大小切分，数据不对齐的情况怎么处理等等。</p>
-<p>AES加密算法提供了五种不同的工作模式：</p>
-<ul>
-<li><h6 id="电子密码本：Electronic-Code-Book-Mode-ECB"><a href="#电子密码本：Electronic-Code-Book-Mode-ECB" class="headerlink" title="电子密码本：Electronic Code Book Mode (ECB)"></a>电子密码本：Electronic Code Book Mode (ECB)</h6><p>ECB模式只是将明文按分组大小切分，然后用同样的密钥正常加密切分好的明文分组。ECB的理想应用场景是短数据（如加密密钥）的加密。此模式的问题是无法隐藏原明文数据的模式，因为同样的明文分组加密得到的密文也是一样的。</p>
-</li>
-<li><h6 id="密码分组链接：Cipher-Block-Chaining-Mode-CBC"><a href="#密码分组链接：Cipher-Block-Chaining-Mode-CBC" class="headerlink" title="密码分组链接：Cipher Block Chaining Mode (CBC)"></a>密码分组链接：Cipher Block Chaining Mode (CBC)</h6><p>此模式是1976年由IBM所发明，引入了IV（初始化向量：Initialization Vector）的概念。IV是长度为分组大小的一组随机，通常情况下不用保密，不过在大多数情况下，针对同一密钥不应多次使用同一组IV。 CBC要求第一个分组的明文在加密运算前先与IV进行异或；从第二组开始，所有的明文先与前一分组加密后的密文进行异或。CBC模式相比ECB实现了更好的模式隐藏，但因为其将密文引入运算，加解密操作无法并行操作。同时引入的IV向量，还需要加、解密双方共同知晓方可。</p>
-</li>
-<li><h6 id="密文反馈：Cipher-Feedback-Mode-CFB"><a href="#密文反馈：Cipher-Feedback-Mode-CFB" class="headerlink" title="密文反馈：Cipher Feedback Mode (CFB)"></a>密文反馈：Cipher Feedback Mode (CFB)</h6><p>与CBC模式类似，但不同的地方在于，CFB模式先生成密码流字典，然后用密码字典与明文进行异或操作并最终生成密文。后一分组的密码字典的生成需要前一分组的密文参与运算。CFB模式是用分组算法实现流算法，明文数据不需要按分组大小对齐。</p>
-</li>
-<li><h6 id="输出反馈：Output-Feedback-Mode-OFB"><a href="#输出反馈：Output-Feedback-Mode-OFB" class="headerlink" title="输出反馈：Output Feedback Mode (OFB)"></a>输出反馈：Output Feedback Mode (OFB)</h6><p>OFB模式与CFB模式不同的地方是：生成字典的时候会采用明文参与运算，CFB采用的是密文。</p>
-</li>
-</ul>
-<ul>
-<li><h6 id="计数器模式：Counter-Mode-CTR"><a href="#计数器模式：Counter-Mode-CTR" class="headerlink" title="计数器模式：Counter Mode (CTR)"></a>计数器模式：Counter Mode (CTR)</h6><p> CTR模式同样会产生流密码字典，但同是会引入一个计数，以保证任意长时间均不会产生重复输出。CTR模式只需要实现加密算法以生成字典，明文数据与之异或后得到密文，反之便是解密过程。CTR模式可以采用并行算法处理以提升吞量，另外加密数据块的访问可以是随机的，与前后上下文无关。</p>
-</li>
-</ul>
-<h4 id="填充方式"><a href="#填充方式" class="headerlink" title="填充方式"></a>填充方式</h4><p>要想了解填充的概念，我们先要了解AES的分组加密特性。AES算法在对明文加密的时候，并不是把整个明文一股脑加密成一整段密文，而是把明文拆分成一个个独立的明文块，每一个铭文块长度128bit。这些明文块经过AES加密器的复杂处理，生成一个个独立的密文块，这些密文块拼接在一起，就是最终的AES加密结果。假如一段明文长度是196bit，如果按每128bit一个明文块来拆分的话，第二个明文块只有64bit，不足128bit。这时候怎么办呢？就需要对明文块进行填充（Padding）。</p>
-<p>常见的三种填充方式：</p>
-<ul>
-<li><h6 id="NoPadding"><a href="#NoPadding" class="headerlink" title="NoPadding"></a>NoPadding</h6><p>不做任何填充，但是要求明文必须是16字节的整数倍。</p>
-</li>
-<li><h6 id="PKCS5Padding（默认）"><a href="#PKCS5Padding（默认）" class="headerlink" title="PKCS5Padding（默认）"></a>PKCS5Padding（默认）</h6><p>如果明文块少于16个字节（128bit），在明文块末尾补足相应数量的字符，且每个字节的值等于缺少的字符数。 比如明文：{1,2,3,4,5,a,b,c,d,e},缺少6个字节，则补全为{1,2,3,4,5,a,b,c,d,e,6,6,6,6,6,6 }</p>
-</li>
-<li><h6 id="ISO10126Padding"><a href="#ISO10126Padding" class="headerlink" title="ISO10126Padding"></a>ISO10126Padding</h6><p>如果明文块少于16个字节（128bit），在明文块末尾补足相应数量的字节，最后一个字符值等于缺少的字符数，其他字符填充随机数。比如明文：{1,2,3,4,5,a,b,c,d,e},缺少6个字节，则可能补全为{1,2,3,4,5,a,b,c,d,e,5,c,3,G,$,6}</p>
-</li>
-</ul>
-<h4 id="初始向量"><a href="#初始向量" class="headerlink" title="初始向量"></a>初始向量</h4><p>初始向量IV(Initialization Vector)，使用除ECB以外的其他加密模式均需要传入一个初始向量，其大小与块大小相等，AES块大小是128bit，所以Iv的长度是16字节，初始向量可以加强算法强度。</p>
-<p>不同的IV加密后的字符串是不同的，加密和解密需要相同的IV，既然IV看起来和key一样，却还要多一个IV的目的，对于每个块来说，key是不变的，但是只有第一个块的IV是用户提供的，其他块IV都是自动生成。<br>IV的长度为16字节。超过或者不足，可能实现的库都会进行补齐或截断。但是由于块的长度是16字节，所以一般可以认为需要的IV是16字节。</p>
-
-          
+          密钥是AES算法实现加密和解密的根本。对称加密算法之所以对称，是因为这类算法对明文的加密和解密需要使用同一个密钥
+AES加密时需要统一的几个参数1234密钥长度（Key Size）工作模式（Cipher Mode）填充方式（Padding）初始向量（Initialization Vector）
+密钥
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2018/04/16/AES/#more" rel="contents">
+              Weiterlesen &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -1003,62 +853,18 @@
       
         
           
-            <h4 id="不安全的数据存储"><a href="#不安全的数据存储" class="headerlink" title="不安全的数据存储"></a>不安全的数据存储</h4><h5 id="沙盒路径"><a href="#沙盒路径" class="headerlink" title="沙盒路径"></a>沙盒路径</h5><ul>
-<li>Documents: 保存应⽤运行时生成的需要持久化的数据,iTunes同步设备时会备份该目录。</li>
-<li>tmp: 保存应⽤运行时所需的临时数据,使⽤完毕后再将相应的文件从该目录删除。应用没有运行时,系统也可能会清除该目录下的文件。iTunes同步设备时不会备份该目录。</li>
-<li>Library/Caches: 保存应用运行时⽣成的需要持久化的数据,iTunes同步设备时不会备份该目录。一般存储体积大、不需要备份的非重要数据，比如网络数据缓存存储到Caches下。</li>
-</ul>
-<h5 id="存储位置"><a href="#存储位置" class="headerlink" title="存储位置"></a>存储位置</h5><ul>
-<li>账号密码使用Plist或者NSUserDefaults明文储存在沙盒中。<br>检查方法：使用cycript勾住DamnVulnerableIOSApp 打印沙盒路径 然后把沙盒的内容拷贝到电脑。NSUserDefaults保存在Library/Perferences/目录下。</li>
-<li>Core Data存储<br>Core Data会以sqlite文件存储在沙盒中，使用Navicat可以清晰的看到保存的数据。</li>
-<li>重要数据存储在钥匙串中<br>在非越狱设备上数据储存在Keychain中是相对安全的，它所存储的数据在 /private/var/Keychains/keychain-2.db SQLite数据库中，是一个拥有有限访问权限的SQLite数据库（AES256加密），但是在越狱设备上我们也可以很容易从钥匙串中拿到关键数据。Snoop可以检测钥匙串数据库文件上的读取写入等操作，我们也可以使用Keychain Dumper导出钥匙串中的文件数据。</li>
-<li>当图片或者一些重要文件需要 保存在本地的时候，我们可以使用加密文件的方式增加黑客破解的难度。<br>安全风险：中危<br>如何修复：当我们需要主动存储在app内的重要的、涉及隐私的信息需要加密处理，增加攻击者破解难度。<br>对于一些非主动的存储行为如网络缓存，涉及重要信息，做到用完即删。<br>对于数据库的存储我们应当进行数据加密，比如使用如AES加密算法对数据进行安全加密后再存入数据库中，或者使用第三方的SQLite扩展库，对数据库进行整体的加密。</li>
-</ul>
-<h4 id="应用进入后台时的截屏"><a href="#应用进入后台时的截屏" class="headerlink" title="应用进入后台时的截屏"></a>应用进入后台时的截屏</h4><p>当应用进入后台时，系统会自动在当前应用的页面截屏并存储到手机内，如果当前页面涉及敏感信息时，被攻击会造成泄密。而图片一般会储存到/Library/Caches/Snapshots/目录下。<br>安全风险：低危<br>修复方法：我们可以在ch鞥徐即将进入后台时，在当前页面添加一层模糊效果，在应用重新进入前台时，删除模糊效果。</p>
-<h4 id="越狱检测"><a href="#越狱检测" class="headerlink" title="越狱检测"></a>越狱检测</h4><ul>
-<li>检测常见越狱文件路径 /Applications/Cydia.app /Library/MobileSubstrate/MobileSubstrate.dylib /bin/bash /usr/sbin/sshd /etc/apt</li>
-<li>检测Cydia的URL scheme(cydia://)</li>
-<li>检测SSH Daemon </li>
-<li>检测是否有权限读写沙盒之外的文件。</li>
-</ul>
-<h4 id="寻找内存中的敏感信息"><a href="#寻找内存中的敏感信息" class="headerlink" title="寻找内存中的敏感信息"></a>寻找内存中的敏感信息</h4><p>有一些敏感数据我们在存储到本地时会对它进行加密，但是当程序运行中，这些信息往往还没有被加密，所以应该立即将他们释放。<br>例如：在DVIA中，有一个寻找内存中的敏感信息的挑战，我们可以使用cycript勾住这个进程，然后找到当前显示的页面，可以看到他所有的方法属性，以及内存中的值。<br>安全风险：低危<br>如何修复：如果有一些重要的属性或实例变量不是必需的,他们应该释放内存。</p>
-<h4 id="检测盗版"><a href="#检测盗版" class="headerlink" title="检测盗版"></a>检测盗版</h4><p>在项目中我们需要对软件是否盗版进行验证。<br>例如：在QQ中进行修改bundleid重签名双开会提示对不起，您的QQ签名错误。原理：a.每个签名都含有开发者证书的ID信息。b.开发者证书的ID没有相同的。<br>安全风险：低危<br>如何修复：bundleID检测。APP启动时，检查APP的签名，读取开发者证书ID字符串是否一致。</p>
-<h4 id="URL-Schems漏洞"><a href="#URL-Schems漏洞" class="headerlink" title="URL Schems漏洞"></a>URL Schems漏洞</h4><p>在生活中比如微信登录支付宝支付都使用了这一功能，由于相同的URL Scheme可能同时被多个App使用，我们就可以做到截获其他应用的URL。<br>例如：我们可以伪装天天炫斗微信登录来截取用户的登录信息，新建一个项目，在plist文件中添加一个和天天炫斗微信登录相同的URL Scheme：wx63124814f356e266，并且把Bundle id设置为A，来确保回调的优先级，在AppDelegate中添加如下代码：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">-(BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation&#123;</span><br><span class="line">   NSLog(@&quot;%@&quot;,url);</span><br><span class="line">   return YES;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>这时我们通过天天炫斗微信登录在微信回调的时候就会跳转到我们的demo，并且通过打印截获了带参数的url，我们可以通过这个来远程登录天天炫斗游戏。<br>安全风险：高危<br>如何修复：在App使用快捷登录的时候，最好同时将设备号或者某个本地保存的标志绑定，防止恶意的第三方借此获取用户的信息。</p>
-<h4 id="UIWebView漏洞"><a href="#UIWebView漏洞" class="headerlink" title="UIWebView漏洞"></a>UIWebView漏洞</h4><p>例如：我们如果对用户输入框输入的数据没有进行过滤，恶意数据通过用户组件，URL scheme handlers或者notifications传递给了UIWebView组件，并且UIWebView组件没有验证该数据的合法性。<br>UIWebView通过loadHTMLString:baseURL：这个方法从本地html读取代码，然后加载，我们可以替换为一个恶意的本地HTML，这样可以读取所有的保存在该应用里的cookie，绕过同源策略做一些非法的操作，攻击者将用户的像cookie，session等敏感数据传递给攻击者，或者重定向用户页面到攻击者控制的服务器上，或者诱导用户输入一些敏感数据，然后传递到攻击者的服务器上，实现钓鱼攻击。<br>安全风险：高危<br>如何修复：对输入框内的数据进行关键词过滤（如“script”字符串），避免输入恶意脚本语言。<br>在加载网页的内容之前，会用dataWithContentsOfURL方法将加载的网页的内容提取出来放入NSData中，在使用loadHTMLString之前可以对NSData的内容过滤。</p>
-<h4 id="攻击第三方库"><a href="#攻击第三方库" class="headerlink" title="攻击第三方库"></a>攻击第三方库</h4><p>我们的iOS App中一般会用到很多的第三方库，比如统计，IM，直播等。而这些SDK通常需要App key，App Secret来完成初始化注册。此时我们就可以通过动态调试或者hopper的反汇编很容易拿到这些SDK的秘钥。<br>当我们拿到这个重要的key，就几乎可以使用这个第三方库的所有功能。<br>例如：在油战线App中使用了融云的聊天功能，当我拿到这个key的时候，在自己的demo中进行融云SDK的注册初始化，并修改为bundleid油战线的bundleid，就可以开始无限制的发消息，并且由油战线App付费。<br>安全风险：高危<br>如何修复：可以通过远程从服务器上获取后再使用，可以登录的时候初始化获取。</p>
-<h4 id="HTTPS漏洞"><a href="#HTTPS漏洞" class="headerlink" title="HTTPS漏洞"></a>HTTPS漏洞</h4><p>HTTPS协议其实是有两部分组成：HTTP + SSL / TLS，也就是在HTTP上又加了一层处理加密信息的模块。</p>
-<h5 id="HTTPS攻击方式"><a href="#HTTPS攻击方式" class="headerlink" title="HTTPS攻击方式"></a>HTTPS攻击方式</h5><ul>
-<li>SSL证书伪造<br>我们可以通过ARP欺骗、DNS劫持甚至网关劫持等，将客户端的访问重定向到攻击者的机器，让App与攻击者机器建立HTTPS连接（使用伪造证书），而攻击者机器再跟服务端连接。这样用户在客户端看到的是相同域名的网站。</li>
-<li>SSL剥离攻击<br>有些网站或者服务端也并非全站https，只有在传输重要信息时会使用https，这时就会产生漏洞。<br>攻击者在劫持了客户端与服务端的http会话后，将http页面里面所有的“<a href="https://”都换成”http://”，用户在点击相应的链接时，是使用http协议来进行访问；这样，就算服务器对相应的URL只支持https链接，但中间人一样可以和服务建立https连接之后，将数据使用http协议转发给客户端，实现会话劫持。" target="_blank" rel="noopener">https://”都换成”http://”，用户在点击相应的链接时，是使用http协议来进行访问；这样，就算服务器对相应的URL只支持https链接，但中间人一样可以和服务建立https连接之后，将数据使用http协议转发给客户端，实现会话劫持。</a></li>
-<li>Charles第三方抓包工具<br>抓包工具可以通过截获真实客户端的https请求，伪装客户端向真实服务端发送https请求和接受真实服务器响应，用自己的证书伪装服务端向真实客户端发送数据内容，我们将私有CA签发的数字证书安装到手机中并且作为受信任证书保存。<br>安全风险：高危<br>如何修复：我们可以使用AFNetworking网络框架来进行证书验证，我们需要对AFSecurityPolicy类的AFSSLPinningMode这个枚举来配置，并使用AFSSLPinningModeCertificate对证书进行完整校验。<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">typedef NS_ENUM(NSUInteger, AFSSLPinningMode) &#123;</span><br><span class="line">    AFSSLPinningModeNone, // 不进行验证</span><br><span class="line">    AFSSLPinningModePublicKey, // 验证PublicKey</span><br><span class="line">    AFSSLPinningModeCertificate, // 对证书的所有内容进行验证</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<p>一般做法是将服务器生成的证书打包，导入客户端内，使用包的二进制数据，进行全部校验，但是，打包进app会有被反编译出的风险，一般做法是将二进制数据转换成base64的字符串，存入代码内。</p>
-<h4 id="常见加密算法及密钥的保存"><a href="#常见加密算法及密钥的保存" class="headerlink" title="常见加密算法及密钥的保存"></a>常见加密算法及密钥的保存</h4><p>常见的加密算法有DES，AES，RSA等。而AES和DES都属于对称加密算法，RSA则属于非对称加密。</p>
-<ul>
-<li>DES：DES加密算法是一种分组密码，以64位为分组对数据加密，它的密钥长度是56位，加密解密用同一算法。</li>
-<li>AES：AES加密算法是密码学中的高级加密标准，该加密算法采用对称分组密码体制，密钥长度的最少支持为128、192、256，分组长度128位，算法应易于各种硬件和软件实现。</li>
-<li>RSA：RSA加密算法是目前最有影响力的公钥加密算法，并且被普遍认为是目前最优秀的加密方案之一。RSA是第一个能同时用于加密和数宇签名的算法，它能够抵抗到目前为止已知的所有密码攻击，已被ISO推荐为公钥数据加密标准。<br>传输安全例如：我们需要给服务端传输用户实名认证的姓名和身份证号，如果单纯使用AES加密传输，就不安全，因为攻击者可以拿到秘钥来进行解密。<br>安全风险：高危<br>如何修复：客户端使用RSA + AES对重要信息进行加密。客户端需要做的是，客户端随机产生AES的密钥，对身份证信息（重要信息）进行AES加密，通过使用RSA对AES密钥进行公钥加密。这样在传输过程中，即便加密后的AES密钥被别人截取，对其也无济于事。<br>秘钥保存例如：在目前大多数的App保存秘钥都是直接放在本地，然后通过读取文件来拿到秘钥进行加密解密的操作，但是这很容易让攻击者获取秘钥。<br>安全风险：高危<br>如何修复：我们可以定义一种文件格式，把重要信息放在自定义文件的后面并使用秘钥加密，前面加上一个文件头metadata。我们可以在metadata中放入我们的秘钥，来对文件进行加解密。但是我们不可以明文储存秘钥。这个时候就需要有一个管理（加密“密钥”的密钥）模块，通常会把这个叫做KMC(Key Management Center)。我们可以使用非对称加密，服务器需要产生一对key，公钥由客户端保管，客户端用公钥讲文件秘钥加密，放在文件头中。当需要解密时，客户端发送metadata到服务器，服务器使用私钥解开文件内容秘钥，并返回给客户端，客户端就可以使用文件秘钥加密文件了。</li>
-</ul>
-<h4 id="iOS的反调试与破解"><a href="#iOS的反调试与破解" class="headerlink" title="iOS的反调试与破解"></a>iOS的反调试与破解</h4><p>Ptrace是一个系统调用，防止一个进程挂载到app上。</p>
-<ul>
-<li>当一个应用被调试的时候，会给进程设置一个标识（P_TRACED），我们可以通过检测该进程是否有设置这个标识来检测进程是否正在被调试。</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">#import &amp;lt;dlfcn.h&amp;gt;</span><br><span class="line">#import &amp;lt;sys/types.h&amp;gt;</span><br><span class="line">typedef int (*ptrace_ptr_t)(int _request, pid_t _pid, caddr_t _addr, int _data);</span><br><span class="line">#if !defined(PT_DENY_ATTACH)</span><br><span class="line">#define PT_DENY_ATTACH 31</span><br><span class="line">#endif  // !defined(PT_DENY_ATTACH)</span><br><span class="line"></span><br><span class="line">void disable_gdb() &#123;</span><br><span class="line">  void* handle = dlopen(0, RTLD_GLOBAL | RTLD_NOW);</span><br><span class="line">  ptrace_ptr_t ptrace_ptr = dlsym(handle, &quot;ptrace&quot;);</span><br><span class="line">  ptrace_ptr(PT_DENY_ATTACH, 0, 0, 0);</span><br><span class="line">  dlclose(handle);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>关于绕过ptrace一般是使用lldb断点在进入ptrace函数时，直接return 0，即可绕过ptrace的检测。</li>
-</ul>
-<h4 id="常用工具介绍"><a href="#常用工具介绍" class="headerlink" title="常用工具介绍"></a>常用工具介绍</h4><ul>
-<li>Cycript:它是混合了objective-c与javascript语法的一个工具，让开发者在命令行下和应用交互，在运行时查看和修改应用。关于cycript详细内容：<a href="http://www.cycript.org/" target="_blank" rel="noopener">Cycript</a></li>
-<li>LLDB:它是XCode内置的为我们开发者提供的调试工具,能够带给我们更丰富的流程控制和数据检测的调试功能。关于lldb详细内容：<a href="http://https://lldb.llvm.org/" target="_blank" rel="noopener">LLDB</a></li>
-<li>IDA和Hopper：IDA是目前最棒的一个静态反编译软件。而Hopper类似于IDA，但是功能没有那么强大，支持静态分析反汇编，流程控制图，伪代码，以及二进制代码。<br>关于IDA详细内容：<a href="http://https://www.hex-rays.com/" target="_blank" rel="noopener">IDA</a><br>关于Hopper详细内容：<a href="http://https://www.hopperapp.com/" target="_blank" rel="noopener">Hopper</a></li>
-<li>Snoop-it：这个工具也很强大，支持查看钥匙串中储存的数据，查看app文件的属性和方法，分析网络流量等。关于Snoop-it详细内容：<a href="https://code.google.com/p/snoop-it/" target="_blank" rel="noopener">Snoop-it</a></li>
-<li>MonleyDev:支持非越狱调试，以及hook方法编写，动态调试，自动集成了Cycript，Reveal，ANYMethodLog，dump头文件等功能。关于MonkeyDev详细内容：<a href="https://github.com/AloneMonkey/MonkeyDev" target="_blank" rel="noopener">MonkeyDev</a></li>
-<li>ANYMethodLog 可以打印oc类中的任何方法，支持动态打印。关于ANYMethodLog详细内容：<a href="http://https://github.com/qhd/ANYMethodLog" target="_blank" rel="noopener">ANYMethodLog</a></li>
-</ul>
-
-          
+          不安全的数据存储沙盒路径
+Documents: 保存应⽤运行时生成的需要持久化的数据,iTunes同步设备时会备份该目录。
+tmp: 保存应⽤运行时所需的临时数据,使⽤完毕后再将相应的文件从该目录删除。应用没有运行时,系统也可能会清除该目录下的文件。iTunes同步设备时不会备份该目录。
+Libra
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2018/03/18/iOS应用安全测试/#more" rel="contents">
+              Weiterlesen &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -1176,26 +982,21 @@
       
         
           
-            <p>本文需要用到的工具：</p>
-<ul>
-<li>hopper disassembler</li>
-<li>Mac版本微信QQ</li>
-</ul>
-<p>我是一个刚刚接触逆向的iOS开发者，本着实践出真知的理念在网上搜索资料，开始自己动手研究。看完这篇文章您将实现Mac版本微信QQ的消息防撤回功能。</p>
-<h4 id="Mac版本微信"><a href="#Mac版本微信" class="headerlink" title="Mac版本微信"></a>Mac版本微信</h4><p>1.首先从App Store下载微信安装。<br>2.找到应用程序中的微信，右击显示包内容，找到MacOS文件夹下面的WeChat，这就是微信的可执行文件。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/4263020-415230e3090ed99e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="微信位置.png"></p>
-<p><img src="http://upload-images.jianshu.io/upload_images/4263020-5558878b7fed8f35.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="微信可执行文件.png"></p>
-<p>3.把微信的可执行文件WeChat拷贝到桌面备用。<br>4.这时候要拿出我们的关键工具：hopper disassembler  ，把桌面的WeChat直接拖到hopper里面进行编译。这个时候需要等待的时间可能会久一点。</p>
-<p>5.下图是编译完成后的样子，右下角的红点working消失，表示编译完成。<br><img src="http://upload-images.jianshu.io/upload_images/4263020-cb78427a5c9a68fe.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="编译完成后.png"></p>
-<p>6.然后在左侧的搜索栏直接查找关键函数 <code>onRevokeMsg</code></p>
-<p>7.这个时候开始修改汇编代码：鼠标点击函数中第一行的 <code>rbp</code>，然后按 <code>Option + A</code>，输入<code>ret</code>，并点击 <code>Assembler and Go Next</code>，此时窗口会跳到下一行，点击 <code>ESC</code> 退出即可。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/4263020-5bd5979d26051447.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="修改汇编代码.png"></p>
-<p>8.此时点击 <code>hift + Command + E</code>  重新生成修改后的微信可执行文件。</p>
-<p>9.把修改后的WeChat复制到 <code>/Applications/WeChat.app/Contents/MacOS</code> 替换原来的WeChat，并关闭微信重新打开，此时别人无法撤回你的消息。Well done!  </p>
-<h4 id="Mac版本QQ"><a href="#Mac版本QQ" class="headerlink" title="Mac版本QQ"></a>Mac版本QQ</h4><p>1.准备工作同上。首先从App Store下载QQ安装，去应用程序里面找到QQ，右击显示包内容，找到Contents/MacOS/QQ，把QQ复制到桌面，然后把QQ拖进hopper编译。<br>2.左侧搜索<code>handleRecallNotify</code>函数，鼠标点击函数中第一行的 <code>rbp</code>，然后按 <code>Option + A</code>，输入<code>ret</code>，并点击 <code>Assembler and Go Next</code>，此时窗口会跳到下一行，点击 <code>ESC</code> 退出。最后点击 <code>hift + Command + E</code>  重新生成修改后的QQ可QQ执行文件。<br>3.把修改后的QQ复制到 <code>/Applications/QQ.app/Contents/MacOS</code> 替换原来的QQ。重新打开QQ。</p>
-<p>以后还会更新关于逆向的文章，有兴趣的伙伴可以多多交流。我的WeChat：<code>337223400</code>。</p>
+          本文需要用到的工具：
 
-          
+hopper disassembler
+Mac版本微信QQ
+
+我是一个刚刚接触逆向的iOS开发者，本着实践出真知的理念在网上搜索资料，开始自己动手研究。看完这篇文章您将实现Mac版本微信QQ的消息防撤回功能。
+Mac版本微信1.首先从App Store下载微信安装。2.找到应
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2018/02/06/Mac版本微信QQ防撤回/#more" rel="contents">
+              Weiterlesen &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -1313,17 +1114,15 @@
       
         
           
-            <p>Welcome to <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="noopener">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="noopener">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="noopener">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="noopener">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="noopener">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="noopener">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/deployment.html" target="_blank" rel="noopener">Deployment</a></p>
-
-          
+          Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in 
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2018/01/20/hello-world/#more" rel="contents">
+              Weiterlesen &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>

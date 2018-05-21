@@ -94,19 +94,19 @@
 
 
 
-<meta name="description" content="什么是ZipperDown  盘古实验室在针对不同客户的iOS应用安全审计过程中，发现了一类通用的安全漏洞。创建漏洞指纹后，盘古实验室在Janus平台上进行溯源分析和相似漏洞检索，结果发现约10%的iOS应用可能受此漏洞的影响。经过手工分析，确认微博、陌陌、网易云音乐、QQ音乐、快手等流行应用受影响。 ZipperDown漏洞 早在5月12号，turing.huang就在GitHub提了Issu">
+<meta name="description" content="说在前面  在本文公开的时候，微博陌陌等应用已经修复了该漏洞，本文仅供学习使用。  什么是ZipperDown  盘古实验室在针对不同客户的iOS应用安全审计过程中，发现了一类通用的安全漏洞。创建漏洞指纹后，盘古实验室在Janus平台上进行溯源分析和相似漏洞检索，结果发现约10%的iOS应用可能受此漏洞的影响。经过手工分析，确认微博、陌陌、网易云音乐、QQ音乐、快手等流行应用受影响。 Zippe">
 <meta property="og:type" content="article">
 <meta property="og:title" content="ZipperDown漏洞浅析">
 <meta property="og:url" content="http://yoursite.com/2018/05/16/ZipperDown漏洞浅析/index.html">
 <meta property="og:site_name" content="代伟佳">
-<meta property="og:description" content="什么是ZipperDown  盘古实验室在针对不同客户的iOS应用安全审计过程中，发现了一类通用的安全漏洞。创建漏洞指纹后，盘古实验室在Janus平台上进行溯源分析和相似漏洞检索，结果发现约10%的iOS应用可能受此漏洞的影响。经过手工分析，确认微博、陌陌、网易云音乐、QQ音乐、快手等流行应用受影响。 ZipperDown漏洞 早在5月12号，turing.huang就在GitHub提了Issu">
+<meta property="og:description" content="说在前面  在本文公开的时候，微博陌陌等应用已经修复了该漏洞，本文仅供学习使用。  什么是ZipperDown  盘古实验室在针对不同客户的iOS应用安全审计过程中，发现了一类通用的安全漏洞。创建漏洞指纹后，盘古实验室在Janus平台上进行溯源分析和相似漏洞检索，结果发现约10%的iOS应用可能受此漏洞的影响。经过手工分析，确认微博、陌陌、网易云音乐、QQ音乐、快手等流行应用受影响。 Zippe">
 <meta property="og:image" content="http://yoursite.com/images/upload_f4008f8973ebff81c21f1367b8bbb3f6.png">
 <meta property="og:image" content="http://yoursite.com/images/upload_c8bdff3e59089ada24370035580f9c59-1.png">
 <meta property="og:image" content="http://yoursite.com/images/upload_0c34fdccf05608d1b359b2bc93416725.png">
-<meta property="og:updated_time" content="2018-05-21T02:17:18.066Z">
+<meta property="og:updated_time" content="2018-05-21T02:43:01.309Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="ZipperDown漏洞浅析">
-<meta name="twitter:description" content="什么是ZipperDown  盘古实验室在针对不同客户的iOS应用安全审计过程中，发现了一类通用的安全漏洞。创建漏洞指纹后，盘古实验室在Janus平台上进行溯源分析和相似漏洞检索，结果发现约10%的iOS应用可能受此漏洞的影响。经过手工分析，确认微博、陌陌、网易云音乐、QQ音乐、快手等流行应用受影响。 ZipperDown漏洞 早在5月12号，turing.huang就在GitHub提了Issu">
+<meta name="twitter:description" content="说在前面  在本文公开的时候，微博陌陌等应用已经修复了该漏洞，本文仅供学习使用。  什么是ZipperDown  盘古实验室在针对不同客户的iOS应用安全审计过程中，发现了一类通用的安全漏洞。创建漏洞指纹后，盘古实验室在Janus平台上进行溯源分析和相似漏洞检索，结果发现约10%的iOS应用可能受此漏洞的影响。经过手工分析，确认微博、陌陌、网易云音乐、QQ音乐、快手等流行应用受影响。 Zippe">
 <meta name="twitter:image" content="http://yoursite.com/images/upload_f4008f8973ebff81c21f1367b8bbb3f6.png">
 
 
@@ -333,6 +333,10 @@
 
       
         <ul>
+<li><h5 id="说在前面"><a href="#说在前面" class="headerlink" title="说在前面"></a>说在前面</h5></li>
+</ul>
+<p>在本文公开的时候，微博陌陌等应用已经修复了该漏洞，本文仅供学习使用。</p>
+<ul>
 <li><h5 id="什么是ZipperDown"><a href="#什么是ZipperDown" class="headerlink" title="什么是ZipperDown"></a>什么是ZipperDown</h5></li>
 </ul>
 <p>盘古实验室在针对不同客户的iOS应用安全审计过程中，发现了一类通用的安全漏洞。创建漏洞指纹后，盘古实验室在<a href="https://www.appscan.io/" target="_blank" rel="noopener">Janus平台</a>上进行溯源分析和相似漏洞检索，结果发现约10%的iOS应用可能受此漏洞的影响。经过手工分析，确认微博、陌陌、网易云音乐、QQ音乐、快手等流行应用受影响。</p>
@@ -521,7 +525,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-5"><a class="nav-link" href="#什么是ZipperDown"><span class="nav-number">1.</span> <span class="nav-text">什么是ZipperDown</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#ZipperDown如何重现"><span class="nav-number">2.</span> <span class="nav-text">ZipperDown如何重现</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#如何修复漏洞"><span class="nav-number">3.</span> <span class="nav-text">如何修复漏洞</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#总结"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#参考资料"><span class="nav-number">5.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-5"><a class="nav-link" href="#说在前面"><span class="nav-number">1.</span> <span class="nav-text">说在前面</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#什么是ZipperDown"><span class="nav-number">2.</span> <span class="nav-text">什么是ZipperDown</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#ZipperDown如何重现"><span class="nav-number">3.</span> <span class="nav-text">ZipperDown如何重现</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#如何修复漏洞"><span class="nav-number">4.</span> <span class="nav-text">如何修复漏洞</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#总结"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#参考资料"><span class="nav-number">6.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
             
 
           </div>

@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="源码分析," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="前言在开发过程中我们看到的程序入口都是 main 函数，所以认为程序都是从 main 函数开始执行的。其实在程序执行 main 函数之前已经执行了 +load 和 constructor 构造函数。今天我们就来看看在 main 函数执行之前都发生了什么。 什么是 dyld ？程序运行依赖于很多动态库，动态库也是一个静态文件，格式和 iOS、MacOS、WatchOS 的可执行文件格式是一样的，都是">
+<meta name="keywords" content="源码分析">
+<meta property="og:type" content="article">
+<meta property="og:title" content="dyld 源码初探">
+<meta property="og:url" content="http://yoursite.com/2019/07/10/dyld 源码初探/index.html">
+<meta property="og:site_name" content="代伟佳">
+<meta property="og:description" content="前言在开发过程中我们看到的程序入口都是 main 函数，所以认为程序都是从 main 函数开始执行的。其实在程序执行 main 函数之前已经执行了 +load 和 constructor 构造函数。今天我们就来看看在 main 函数执行之前都发生了什么。 什么是 dyld ？程序运行依赖于很多动态库，动态库也是一个静态文件，格式和 iOS、MacOS、WatchOS 的可执行文件格式是一样的，都是">
+<meta property="og:image" content="http://yoursite.com/images/dyld_4.png">
+<meta property="og:image" content="http://yoursite.com/images/dyld_1.jpg">
+<meta property="og:image" content="http://yoursite.com/images/dyld_2.jpg">
+<meta property="og:image" content="http://yoursite.com/images/dyld_3.png">
+<meta property="og:updated_time" content="2019-07-10T04:18:54.209Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="dyld 源码初探">
+<meta name="twitter:description" content="前言在开发过程中我们看到的程序入口都是 main 函数，所以认为程序都是从 main 函数开始执行的。其实在程序执行 main 函数之前已经执行了 +load 和 constructor 构造函数。今天我们就来看看在 main 函数执行之前都发生了什么。 什么是 dyld ？程序运行依赖于很多动态库，动态库也是一个静态文件，格式和 iOS、MacOS、WatchOS 的可执行文件格式是一样的，都是">
+<meta name="twitter:image" content="http://yoursite.com/images/dyld_4.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    sidebar: {"position":"left","display":"hide","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/07/10/dyld 源码初探/"/>
+
+
+
+
+
+  <title>dyld 源码初探 | 代伟佳</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">代伟佳</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/07/10/dyld 源码初探/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="代伟佳WeChat:337223400">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="代伟佳">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">dyld 源码初探</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-07-10T12:04:07+08:00">
+                2019-07-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2019/07/10/dyld 源码初探/" class="leancloud_visitors" data-flag-title="dyld 源码初探">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">Visitors </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>在开发过程中我们看到的程序入口都是 main 函数，所以认为程序都是从 main 函数开始执行的。其实在程序执行 main 函数之前已经执行了 +load 和 constructor 构造函数。今天我们就来看看在 main 函数执行之前都发生了什么。</p>
+<h3 id="什么是-dyld-？"><a href="#什么是-dyld-？" class="headerlink" title="什么是 dyld ？"></a>什么是 dyld ？</h3><p>程序运行依赖于很多动态库，动态库也是一个静态文件，格式和 iOS、MacOS、WatchOS 的可执行文件格式是一样的，都是 Mach-O 文件。他本身是不可以直接运行的，需要通过一个动态库加载器将其加载到内存空间，那么这个动态链接加载器就是 dyld 了。</p>
+<h3 id="dyld-源码分析"><a href="#dyld-源码分析" class="headerlink" title="dyld 源码分析"></a>dyld 源码分析</h3><p><code>dyld</code> 在手机中的路径是 <code>/usr/lib/dyld</code>，这是源码下载地址 <a href="https://opensource.apple.com/tarballs/dyld/" target="_blank" rel="noopener">dyld源码</a> 。<br>代码从 <code>dyldStartup.s</code> 文件开始执行，下面我们看看用汇编实现的 <code>__dyld_start</code> 方法。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">#if __arm64__</span><br><span class="line"></span><br><span class="line">    ...省略代码...</span><br><span class="line">    </span><br><span class="line">    // __ZN13dyldbootstrap5startEPK12macho_headeriPPKclS2_Pm 是被 name mangling 过的 c++ 函数（不明白什么是 name mangling 的可以谷歌一下 C++ 中的 name mangling）。</span><br><span class="line">    // 实际调用就是 dyldbootstrap::start(macho_header const*,int,char const**,long,macho_header const*,ulong *)，此函数的调用会完成动态库加载的一系列过程，并返回主程序 main 函数的地址，保存在 x0 寄存器。 </span><br><span class="line">    bl  __ZN13dyldbootstrap5startEPK12macho_headeriPPKclS2_Pm</span><br><span class="line">    // 将主程序 main 函数的地址存入 x16 寄存器</span><br><span class="line">    mov x16,x0                  </span><br><span class="line">    ldr     x1, [sp]</span><br><span class="line">    cmp x1, #0</span><br><span class="line">    // 调用 b.ne Lnew 进行准备入参，环境变量等</span><br><span class="line">    b.ne    Lnew</span><br><span class="line"></span><br><span class="line">    // LC_UNIXTHREAD way, clean up stack and jump to result</span><br><span class="line">    add sp, x28, #8     // restore unaligned stack pointer without app mh</span><br><span class="line">    // 跳转主程序 main 函数，也就是我们 App 中的 mian 函数被调用</span><br><span class="line">    br  x16         </span><br><span class="line"></span><br><span class="line">    // LC_MAIN case, set up stack for call to main()</span><br><span class="line">Lnew:   mov lr, x1          // simulate return address into _start in libdyld.dylib</span><br><span class="line">    ldr     x0, [x28, #8]       // main param1 = argc</span><br><span class="line">    add     x1, x28, #16        // main param2 = argv</span><br><span class="line">    add x2, x1, x0, lsl #3  </span><br><span class="line">    add x2, x2, #8      // main param3 = &amp;env[0]</span><br><span class="line">    mov x3, x2</span><br><span class="line"></span><br><span class="line">    ...省略代码...</span><br><span class="line"></span><br><span class="line">#endif // __arm64__</span><br></pre></td></tr></table></figure>
+<p>我们看到在 <code>__dyld_start</code> 中调用了 <code>dyldbootstrap::start</code> 。下面我们就看看 <code>dyldbootstrap::start</code> 做了什么：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">uintptr_t start(const struct macho_header* appsMachHeader, int argc, const char* argv[], </span><br><span class="line">                intptr_t slide, const struct macho_header* dyldsMachHeader,</span><br><span class="line">                uintptr_t* startGlue)</span><br><span class="line">&#123;</span><br><span class="line">    // if kernel had to slide dyld, we need to fix up load sensitive locations</span><br><span class="line">    // we have to do this before using any global variables</span><br><span class="line">    // 通过 kernel 传过来的 slieds 修正 dyld 的 non-lazy 符号地址，因为 dyld 有了 ASLR ，所以符号也都需要根据 ASLR 做偏移，lazy 的符号因为其动态库已经做了改作的偏移不需要处理。</span><br><span class="line">    if ( slide != 0 ) &#123;</span><br><span class="line">        rebaseDyld(dyldsMachHeader, slide);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // allow dyld to use mach messaging</span><br><span class="line">    // 消息初始化</span><br><span class="line">    mach_init();</span><br><span class="line"></span><br><span class="line">    // kernel sets up env pointer to be just past end of agv array</span><br><span class="line">    const char** envp = &amp;argv[argc+1];</span><br><span class="line">    </span><br><span class="line">    // kernel sets up apple pointer to be just past end of envp array</span><br><span class="line">    const char** apple = envp;</span><br><span class="line">    while(*apple != NULL) &#123; ++apple; &#125;</span><br><span class="line">    ++apple;</span><br><span class="line"></span><br><span class="line">    // set up random value for stack canary</span><br><span class="line">    // 栈溢出保护</span><br><span class="line">    __guard_setup(apple);</span><br><span class="line"></span><br><span class="line">#if DYLD_INITIALIZER_SUPPORT</span><br><span class="line">    // run all C++ initializers inside dyld</span><br><span class="line">    runDyldInitializers(dyldsMachHeader, slide, argc, argv, envp, apple);</span><br><span class="line">#endif</span><br><span class="line"></span><br><span class="line">    // now that we are done bootstrapping dyld, call dyld&apos;s main</span><br><span class="line">    uintptr_t appsSlide = slideOfMainExecutable(appsMachHeader);</span><br><span class="line">    </span><br><span class="line">    // 此函数的调用会完成动态库加载的一系列过程，并返回主程序 main 函数入口，也就是 App 中的 main 函数地址</span><br><span class="line">    return dyld::_main(appsMachHeader, appsSlide, argc, argv, envp, apple, startGlue);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上面看到了调用 <code>dyld::_main</code> 函数，其实在该函数中便完成了整个动态库加载的一系列过程，接下来我们仔细看看中间都做了什么：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br><span class="line">254</span><br><span class="line">255</span><br><span class="line">256</span><br><span class="line">257</span><br><span class="line">258</span><br><span class="line">259</span><br><span class="line">260</span><br><span class="line">261</span><br><span class="line">262</span><br><span class="line">263</span><br><span class="line">264</span><br><span class="line">265</span><br><span class="line">266</span><br><span class="line">267</span><br><span class="line">268</span><br><span class="line">269</span><br><span class="line">270</span><br><span class="line">271</span><br><span class="line">272</span><br><span class="line">273</span><br><span class="line">274</span><br><span class="line">275</span><br><span class="line">276</span><br><span class="line">277</span><br><span class="line">278</span><br><span class="line">279</span><br><span class="line">280</span><br><span class="line">281</span><br><span class="line">282</span><br><span class="line">283</span><br><span class="line">284</span><br><span class="line">285</span><br><span class="line">286</span><br><span class="line">287</span><br><span class="line">288</span><br><span class="line">289</span><br><span class="line">290</span><br><span class="line">291</span><br><span class="line">292</span><br><span class="line">293</span><br><span class="line">294</span><br><span class="line">295</span><br><span class="line">296</span><br><span class="line">297</span><br><span class="line">298</span><br><span class="line">299</span><br><span class="line">300</span><br><span class="line">301</span><br><span class="line">302</span><br><span class="line">303</span><br><span class="line">304</span><br><span class="line">305</span><br><span class="line">306</span><br><span class="line">307</span><br><span class="line">308</span><br><span class="line">309</span><br><span class="line">310</span><br><span class="line">311</span><br><span class="line">312</span><br><span class="line">313</span><br><span class="line">314</span><br><span class="line">315</span><br><span class="line">316</span><br><span class="line">317</span><br><span class="line">318</span><br><span class="line">319</span><br><span class="line">320</span><br><span class="line">321</span><br><span class="line">322</span><br><span class="line">323</span><br><span class="line">324</span><br><span class="line">325</span><br><span class="line">326</span><br><span class="line">327</span><br><span class="line">328</span><br><span class="line">329</span><br><span class="line">330</span><br><span class="line">331</span><br><span class="line">332</span><br><span class="line">333</span><br><span class="line">334</span><br><span class="line">335</span><br><span class="line">336</span><br><span class="line">337</span><br><span class="line">338</span><br><span class="line">339</span><br><span class="line">340</span><br><span class="line">341</span><br><span class="line">342</span><br><span class="line">343</span><br><span class="line">344</span><br><span class="line">345</span><br><span class="line">346</span><br><span class="line">347</span><br><span class="line">348</span><br><span class="line">349</span><br><span class="line">350</span><br><span class="line">351</span><br><span class="line">352</span><br><span class="line">353</span><br><span class="line">354</span><br><span class="line">355</span><br><span class="line">356</span><br><span class="line">357</span><br><span class="line">358</span><br><span class="line">359</span><br><span class="line">360</span><br><span class="line">361</span><br><span class="line">362</span><br><span class="line">363</span><br><span class="line">364</span><br><span class="line">365</span><br><span class="line">366</span><br><span class="line">367</span><br><span class="line">368</span><br><span class="line">369</span><br><span class="line">370</span><br><span class="line">371</span><br><span class="line">372</span><br><span class="line">373</span><br><span class="line">374</span><br></pre></td><td class="code"><pre><span class="line">uintptr_t</span><br><span class="line">_main(const macho_header* mainExecutableMH, uintptr_t mainExecutableSlide, </span><br><span class="line">        int argc, const char* argv[], const char* envp[], const char* apple[], </span><br><span class="line">        uintptr_t* startGlue)</span><br><span class="line">&#123;</span><br><span class="line">    uintptr_t result = 0;</span><br><span class="line">    // 保存执行文件头部，后续可以根据头部访问其他信息</span><br><span class="line">    sMainExecutableMachHeader = mainExecutableMH;</span><br><span class="line">#if __MAC_OS_X_VERSION_MIN_REQUIRED</span><br><span class="line">    // if this is host dyld, check to see if iOS simulator is being run</span><br><span class="line">    const char* rootPath = _simple_getenv(envp, &quot;DYLD_ROOT_PATH&quot;);</span><br><span class="line">    if ( rootPath != NULL ) &#123;</span><br><span class="line">        // Add dyld to the kernel image info before we jump to the sim</span><br><span class="line">        notifyKernelAboutDyld();</span><br><span class="line"></span><br><span class="line">        // look to see if simulator has its own dyld</span><br><span class="line">        char simDyldPath[PATH_MAX]; </span><br><span class="line">        strlcpy(simDyldPath, rootPath, PATH_MAX);</span><br><span class="line">        strlcat(simDyldPath, &quot;/usr/lib/dyld_sim&quot;, PATH_MAX);</span><br><span class="line">        int fd = my_open(simDyldPath, O_RDONLY, 0);</span><br><span class="line">        if ( fd != -1 ) &#123;</span><br><span class="line">            const char* errMessage = useSimulatorDyld(fd, mainExecutableMH, simDyldPath, argc, argv, envp, apple, startGlue, &amp;result);</span><br><span class="line">            if ( errMessage != NULL )</span><br><span class="line">                halt(errMessage);</span><br><span class="line">            return result;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">#endif</span><br><span class="line"></span><br><span class="line">    CRSetCrashLogMessage(&quot;dyld: launch started&quot;);</span><br><span class="line"></span><br><span class="line">    // 设置上下文信息</span><br><span class="line">    setContext(mainExecutableMH, argc, argv, envp, apple);</span><br><span class="line"></span><br><span class="line">    // Pickup the pointer to the exec path.</span><br><span class="line">    // 获取可执行文件路径</span><br><span class="line">    sExecPath = _simple_getenv(apple, &quot;executable_path&quot;);</span><br><span class="line"></span><br><span class="line">    // &lt;rdar://problem/13868260&gt; Remove interim apple[0] transition code from dyld</span><br><span class="line">    if (!sExecPath) sExecPath = apple[0];</span><br><span class="line">    // 将相对路径转成绝对路径</span><br><span class="line">    if ( sExecPath[0] != &apos;/&apos; ) &#123;</span><br><span class="line">        // have relative path, use cwd to make absolute</span><br><span class="line">        char cwdbuff[MAXPATHLEN];</span><br><span class="line">        if ( getcwd(cwdbuff, MAXPATHLEN) != NULL ) &#123;</span><br><span class="line">            // maybe use static buffer to avoid calling malloc so early...</span><br><span class="line">            char* s = new char[strlen(cwdbuff) + strlen(sExecPath) + 2];</span><br><span class="line">            strcpy(s, cwdbuff);</span><br><span class="line">            strcat(s, &quot;/&quot;);</span><br><span class="line">            strcat(s, sExecPath);</span><br><span class="line">            sExecPath = s;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    // Remember short name of process for later logging</span><br><span class="line">    // 获取文件的名字</span><br><span class="line">    sExecShortName = ::strrchr(sExecPath, &apos;/&apos;);</span><br><span class="line">    if ( sExecShortName != NULL )</span><br><span class="line">        ++sExecShortName;</span><br><span class="line">    else</span><br><span class="line">        sExecShortName = sExecPath;</span><br><span class="line">    // 配置进程是否受限</span><br><span class="line">    configureProcessRestrictions(mainExecutableMH);</span><br><span class="line"></span><br><span class="line">#if __MAC_OS_X_VERSION_MIN_REQUIRED</span><br><span class="line">    if ( gLinkContext.processIsRestricted ) &#123;</span><br><span class="line">        pruneEnvironmentVariables(envp, &amp;apple);</span><br><span class="line">        // set again because envp and apple may have changed or moved</span><br><span class="line">        setContext(mainExecutableMH, argc, argv, envp, apple);</span><br><span class="line">    &#125;</span><br><span class="line">    else</span><br><span class="line">#endif</span><br><span class="line">    &#123;</span><br><span class="line">        // 检查设置环境变量</span><br><span class="line">        checkEnvironmentVariables(envp);</span><br><span class="line">        // 如果 DYLD_FALLBACK 为 nil，将其设置为默认值</span><br><span class="line">        defaultUninitializedFallbackPaths(envp);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    // 处理环境变量，如果我们在 xcode 中的 Edit Scheme -&gt; run -&gt; Argument 中添加了 DYLD_PRINT_OPTS、DYLD_PRINT_ENV 等参数，可在输出打印相关信息</span><br><span class="line">    if ( sEnv.DYLD_PRINT_OPTS )</span><br><span class="line">        printOptions(argv);</span><br><span class="line">    if ( sEnv.DYLD_PRINT_ENV ) </span><br><span class="line">        printEnvironmentVariables(envp);</span><br><span class="line"></span><br><span class="line">    // 获取当前运行架构的信息</span><br><span class="line">    getHostInfo(mainExecutableMH, mainExecutableSlide);</span><br><span class="line">    // install gdb notifier</span><br><span class="line">    stateToHandlers(dyld_image_state_dependents_mapped, sBatchHandlers)-&gt;push_back(notifyGDB);</span><br><span class="line">    stateToHandlers(dyld_image_state_mapped, sSingleHandlers)-&gt;push_back(updateAllImages);</span><br><span class="line">    // make initial allocations large enough that it is unlikely to need to be re-alloced</span><br><span class="line">    sImageRoots.reserve(16);</span><br><span class="line">    sAddImageCallbacks.reserve(4);</span><br><span class="line">    sRemoveImageCallbacks.reserve(4);</span><br><span class="line">    sImageFilesNeedingTermination.reserve(16);</span><br><span class="line">    sImageFilesNeedingDOFUnregistration.reserve(8);</span><br><span class="line"></span><br><span class="line">#if !TARGET_IPHONE_SIMULATOR</span><br><span class="line">#ifdef WAIT_FOR_SYSTEM_ORDER_HANDSHAKE</span><br><span class="line">    // &lt;rdar://problem/6849505&gt; Add gating mechanism to dyld support system order file generation process</span><br><span class="line">    WAIT_FOR_SYSTEM_ORDER_HANDSHAKE(dyld::gProcessInfo-&gt;systemOrderFlag);</span><br><span class="line">#endif</span><br><span class="line">#endif</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    try &#123;</span><br><span class="line">        // add dyld itself to UUID list</span><br><span class="line">        addDyldImageToUUIDList();</span><br><span class="line">        notifyKernelAboutDyld();</span><br><span class="line"></span><br><span class="line">#if SUPPORT_ACCELERATE_TABLES</span><br><span class="line">        bool mainExcutableAlreadyRebased = false;</span><br><span class="line"></span><br><span class="line">reloadAllImages:</span><br><span class="line">#endif</span><br><span class="line"></span><br><span class="line">        CRSetCrashLogMessage(sLoadingCrashMessage);</span><br><span class="line">        // instantiate ImageLoader for main executable</span><br><span class="line">        // 作为主程序初始化 imageLoader，用于后续的链接等过程，主程序作为 dyld 的第一个被 addimage 的镜像，所以我们总是能够通过 _dyld_get_image_header(0) 或者 _dyld_get_image_name(0) 等，索引到第一个 image 镜像作为主程序的相关信息。</span><br><span class="line">        // 加载可执行文件，并生成一个 ImageLoader 实例对象</span><br><span class="line">        sMainExecutable = instantiateFromLoadedImage(mainExecutableMH, mainExecutableSlide, sExecPath);</span><br><span class="line">        gLinkContext.mainExecutable = sMainExecutable;</span><br><span class="line">        gLinkContext.mainExecutableCodeSigned = hasCodeSignatureLoadCommand(mainExecutableMH);</span><br><span class="line"></span><br><span class="line">#if TARGET_IPHONE_SIMULATOR</span><br><span class="line">        // check main executable is not too new for this OS</span><br><span class="line">        &#123;</span><br><span class="line">            if ( ! isSimulatorBinary((uint8_t*)mainExecutableMH, sExecPath) ) &#123;</span><br><span class="line">                throwf(&quot;program was built for a platform that is not supported by this runtime&quot;);</span><br><span class="line">            &#125;</span><br><span class="line">            uint32_t mainMinOS = sMainExecutable-&gt;minOSVersion();</span><br><span class="line"></span><br><span class="line">            // dyld is always built for the current OS, so we can get the current OS version</span><br><span class="line">            // from the load command in dyld itself.</span><br><span class="line">            uint32_t dyldMinOS = ImageLoaderMachO::minOSVersion((const mach_header*)&amp;__dso_handle);</span><br><span class="line">            if ( mainMinOS &gt; dyldMinOS ) &#123;</span><br><span class="line">    #if TARGET_OS_WATCH</span><br><span class="line">                throwf(&quot;app was built for watchOS %d.%d which is newer than this simulator %d.%d&quot;,</span><br><span class="line">                        mainMinOS &gt;&gt; 16, ((mainMinOS &gt;&gt; 8) &amp; 0xFF),</span><br><span class="line">                        dyldMinOS &gt;&gt; 16, ((dyldMinOS &gt;&gt; 8) &amp; 0xFF));</span><br><span class="line">    #elif TARGET_OS_TV</span><br><span class="line">                throwf(&quot;app was built for tvOS %d.%d which is newer than this simulator %d.%d&quot;,</span><br><span class="line">                        mainMinOS &gt;&gt; 16, ((mainMinOS &gt;&gt; 8) &amp; 0xFF),</span><br><span class="line">                        dyldMinOS &gt;&gt; 16, ((dyldMinOS &gt;&gt; 8) &amp; 0xFF));</span><br><span class="line">    #else</span><br><span class="line">                throwf(&quot;app was built for iOS %d.%d which is newer than this simulator %d.%d&quot;,</span><br><span class="line">                        mainMinOS &gt;&gt; 16, ((mainMinOS &gt;&gt; 8) &amp; 0xFF),</span><br><span class="line">                        dyldMinOS &gt;&gt; 16, ((dyldMinOS &gt;&gt; 8) &amp; 0xFF));</span><br><span class="line">    #endif</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">#endif</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    #if __MAC_OS_X_VERSION_MIN_REQUIRED</span><br><span class="line">        // &lt;rdar://problem/22805519&gt; be less strict about old mach-o binaries</span><br><span class="line">        uint32_t mainSDK = sMainExecutable-&gt;sdkVersion();</span><br><span class="line">        gLinkContext.strictMachORequired = (mainSDK &gt;= DYLD_MACOSX_VERSION_10_12) || gLinkContext.processUsingLibraryValidation;</span><br><span class="line">    #else</span><br><span class="line">        // simulators, iOS, tvOS, and watchOS are always strict</span><br><span class="line">        gLinkContext.strictMachORequired = true;</span><br><span class="line">    #endif</span><br><span class="line"></span><br><span class="line">        // load shared cache</span><br><span class="line">        // 检查共享缓存是否开启，在 iOS 中必须开启</span><br><span class="line">        checkSharedRegionDisable();</span><br><span class="line">    #if DYLD_SHARED_CACHE_SUPPORT</span><br><span class="line">        if ( gLinkContext.sharedRegionMode != ImageLoader::kDontUseSharedRegion ) &#123;</span><br><span class="line">            // 检查共享缓存是否映射到了共享区域</span><br><span class="line">            mapSharedCache();</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            dyld_kernel_image_info_t kernelCacheInfo;</span><br><span class="line">            bzero(&amp;kernelCacheInfo.uuid[0], sizeof(uuid_t));</span><br><span class="line">            kernelCacheInfo.load_addr = 0;</span><br><span class="line">            kernelCacheInfo.fsobjid.fid_objno = 0;</span><br><span class="line">            kernelCacheInfo.fsobjid.fid_generation = 0;</span><br><span class="line">            kernelCacheInfo.fsid.val[0] = 0;</span><br><span class="line">            kernelCacheInfo.fsid.val[0] = 0;</span><br><span class="line">            task_register_dyld_shared_cache_image_info(mach_task_self(), kernelCacheInfo, true, false);</span><br><span class="line">        &#125;</span><br><span class="line">    #endif</span><br><span class="line"></span><br><span class="line">    #if SUPPORT_ACCELERATE_TABLES</span><br><span class="line">        sAllImages.reserve((sAllCacheImagesProxy != NULL) ? 16 : INITIAL_IMAGE_COUNT);</span><br><span class="line">    #else</span><br><span class="line">        sAllImages.reserve(INITIAL_IMAGE_COUNT);</span><br><span class="line">    #endif</span><br><span class="line"></span><br><span class="line">        // Now that shared cache is loaded, setup an versioned dylib overrides</span><br><span class="line">    #if SUPPORT_VERSIONED_PATHS</span><br><span class="line">        // 检查库的版本是否有更新，如果有则覆盖原有的</span><br><span class="line">        checkVersionedPaths();</span><br><span class="line">    #endif</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        // dyld_all_image_infos image list does not contain dyld</span><br><span class="line">        // add it as dyldPath field in dyld_all_image_infos</span><br><span class="line">        // for simulator, dyld_sim is in image list, need host dyld added</span><br><span class="line">#if TARGET_IPHONE_SIMULATOR</span><br><span class="line">        // get path of host dyld from table of syscall vectors in host dyld</span><br><span class="line">        void* addressInDyld = gSyscallHelpers;</span><br><span class="line">#else</span><br><span class="line">        // get path of dyld itself</span><br><span class="line">        void*  addressInDyld = (void*)&amp;__dso_handle;</span><br><span class="line">#endif</span><br><span class="line">        char dyldPathBuffer[MAXPATHLEN+1];</span><br><span class="line">        int len = proc_regionfilename(getpid(), (uint64_t)(long)addressInDyld, dyldPathBuffer, MAXPATHLEN);</span><br><span class="line">        if ( len &gt; 0 ) &#123;</span><br><span class="line">            dyldPathBuffer[len] = &apos;\0&apos;; // proc_regionfilename() does not zero terminate returned string</span><br><span class="line">            if ( strcmp(dyldPathBuffer, gProcessInfo-&gt;dyldPath) != 0 )</span><br><span class="line">                gProcessInfo-&gt;dyldPath = strdup(dyldPathBuffer);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        // load any inserted libraries</span><br><span class="line">        // 加载所有 DYLD_INSERT_LIBRARIES 指定的库</span><br><span class="line">        if  ( sEnv.DYLD_INSERT_LIBRARIES != NULL ) &#123;</span><br><span class="line">            for (const char* const* lib = sEnv.DYLD_INSERT_LIBRARIES; *lib != NULL; ++lib) </span><br><span class="line">                // 这也是很多越狱情况下 CydiaSubstrate 不需要修改 binary 就能运行加载动态库的原因，越狱情况下可以直接修改 App 的环境变量，从而注入动态库</span><br><span class="line">                loadInsertedDylib(*lib);</span><br><span class="line">        &#125;</span><br><span class="line">        // record count of inserted libraries so that a flat search will look at </span><br><span class="line">        // inserted libraries, then main, then others.</span><br><span class="line">        sInsertedDylibCount = sAllImages.size()-1;</span><br><span class="line"></span><br><span class="line">        // link main executable</span><br><span class="line">        gLinkContext.linkingMainExecutable = true;</span><br><span class="line">#if SUPPORT_ACCELERATE_TABLES</span><br><span class="line">        if ( mainExcutableAlreadyRebased ) &#123;</span><br><span class="line">            // previous link() on main executable has already adjusted its internal pointers for ASLR</span><br><span class="line">            // work around that by rebasing by inverse amount</span><br><span class="line">            sMainExecutable-&gt;rebase(gLinkContext, -mainExecutableSlide);</span><br><span class="line">        &#125;</span><br><span class="line">#endif</span><br><span class="line">        // 链接主程序</span><br><span class="line">        link(sMainExecutable, sEnv.DYLD_BIND_AT_LAUNCH, true, ImageLoader::RPathChain(NULL, NULL), -1);</span><br><span class="line">        sMainExecutable-&gt;setNeverUnloadRecursive();</span><br><span class="line">        if ( sMainExecutable-&gt;forceFlat() ) &#123;</span><br><span class="line">            gLinkContext.bindFlat = true;</span><br><span class="line">            gLinkContext.prebindUsage = ImageLoader::kUseNoPrebinding;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        // link any inserted libraries</span><br><span class="line">        // 链接插入的动态库</span><br><span class="line">        // do this after linking main executable so that any dylibs pulled in by inserted </span><br><span class="line">        // dylibs (e.g. libSystem) will not be in front of dylibs the program uses</span><br><span class="line">        if ( sInsertedDylibCount &gt; 0 ) &#123;</span><br><span class="line">            for(unsigned int i=0; i &lt; sInsertedDylibCount; ++i) &#123;</span><br><span class="line">                ImageLoader* image = sAllImages[i+1];</span><br><span class="line">                // 循环链接动态库</span><br><span class="line">                link(image, sEnv.DYLD_BIND_AT_LAUNCH, true, ImageLoader::RPathChain(NULL, NULL), -1);</span><br><span class="line">                image-&gt;setNeverUnloadRecursive();</span><br><span class="line">            &#125;</span><br><span class="line">            // only INSERTED libraries can interpose</span><br><span class="line">            // register interposing info after all inserted libraries are bound so chaining works</span><br><span class="line">            for(unsigned int i=0; i &lt; sInsertedDylibCount; ++i) &#123;</span><br><span class="line">                ImageLoader* image = sAllImages[i+1];</span><br><span class="line">                // 注册符号插入</span><br><span class="line">                image-&gt;registerInterposing();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        // &lt;rdar://problem/19315404&gt; dyld should support interposition even without DYLD_INSERT_LIBRARIES</span><br><span class="line">        for (long i=sInsertedDylibCount+1; i &lt; sAllImages.size(); ++i) &#123;</span><br><span class="line">            ImageLoader* image = sAllImages[i];</span><br><span class="line">            if ( image-&gt;inSharedCache() )</span><br><span class="line">                continue;</span><br><span class="line">            // 注册符号插入</span><br><span class="line">            image-&gt;registerInterposing();</span><br><span class="line">        &#125;</span><br><span class="line">    #if SUPPORT_ACCELERATE_TABLES</span><br><span class="line">        if ( (sAllCacheImagesProxy != NULL) &amp;&amp; ImageLoader::haveInterposingTuples() ) &#123;</span><br><span class="line">            // Accelerator tables cannot be used with implicit interposing, so relaunch with accelerator tables disabled</span><br><span class="line">            ImageLoader::clearInterposingTuples();</span><br><span class="line">            // unmap all loaded dylibs (but not main executable)</span><br><span class="line">            for (long i=1; i &lt; sAllImages.size(); ++i) &#123;</span><br><span class="line">                ImageLoader* image = sAllImages[i];</span><br><span class="line">                if ( image == sMainExecutable )</span><br><span class="line">                    continue;</span><br><span class="line">                if ( image == sAllCacheImagesProxy )</span><br><span class="line">                    continue;</span><br><span class="line">                image-&gt;setCanUnload();</span><br><span class="line">                ImageLoader::deleteImage(image);</span><br><span class="line">            &#125;</span><br><span class="line">            // note: we don&apos;t need to worry about inserted images because if DYLD_INSERT_LIBRARIES was set we would not be using the accelerator table</span><br><span class="line">            sAllImages.clear();</span><br><span class="line">            sImageRoots.clear();</span><br><span class="line">            sImageFilesNeedingTermination.clear();</span><br><span class="line">            sImageFilesNeedingDOFUnregistration.clear();</span><br><span class="line">            sAddImageCallbacks.clear();</span><br><span class="line">            sRemoveImageCallbacks.clear();</span><br><span class="line">            sDisableAcceleratorTables = true;</span><br><span class="line">            sAllCacheImagesProxy = NULL;</span><br><span class="line">            sMappedRangesStart = NULL;</span><br><span class="line">            mainExcutableAlreadyRebased = true;</span><br><span class="line">            gLinkContext.linkingMainExecutable = false;</span><br><span class="line">            resetAllImages();</span><br><span class="line">            goto reloadAllImages;</span><br><span class="line">        &#125;</span><br><span class="line">    #endif</span><br><span class="line"></span><br><span class="line">        // apply interposing to initial set of images</span><br><span class="line">        for(int i=0; i &lt; sImageRoots.size(); ++i) &#123;</span><br><span class="line">            // 应用符号插入</span><br><span class="line">            sImageRoots[i]-&gt;applyInterposing(gLinkContext);</span><br><span class="line">        &#125;</span><br><span class="line">        gLinkContext.linkingMainExecutable = false;</span><br><span class="line">        </span><br><span class="line">        // &lt;rdar://problem/12186933&gt; do weak binding only after all inserted images linked</span><br><span class="line">        // 弱符号绑定</span><br><span class="line">        sMainExecutable-&gt;weakBind(gLinkContext);</span><br><span class="line"></span><br><span class="line">    #if DYLD_SHARED_CACHE_SUPPORT</span><br><span class="line">        // If cache has branch island dylibs, tell debugger about them</span><br><span class="line">        if ( (sSharedCache != NULL) &amp;&amp; (sSharedCache-&gt;mappingOffset &gt;= 0x78) &amp;&amp; (sSharedCache-&gt;branchPoolsOffset != 0) ) &#123;</span><br><span class="line">            uint32_t count = sSharedCache-&gt;branchPoolsCount;</span><br><span class="line">            dyld_image_info info[count];</span><br><span class="line">            const uint64_t* poolAddress = (uint64_t*)((char*)sSharedCache + sSharedCache-&gt;branchPoolsOffset);</span><br><span class="line">            // &lt;rdar://problem/20799203&gt; empty branch pools can be in development cache</span><br><span class="line">            if ( ((mach_header*)poolAddress)-&gt;magic == sMainExecutableMachHeader-&gt;magic ) &#123;</span><br><span class="line">                for (int poolIndex=0; poolIndex &lt; count; ++poolIndex) &#123;</span><br><span class="line">                    uint64_t poolAddr = poolAddress[poolIndex] + sSharedCacheSlide;</span><br><span class="line">                    info[poolIndex].imageLoadAddress = (mach_header*)(long)poolAddr;</span><br><span class="line">                    info[poolIndex].imageFilePath = &quot;dyld_shared_cache_branch_islands&quot;;</span><br><span class="line">                    info[poolIndex].imageFileModDate = 0;</span><br><span class="line">                &#125;</span><br><span class="line">                // add to all_images list</span><br><span class="line">                addImagesToAllImages(count, info);</span><br><span class="line">                // tell gdb about new branch island images</span><br><span class="line">                gProcessInfo-&gt;notification(dyld_image_adding, count, info);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    #endif</span><br><span class="line"></span><br><span class="line">        CRSetCrashLogMessage(&quot;dyld: launch, running initializers&quot;);</span><br><span class="line">    #if SUPPORT_OLD_CRT_INITIALIZATION</span><br><span class="line">        // Old way is to run initializers via a callback from crt1.o</span><br><span class="line">        if ( ! gRunInitializersOldWay ) </span><br><span class="line">            initializeMainExecutable(); </span><br><span class="line">    #else</span><br><span class="line">        // run all initializers</span><br><span class="line">        // 初始化主程序，在这里可以参考 runtime 的源码，runtime 里面注册了 dyld 的回调通知，会调用 load_images，然后去调用各个类的 +load 方法等，这也是为何 +load 会在主程序 main 函数执行之前执行的根本原因</span><br><span class="line">        initializeMainExecutable(); </span><br><span class="line">    #endif</span><br><span class="line"></span><br><span class="line">        // notify any montoring proccesses that this process is about to enter main()</span><br><span class="line">        notifyMonitoringDyldMain();</span><br><span class="line"></span><br><span class="line">        // find entry point for main executable</span><br><span class="line">        // 寻找主程序 main 函数，并作为结果返回，然后上述的汇编文件中会通过 br x16 来进行主程序 main 函数调用</span><br><span class="line">        result = (uintptr_t)sMainExecutable-&gt;getThreadPC();</span><br><span class="line">        if ( result != 0 ) &#123;</span><br><span class="line">            // main executable uses LC_MAIN, needs to return to glue in libdyld.dylib</span><br><span class="line">            if ( (gLibSystemHelpers != NULL) &amp;&amp; (gLibSystemHelpers-&gt;version &gt;= 9) )</span><br><span class="line">                *startGlue = (uintptr_t)gLibSystemHelpers-&gt;startGlueToCallExit;</span><br><span class="line">            else</span><br><span class="line">                halt(&quot;libdyld.dylib support not present for LC_MAIN&quot;);</span><br><span class="line">        &#125;</span><br><span class="line">        else &#123;</span><br><span class="line">            // main executable uses LC_UNIXTHREAD, dyld needs to let &quot;start&quot; in program set up for main()</span><br><span class="line">            result = (uintptr_t)sMainExecutable-&gt;getMain();</span><br><span class="line">            *startGlue = 0;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    catch(const char* message) &#123;</span><br><span class="line">        syncAllImages();</span><br><span class="line">        halt(message);</span><br><span class="line">    &#125;</span><br><span class="line">    catch(...) &#123;</span><br><span class="line">        dyld::log(&quot;dyld: launch failed\n&quot;);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    CRSetCrashLogMessage(NULL);</span><br><span class="line">    </span><br><span class="line">    return result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在 <code>dyld::_main</code> 函数的最后，找到主程序 <code>main</code> 函数的地址，此时 <code>dyld</code> 加载动态库的流程就结束了，进入到了我们熟悉的 <code>main</code> 函数。</p>
+<h3 id="简单流程"><a href="#简单流程" class="headerlink" title="简单流程"></a>简单流程</h3><p>整个动态库加载的流程主要包括以下个步骤：</p>
+<h5 id="1-设置上下文信息，配置进程是否受限"><a href="#1-设置上下文信息，配置进程是否受限" class="headerlink" title="1.设置上下文信息，配置进程是否受限"></a>1.设置上下文信息，配置进程是否受限</h5><p>首先调用 <code>setContext</code> 设置上下文信息，然后调用 <code>configureProcessRestrictions</code> 设置进程是否受限。只要设置了 <code>uid</code> 和 <code>gid</code> 就会变成受限模式。受限模式其实就是忽略 <code>DYLD</code> 环境变量。</p>
+<p>值得一提的是在 iOS10.3.2 及以上版本中，设置 <code>Other Linker Flags</code>  为 <code>-Wl,-sectcreate,__RESTRICT,__restrict,/dev/null</code> 也不能阻止 <code>DYLD_INSERT_LIBRARIES</code> 的注入。</p>
+<h5 id="2-配置环境变量，获取当前运行架构"><a href="#2-配置环境变量，获取当前运行架构" class="headerlink" title="2.配置环境变量，获取当前运行架构"></a>2.配置环境变量，获取当前运行架构</h5><p>调用 <code>checkEnvironmentVariables</code> 根本环境变量设置相应的值，但是如果 <code>sEnvMode</code> 为 <code>envNone</code> （受限模式），就直接跳过，否则调用 <code>processDyldEnvironmentVariable</code> 处理并设置环境变量。</p>
+<p>调用 <code>getHostInfo</code> 获取当前运行的架构信息。</p>
+<p>在开发中，我们可以点击 <code>Edit Scheme</code> 在环境变量添加 <code>DYDLD_PRINT_OPTS</code> 和 <code>DYLD_PRINT_ENV</code> ，就能打印当前参数和环境变量。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">// 如果设置 DYDLD_PRINT_OPTS 环境变量，则打印</span><br><span class="line">if ( sEnv.DYLD_PRINT_OPTS )</span><br><span class="line">		printOptions(argv);</span><br><span class="line">// 如果设置 DYDLD_PRINT_ENV 环境变量，则打印</span><br><span class="line">if ( sEnv.DYLD_PRINT_ENV ) </span><br><span class="line">		printEnvironmentVariables(envp);</span><br></pre></td></tr></table></figure>
+<p><img src="/images/dyld_4.png" alt="Xcode设置环境变量"></p>
+<h5 id="3-加载可执行文件，生成一个-ImageLoader-实例对象"><a href="#3-加载可执行文件，生成一个-ImageLoader-实例对象" class="headerlink" title="3.加载可执行文件，生成一个 ImageLoader 实例对象"></a>3.加载可执行文件，生成一个 ImageLoader 实例对象</h5><p>调用 <code>instantiateFromLoadedImage</code> 函数来实例化一个 <code>ImageLoader</code> 对象。</p>
+<p>作为主程序初始化的 <code>imageLoader</code> 用于后续的链接等过程，主程序作为 <code>dyld</code> 的第一个被 <code>addimage</code> 的镜像，所以我们总是能够通过<code>_dyld_get_image_header(0)</code> 或者 <code>_dyld_get_image_name(0)</code> 等，索引到第一个 <code>image</code> 镜像为主程序的相关信息。</p>
+<h5 id="4-检查共享缓存是否映射到了共享区域"><a href="#4-检查共享缓存是否映射到了共享区域" class="headerlink" title="4.检查共享缓存是否映射到了共享区域"></a>4.检查共享缓存是否映射到了共享区域</h5><h5 id="5-加载所有插入的库"><a href="#5-加载所有插入的库" class="headerlink" title="5.加载所有插入的库"></a>5.加载所有插入的库</h5><p>遍历 <code>DYLD_INSERT_LIBRARIES</code> 环境变量，然后调用 <code>loadInsertDylib</code> 加载。</p>
+<h5 id="6-链接主程序"><a href="#6-链接主程序" class="headerlink" title="6.链接主程序"></a>6.链接主程序</h5><p>调用 <code>link</code> 链接主程序。</p>
+<h5 id="7-链接所有插入的库，执行符号替换"><a href="#7-链接所有插入的库，执行符号替换" class="headerlink" title="7.链接所有插入的库，执行符号替换"></a>7.链接所有插入的库，执行符号替换</h5><p>对 <code>sAllImage</code>（除第一项主程序）中的库调用 <code>Link</code> 函数进行链接，然后调用 <code>register Interposing</code> 注册符号替换。</p>
+<h5 id="8-执行初始化方法"><a href="#8-执行初始化方法" class="headerlink" title="8.执行初始化方法"></a>8.执行初始化方法</h5><p><code>initializeMainExecutable()</code> 执行初始化方法，<code>+load</code> 和 <code>constructor</code> 构造方法就是在这里执行的。</p>
+<h5 id="9-寻找主程序入口"><a href="#9-寻找主程序入口" class="headerlink" title="9.寻找主程序入口"></a>9.寻找主程序入口</h5><p>调用 <code>getThreadPC()</code> 读取 <code>LC_MAIN</code> 入口，如果找不到就读取 <code>LC_UNIXTHREAD</code> ，然后跳转到程序入口处执行，这样就来到了 <code>main</code> 函数。</p>
+<p><img src="/images/dyld_1.jpg" alt="LC_MAIN"></p>
+<p><img src="/images/dyld_2.jpg" alt="Load Commands"></p>
+<p><img src="/images/dyld_3.png" alt="_main"></p>
+<p><code>LC_MAIN</code> 加上 <code>Load Commands</code> 的 <code>VM Size</code> 就是我们程序 <code>mian</code> 函数的地址。</p>
+<h3 id="写在后面"><a href="#写在后面" class="headerlink" title="写在后面"></a>写在后面</h3><p>我们现在搞清楚了 <code>dyld</code> 是如何加载的，以及从 <code>__dyld_start</code> 到  <code>mina</code>  之间都做了什么，那么 <code>dyld</code> 又是被谁调用的呢？下次让我们继续分析。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/源码分析/" rel="tag"><i class="fa fa-tag"></i> 源码分析</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/05/21/一次iOSCTF实战WriteUp/" rel="next" title="一次iOSCTF实战WriteUp">
+                <i class="fa fa-chevron-left"></i> 一次iOSCTF实战WriteUp
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="代伟佳WeChat:337223400" />
+          <p class="site-author-name" itemprop="name">代伟佳WeChat:337223400</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">8</span>
+                <span class="site-state-item-name">posts</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">4</span>
+                <span class="site-state-item-name">tags</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#什么是-dyld-？"><span class="nav-number">2.</span> <span class="nav-text">什么是 dyld ？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#dyld-源码分析"><span class="nav-number">3.</span> <span class="nav-text">dyld 源码分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#简单流程"><span class="nav-number">4.</span> <span class="nav-text">简单流程</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1-设置上下文信息，配置进程是否受限"><span class="nav-number">4.0.1.</span> <span class="nav-text">1.设置上下文信息，配置进程是否受限</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-配置环境变量，获取当前运行架构"><span class="nav-number">4.0.2.</span> <span class="nav-text">2.配置环境变量，获取当前运行架构</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3-加载可执行文件，生成一个-ImageLoader-实例对象"><span class="nav-number">4.0.3.</span> <span class="nav-text">3.加载可执行文件，生成一个 ImageLoader 实例对象</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4-检查共享缓存是否映射到了共享区域"><span class="nav-number">4.0.4.</span> <span class="nav-text">4.检查共享缓存是否映射到了共享区域</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#5-加载所有插入的库"><span class="nav-number">4.0.5.</span> <span class="nav-text">5.加载所有插入的库</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#6-链接主程序"><span class="nav-number">4.0.6.</span> <span class="nav-text">6.链接主程序</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#7-链接所有插入的库，执行符号替换"><span class="nav-number">4.0.7.</span> <span class="nav-text">7.链接所有插入的库，执行符号替换</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#8-执行初始化方法"><span class="nav-number">4.0.8.</span> <span class="nav-text">8.执行初始化方法</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#9-寻找主程序入口"><span class="nav-number">4.0.9.</span> <span class="nav-text">9.寻找主程序入口</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#写在后面"><span class="nav-number">5.</span> <span class="nav-text">写在后面</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">代伟佳WeChat:337223400</span>
+</div>
+
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="https://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Muse
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.4.js"></script>
+  <script>AV.initialize("Tv0ap1PiX5he09oRLIDxPDFq-gzGzoHsz", "oNp2foyUytnAWmG6y9Pun0TY");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

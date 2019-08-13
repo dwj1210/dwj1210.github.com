@@ -78,7 +78,7 @@
 <link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="漏洞," />
+  <meta name="keywords" content="Hexo, NexT" />
 
 
 
@@ -94,21 +94,16 @@
 
 
 
-<meta name="description" content="说在前面  在本文公开的时候，微博陌陌等应用已经修复了该漏洞，本文仅供学习使用。  什么是ZipperDown  盘古实验室在针对不同客户的iOS应用安全审计过程中，发现了一类通用的安全漏洞。创建漏洞指纹后，盘古实验室在Janus平台上进行溯源分析和相似漏洞检索，结果发现约10%的iOS应用可能受此漏洞的影响。经过手工分析，确认微博、陌陌、网易云音乐、QQ音乐、快手等流行应用受影响。 Zippe">
-<meta name="keywords" content="漏洞">
+<meta name="description" content="如何 hook iOS 应用前言相信大家在工作中会经常遇到需要 hook 的情况，比如写插件绕过越狱检测、微信自动抢红包等等。今天我们就来分享三种 iOS 应用的 hook 方法。分别是 hook OC 方法，hook 有符号 C 函数、hook 无符号（sub_xxx） C 函数。 hook OC 方法hook OC 方法可以选择 CaptainHook 或者 Logos 来 hook，下面以">
 <meta property="og:type" content="article">
-<meta property="og:title" content="ZipperDown漏洞浅析">
-<meta property="og:url" content="http://yoursite.com/2018/05/16/ZipperDown漏洞浅析/index.html">
+<meta property="og:title" content="dwj1210">
+<meta property="og:url" content="http://yoursite.com/2019/08/13/如何 hook iOS 应用/index.html">
 <meta property="og:site_name" content="dwj1210">
-<meta property="og:description" content="说在前面  在本文公开的时候，微博陌陌等应用已经修复了该漏洞，本文仅供学习使用。  什么是ZipperDown  盘古实验室在针对不同客户的iOS应用安全审计过程中，发现了一类通用的安全漏洞。创建漏洞指纹后，盘古实验室在Janus平台上进行溯源分析和相似漏洞检索，结果发现约10%的iOS应用可能受此漏洞的影响。经过手工分析，确认微博、陌陌、网易云音乐、QQ音乐、快手等流行应用受影响。 Zippe">
-<meta property="og:image" content="http://yoursite.com/images/upload_f4008f8973ebff81c21f1367b8bbb3f6.png">
-<meta property="og:image" content="http://yoursite.com/images/upload_c8bdff3e59089ada24370035580f9c59-1.png">
-<meta property="og:image" content="http://yoursite.com/images/upload_0c34fdccf05608d1b359b2bc93416725.png">
-<meta property="og:updated_time" content="2018-05-21T02:57:01.551Z">
+<meta property="og:description" content="如何 hook iOS 应用前言相信大家在工作中会经常遇到需要 hook 的情况，比如写插件绕过越狱检测、微信自动抢红包等等。今天我们就来分享三种 iOS 应用的 hook 方法。分别是 hook OC 方法，hook 有符号 C 函数、hook 无符号（sub_xxx） C 函数。 hook OC 方法hook OC 方法可以选择 CaptainHook 或者 Logos 来 hook，下面以">
+<meta property="og:updated_time" content="2019-08-13T09:34:23.876Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="ZipperDown漏洞浅析">
-<meta name="twitter:description" content="说在前面  在本文公开的时候，微博陌陌等应用已经修复了该漏洞，本文仅供学习使用。  什么是ZipperDown  盘古实验室在针对不同客户的iOS应用安全审计过程中，发现了一类通用的安全漏洞。创建漏洞指纹后，盘古实验室在Janus平台上进行溯源分析和相似漏洞检索，结果发现约10%的iOS应用可能受此漏洞的影响。经过手工分析，确认微博、陌陌、网易云音乐、QQ音乐、快手等流行应用受影响。 Zippe">
-<meta name="twitter:image" content="http://yoursite.com/images/upload_f4008f8973ebff81c21f1367b8bbb3f6.png">
+<meta name="twitter:title" content="dwj1210">
+<meta name="twitter:description" content="如何 hook iOS 应用前言相信大家在工作中会经常遇到需要 hook 的情况，比如写插件绕过越狱检测、微信自动抢红包等等。今天我们就来分享三种 iOS 应用的 hook 方法。分别是 hook OC 方法，hook 有符号 C 函数、hook 无符号（sub_xxx） C 函数。 hook OC 方法hook OC 方法可以选择 CaptainHook 或者 Logos 来 hook，下面以">
 
 
 
@@ -137,13 +132,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2018/05/16/ZipperDown漏洞浅析/"/>
+  <link rel="canonical" href="http://yoursite.com/2019/08/13/如何 hook iOS 应用/"/>
 
 
 
 
 
-  <title>ZipperDown漏洞浅析 | dwj1210</title>
+  <title> | dwj1210</title>
   
 
 
@@ -266,7 +261,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/05/16/ZipperDown漏洞浅析/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/08/13/如何 hook iOS 应用/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="代伟佳WeChat:337223400">
@@ -283,7 +278,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">ZipperDown漏洞浅析</h1>
+          <h1 class="post-title" itemprop="name headline"></h1>
         
 
         <div class="post-meta">
@@ -295,8 +290,8 @@
               
                 <span class="post-meta-item-text">Posté le</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-05-16T14:12:07+08:00">
-                2018-05-16
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-08-13T15:37:20+08:00">
+                2019-08-13
               </time>
             
 
@@ -313,7 +308,7 @@
 
           
           
-             <span id="/2018/05/16/ZipperDown漏洞浅析/" class="leancloud_visitors" data-flag-title="ZipperDown漏洞浅析">
+             <span id="/2019/08/13/如何 hook iOS 应用/" class="leancloud_visitors" data-flag-title="">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -344,47 +339,17 @@
       
 
       
-        <ul>
-<li><h5 id="说在前面"><a href="#说在前面" class="headerlink" title="说在前面"></a>说在前面</h5></li>
-</ul>
-<p>在本文公开的时候，微博陌陌等应用已经修复了该漏洞，本文仅供学习使用。</p>
-<ul>
-<li><h5 id="什么是ZipperDown"><a href="#什么是ZipperDown" class="headerlink" title="什么是ZipperDown"></a>什么是ZipperDown</h5></li>
-</ul>
-<p>盘古实验室在针对不同客户的iOS应用安全审计过程中，发现了一类通用的安全漏洞。创建漏洞指纹后，盘古实验室在<a href="https://www.appscan.io/" target="_blank" rel="noopener">Janus平台</a>上进行溯源分析和相似漏洞检索，结果发现约10%的iOS应用可能受此漏洞的影响。经过手工分析，确认微博、陌陌、网易云音乐、QQ音乐、快手等流行应用受影响。</p>
-<p><a href="https://zipperdown.org/" target="_blank" rel="noopener">ZipperDown漏洞</a></p>
-<p>早在5月12号，<a href="https://github.com/turingH" target="_blank" rel="noopener">turing.huang</a>就在GitHub提了Issues。但是截止到目前为止（5月16号），这个第三方框架的漏洞还没有被修复。</p>
-<p><img src="/images/upload_f4008f8973ebff81c21f1367b8bbb3f6.png" alt="屏幕快照 2018-05-16 下午6.33.40"></p>
-<p>结合这段话和盘古团队公开的文章，我们可以看出来，应该就是常见的路径穿越漏洞导致的任意代码执行。</p>
-<p>不了解路径穿越漏洞的同学请点击<a href="https://www.cnblogs.com/vo-ov/p/3745651.html" target="_blank" rel="noopener">这里</a>。</p>
-<ul>
-<li><h5 id="ZipperDown如何重现"><a href="#ZipperDown如何重现" class="headerlink" title="ZipperDown如何重现"></a>ZipperDown如何重现</h5></li>
-</ul>
-<p>通过对本地存储的分析，在 <code>/private/var/mobile/Containers/Data/Application/XXX/Documents/WBPkgFixFile/27222/843_msg_newscard/hotfix_test.js</code> 发现了一个可疑文件 <code>hotfix_test.js</code> ，仔细看一下这个js文件，应该是使用了 <code>JSPatch</code> 来热修复的。所以我们可以先通过直接替换js文件的方式来看看会不会有效果。</p>
-<p>我的做法是把 <code>hotfix_test.js</code> 文件拷贝到电脑，然后在js代码中加一个弹框，接着拷贝回沙盒目录中替换原来的文件。<img src="/images/upload_c8bdff3e59089ada24370035580f9c59-1.png" alt="屏幕快照 2018-05-17 上午11.14.42"></p>
-<p>之后我们登录微博，再杀死微博的进程，重新打开就看到了一个弹框 <code>Your Weibo is Pwned</code>。</p>
-<p>到此为止我们可以确定这个js文件确实可以被执行。接下来要做的是通过抓包来劫持zip的下载，来替换成我们精心构造的js文件。</p>
-<p>通过使用Clarles抓包发现微博在安装完成第一次打开时会下载多个压缩文件。我便随便挑选了一个劫持并使用 <code>Map Local</code> 映射到本地已经构造好的zip文件。</p>
-<p><img src="/images/upload_0c34fdccf05608d1b359b2bc93416725.png" alt="屏幕快照 2018-05-17 上午11.35.56"></p>
-<p>在完成以上这些准备工作之后，删除微博重新安装。安装完成后打开微博，完成登录操作，杀死微博的进程，重新打开，这时候出现了弹框。说明我们劫持了zip包的下载，通过路径穿越成功覆盖了原本的 <code>hotfix_test.js</code></p>
-<p>文件，且成功执行了js文件中的“恶意”代码。</p>
-<ul>
-<li><h5 id="如何修复漏洞"><a href="#如何修复漏洞" class="headerlink" title="如何修复漏洞"></a>如何修复漏洞</h5></li>
-</ul>
-<p>想要知道如何修漏洞，肯定需要知道问题为什么会出现。而路径穿漏洞就是因为 <code>../</code> 代表了上层目录，而多个 <code>../</code> 则可以去到根目录下，这样就可访问任意文件。我们要做的就是在解压文件时，过滤掉这些带 <code>../</code>  的“恶意”文件。</p>
-<p>如果用到了 <code>SSZipArchive</code> 库，需要修改一下源码。在下面这个方法中对最终解压的strPath进行检测，如果出现可能造成目录穿越的 <code>../</code> 字符串时进行拦截过滤。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">+ (BOOL)unzipFileAtPath:(NSString *)path toDestination:(NSString *)destination preserveAttributes:(BOOL)preserveAttributes overwrite:(BOOL)overwrite nestedZipLevel:(NSInteger)nestedZipLevel password:(nullable NSString *)password error:(NSError **)error</span><br><span class="line"> delegate:(nullable id&lt;SSZipArchiveDelegate&gt;)delegate progressHandler:(void (^_Nullable)(NSString *entry, unz_file_info zipInfo, long entryNumber, long total))progressHandler completionHandler:(void (^_Nullable)(NSString *path, BOOL succeeded, NSError * _Nullable error))completionHandler;</span><br></pre></td></tr></table></figure>
-<p>另外，Hotpatch包除了传输过程中要加密外，在本地也需要加密保存，并且运行前做完整性校验。虽然漏洞覆盖某些重要的文件可能会造成拒绝服务攻击，但至少不会造成代码执行。</p>
-<ul>
-<li><h5 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h5></li>
-</ul>
-<p>路径穿越漏洞并不是一个新出现的漏洞，但是这次却有上万应用可能受此漏洞影响，不得不让我们提高在开发中对安全的重视程度。</p>
-<p>​    </p>
-<ul>
-<li><h5 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h5></li>
-</ul>
-<p><a href="https://zipperdown.org/" target="_blank" rel="noopener">https://zipperdown.org</a></p>
-<p><a href="https://github.com/ZipArchive/ZipArchive/issues/453" target="_blank" rel="noopener">https://github.com/ZipArchive/ZipArchive/issues/453</a></p>
+        <h1 id="如何-hook-iOS-应用"><a href="#如何-hook-iOS-应用" class="headerlink" title="如何 hook iOS 应用"></a>如何 hook iOS 应用</h1><h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>相信大家在工作中会经常遇到需要 hook 的情况，比如写插件绕过越狱检测、微信自动抢红包等等。<br>今天我们就来分享三种 iOS 应用的 hook 方法。分别是 hook OC 方法，hook 有符号 C 函数、hook 无符号（sub_xxx） C 函数。</p>
+<h3 id="hook-OC-方法"><a href="#hook-OC-方法" class="headerlink" title="hook OC 方法"></a>hook OC 方法</h3><p>hook OC 方法可以选择 <code>CaptainHook</code> 或者 <code>Logos</code> 来 hook，下面以 <code>CaptainHook</code> 来举例。</p>
+<h4 id="实例："><a href="#实例：" class="headerlink" title="实例："></a>实例：</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">CHDeclareClass(WXJSCoreBridge)</span><br><span class="line">CHOptimizedMethod2(self, id, WXJSCoreBridge, callJSMethod, id, arg1, args, id, arg2) &#123;</span><br><span class="line"></span><br><span class="line">    if ([arg1 isEqualToString:@&quot;createInstance&quot;]) &#123;</span><br><span class="line">        </span><br><span class="line">        NSString *path = [[NSBundle mainBundle] pathForResource:@&quot;hook.txt&quot; ofType:nil];</span><br><span class="line">        NSString *codeStr = [[NSString alloc] initWithContentsOfFile:path encoding:NSUTF8StringEncoding error:nil];</span><br><span class="line">        NSLog(@&quot;%@&quot;,codeStr);</span><br><span class="line">        NSMutableArray *mutArr = [NSMutableArray arrayWithCapacity:3];</span><br><span class="line">        [mutArr addObjectsFromArray:arg2];</span><br><span class="line">        NSString *code = [arg2 objectAtIndex:0];</span><br><span class="line">        if ([code isEqualToString:@&quot;0&quot;]) &#123;</span><br><span class="line">            [mutArr replaceObjectAtIndex:1 withObject:codeStr];</span><br><span class="line">        &#125;</span><br><span class="line">        return CHSuper2(WXJSCoreBridge, callJSMethod, arg1, args, mutArr);</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">        return CHSuper2(WXJSCoreBridge, callJSMethod, arg1, args, arg2);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">CHConstructor&#123;</span><br><span class="line"></span><br><span class="line">    CHLoadLateClass(WXJSCoreBridge);</span><br><span class="line">    CHHook2(WXJSCoreBridge, callJSMethod, args);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="介绍："><a href="#介绍：" class="headerlink" title="介绍："></a>介绍：</h4><p><code>CHDeclareClass</code> 代表要 hook 的类。<br><code>CHOptimizedMethod2</code> 要 hook 的方法，数字 2 表示要 hook 的方法有两个参数。<br><code>CHOptimizedClassMethod2</code> 同上，不过这个是 hook 类方法时使用的，上面的是 hook 实例方法时使用的。</p>
+<h3 id="hook-有符号-C-方法"><a href="#hook-有符号-C-方法" class="headerlink" title="hook 有符号 C 方法"></a>hook 有符号 C 方法</h3><p>hook 有符号 C 方法可以使用 facebook 开源的 <code>fishhook</code> 框架。</p>
+<h4 id="实例：-1"><a href="#实例：-1" class="headerlink" title="实例："></a>实例：</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">static void  (*original_printf)(const char *, ...);</span><br><span class="line">void new_printf(const char *code, ...) &#123;</span><br><span class="line">    NSLog(@&quot;hook %s&quot;,code);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (void)viewDidLoad &#123;</span><br><span class="line">    [super viewDidLoad];</span><br><span class="line">    rebind_symbols((struct rebinding[1])&#123;&#123;&quot;printf&quot;, new_printf, (void *)&amp;original_printf&#125;&#125;, 1);</span><br><span class="line">    printf(&quot;success&quot;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="介绍：-1"><a href="#介绍：-1" class="headerlink" title="介绍："></a>介绍：</h4><p>对于懒加载的符号表，程序会在第一次调用该函数的时候去链接动态库，然后绑定地址。<code>fishhook</code> 将指向系统方法的指针重新进行绑定指向内部自定义 C 函数，将内部函数的指针在动态链接时指向系统方法的地址，达到 hook 的目的。</p>
+<h3 id="hook-无符号（sub-xxx）C-函数"><a href="#hook-无符号（sub-xxx）C-函数" class="headerlink" title="hook 无符号（sub_xxx）C 函数"></a>hook 无符号（sub_xxx）C 函数</h3><p>相比较以上两种，hook <code>sub_xxx</code> 函数需求会少见一些。下面是使用 MSHookFunction 来 hook <code>sub_xxx</code> 无符号 C 函数。</p>
+<h4 id="实例：-2"><a href="#实例：-2" class="headerlink" title="实例："></a>实例：</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">void (*old_sub_10097B8A0)(const unsigned char *, unsigned char *, size_t, const void *, unsigned char* , void *);</span><br><span class="line"></span><br><span class="line">void hook_sub_10097B8A0(const unsigned char * arg1, unsigned char * arg2, size_t arg3, const void * arg4, unsigned char* arg5, void * arg6)&#123;</span><br><span class="line"></span><br><span class="line">    NSLog(@&quot;AES_CBC_KEY --&gt; %s&quot;,arg5);</span><br><span class="line">    old_sub_10097B8A0(arg1, arg2, arg3, arg4, arg5, arg6);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">%ctor</span><br><span class="line">&#123;</span><br><span class="line">    @autoreleasepool</span><br><span class="line">    &#123;</span><br><span class="line">        unsigned long _aes_encrypt_slide =(_dyld_get_image_vmaddr_slide(0) + 0x10097B8A0);</span><br><span class="line">        MSHookFunction((void *)_aes_encrypt_slide, (void *)&amp;hook_sub_10097B8A0, (void**)&amp;old_sub_10097B8A0);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="介绍：-2"><a href="#介绍：-2" class="headerlink" title="介绍："></a>介绍：</h4><p> <code>MSHookFunction</code>  可以用来 hook 带符号的 C 函数，也可以 hook 无符号 C 函数。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>在 iOS 应用逆向中学到这三种方法基本可以无往不利了，无论对于 OC 还是 C 函数都可以轻松 hook。</p>
 
       
     </div>
@@ -400,12 +365,6 @@
 
     <footer class="post-footer">
       
-        <div class="post-tags">
-          
-            <a href="/tags/漏洞/" rel="tag"><i class="fa fa-tag"></i> 漏洞</a>
-          
-        </div>
-      
 
       
       
@@ -415,8 +374,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/04/18/记一次简单的iOS CTF练习题/" rel="next" title="记一次简单的iOS CTF练习题">
-                <i class="fa fa-chevron-left"></i> 记一次简单的iOS CTF练习题
+              <a href="/2019/07/10/dyld 源码初探/" rel="next" title="dyld 源码初探">
+                <i class="fa fa-chevron-left"></i> dyld 源码初探
               </a>
             
           </div>
@@ -424,10 +383,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2018/05/21/一次iOSCTF实战WriteUp/" rel="prev" title="一次iOSCTF实战WriteUp">
-                一次iOSCTF实战WriteUp <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -552,7 +507,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-5"><a class="nav-link" href="#说在前面"><span class="nav-number">1.</span> <span class="nav-text">说在前面</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#什么是ZipperDown"><span class="nav-number">2.</span> <span class="nav-text">什么是ZipperDown</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#ZipperDown如何重现"><span class="nav-number">3.</span> <span class="nav-text">ZipperDown如何重现</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#如何修复漏洞"><span class="nav-number">4.</span> <span class="nav-text">如何修复漏洞</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#总结"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#参考资料"><span class="nav-number">6.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#如何-hook-iOS-应用"><span class="nav-number">1.</span> <span class="nav-text">如何 hook iOS 应用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#前言"><span class="nav-number">1.0.1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#hook-OC-方法"><span class="nav-number">1.0.2.</span> <span class="nav-text">hook OC 方法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#实例："><span class="nav-number">1.0.2.1.</span> <span class="nav-text">实例：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#介绍："><span class="nav-number">1.0.2.2.</span> <span class="nav-text">介绍：</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#hook-有符号-C-方法"><span class="nav-number">1.0.3.</span> <span class="nav-text">hook 有符号 C 方法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#实例：-1"><span class="nav-number">1.0.3.1.</span> <span class="nav-text">实例：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#介绍：-1"><span class="nav-number">1.0.3.2.</span> <span class="nav-text">介绍：</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#hook-无符号（sub-xxx）C-函数"><span class="nav-number">1.0.4.</span> <span class="nav-text">hook 无符号（sub_xxx）C 函数</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#实例：-2"><span class="nav-number">1.0.4.1.</span> <span class="nav-text">实例：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#介绍：-2"><span class="nav-number">1.0.4.2.</span> <span class="nav-text">介绍：</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结"><span class="nav-number">1.0.5.</span> <span class="nav-text">总结</span></a></li></ol></li></ol></li></ol></div>
             
 
           </div>

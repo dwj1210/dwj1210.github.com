@@ -78,7 +78,7 @@
 <link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Hexo, NexT" />
+  <meta name="keywords" content="CTF," />
 
 
 
@@ -94,21 +94,37 @@
 
 
 
-<meta name="description" content="本文需要用到的工具：  hopper disassembler Mac版本微信QQ  我是一个刚刚接触逆向的iOS开发者，本着实践出真知的理念在网上搜索资料，开始自己动手研究。看完这篇文章您将实现Mac版本微信QQ的消息防撤回功能。 Mac版本微信1.首先从App Store下载微信安装。2.找到应用程序中的微信，右击显示包内容，找到MacOS文件夹下面的WeChat，这就是微信的可执行文件。">
+<meta name="description" content="准备  今天拿到了一道题，这里是下载地址：Github，首先解压缩包括一个ipa和一个deb文件。 拿到题目我一般会先干两件事，一是把Mach-O扔到IDA里面反编译。二是把ipa装到手机上跑起来。我是习惯使用MonkeyDev来安装调试的。  开始  首先把程序跑到手机上，而这个应用也就只有一个界面。  看到这个界面的第一反应就是去找这个 getflag 按钮的点击事件。  点击红线处按钮使程">
+<meta name="keywords" content="CTF">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Mac版本微信QQ防撤回">
-<meta property="og:url" content="http://yoursite.com/2018/02/06/Mac版本微信QQ防撤回/index.html">
+<meta property="og:title" content="一次 iOS CTF 实战 WriteUp">
+<meta property="og:url" content="http://yoursite.com/2018/05/21/一次 iOS CTF 实战 WriteUp/index.html">
 <meta property="og:site_name" content="dwj1210">
-<meta property="og:description" content="本文需要用到的工具：  hopper disassembler Mac版本微信QQ  我是一个刚刚接触逆向的iOS开发者，本着实践出真知的理念在网上搜索资料，开始自己动手研究。看完这篇文章您将实现Mac版本微信QQ的消息防撤回功能。 Mac版本微信1.首先从App Store下载微信安装。2.找到应用程序中的微信，右击显示包内容，找到MacOS文件夹下面的WeChat，这就是微信的可执行文件。">
-<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/4263020-415230e3090ed99e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/4263020-5558878b7fed8f35.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/4263020-cb78427a5c9a68fe.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/4263020-5bd5979d26051447.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:updated_time" content="2018-03-20T10:43:46.000Z">
+<meta property="og:description" content="准备  今天拿到了一道题，这里是下载地址：Github，首先解压缩包括一个ipa和一个deb文件。 拿到题目我一般会先干两件事，一是把Mach-O扔到IDA里面反编译。二是把ipa装到手机上跑起来。我是习惯使用MonkeyDev来安装调试的。  开始  首先把程序跑到手机上，而这个应用也就只有一个界面。  看到这个界面的第一反应就是去找这个 getflag 按钮的点击事件。  点击红线处按钮使程">
+<meta property="og:image" content="http://yoursite.com/images/Xnip2018-05-21_01-50-42.jpg">
+<meta property="og:image" content="http://yoursite.com/images/IMG_1322.PNG">
+<meta property="og:image" content="http://yoursite.com/images/屏幕快照%202018-05-21%20上午2.00.55.png">
+<meta property="og:image" content="http://yoursite.com/images/Xnip2018-05-21_02-05-07.jpg">
+<meta property="og:image" content="http://yoursite.com/images/Xnip2018-05-21_02-06-19.jpg">
+<meta property="og:image" content="http://yoursite.com/images/Xnip2018-05-21_02-10-23.jpg">
+<meta property="og:image" content="http://yoursite.com/images/Xnip2018-05-21_02-12-37.jpg">
+<meta property="og:image" content="http://yoursite.com/images/Xnip2018-05-21_02-23-47.jpg">
+<meta property="og:image" content="http://yoursite.com/images/Xnip2018-05-21_02-26-05.jpg">
+<meta property="og:image" content="http://yoursite.com/images/Xnip2018-05-21_02-15-39.jpg">
+<meta property="og:image" content="http://yoursite.com/images/Xnip2018-05-21_02-35-53.jpg">
+<meta property="og:image" content="http://yoursite.com/images/Xnip2018-05-21_02-44-02.jpg">
+<meta property="og:image" content="http://yoursite.com/images/Xnip2018-05-21_02-43-01.jpg">
+<meta property="og:image" content="http://yoursite.com/images/Xnip2018-05-21_02-54-56.jpg">
+<meta property="og:image" content="http://yoursite.com/images/Xnip2018-05-21_02-56-51.jpg">
+<meta property="og:image" content="http://yoursite.com/images/Xnip2018-05-21_02-15-39%202.jpg">
+<meta property="og:image" content="http://yoursite.com/images/Xnip2018-05-21_02-15-39%203.jpg">
+<meta property="og:image" content="http://yoursite.com/images/Xnip2018-05-21_03-20-04.jpg">
+<meta property="og:image" content="http://yoursite.com/images/IMG_0015.PNG">
+<meta property="og:updated_time" content="2019-12-10T02:57:07.288Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Mac版本微信QQ防撤回">
-<meta name="twitter:description" content="本文需要用到的工具：  hopper disassembler Mac版本微信QQ  我是一个刚刚接触逆向的iOS开发者，本着实践出真知的理念在网上搜索资料，开始自己动手研究。看完这篇文章您将实现Mac版本微信QQ的消息防撤回功能。 Mac版本微信1.首先从App Store下载微信安装。2.找到应用程序中的微信，右击显示包内容，找到MacOS文件夹下面的WeChat，这就是微信的可执行文件。">
-<meta name="twitter:image" content="http://upload-images.jianshu.io/upload_images/4263020-415230e3090ed99e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta name="twitter:title" content="一次 iOS CTF 实战 WriteUp">
+<meta name="twitter:description" content="准备  今天拿到了一道题，这里是下载地址：Github，首先解压缩包括一个ipa和一个deb文件。 拿到题目我一般会先干两件事，一是把Mach-O扔到IDA里面反编译。二是把ipa装到手机上跑起来。我是习惯使用MonkeyDev来安装调试的。  开始  首先把程序跑到手机上，而这个应用也就只有一个界面。  看到这个界面的第一反应就是去找这个 getflag 按钮的点击事件。  点击红线处按钮使程">
+<meta name="twitter:image" content="http://yoursite.com/images/Xnip2018-05-21_01-50-42.jpg">
 
 
 
@@ -137,13 +153,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2018/02/06/Mac版本微信QQ防撤回/"/>
+  <link rel="canonical" href="http://yoursite.com/2018/05/21/一次 iOS CTF 实战 WriteUp/"/>
 
 
 
 
 
-  <title>Mac版本微信QQ防撤回 | dwj1210</title>
+  <title>一次 iOS CTF 实战 WriteUp | dwj1210</title>
   
 
 
@@ -266,7 +282,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/02/06/Mac版本微信QQ防撤回/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/05/21/一次 iOS CTF 实战 WriteUp/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="代伟佳WeChat:337223400">
@@ -283,7 +299,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">Mac版本微信QQ防撤回</h1>
+          <h1 class="post-title" itemprop="name headline">一次 iOS CTF 实战 WriteUp</h1>
         
 
         <div class="post-meta">
@@ -295,8 +311,8 @@
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-02-06T11:00:07+08:00">
-                2018-02-06
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-05-21T03:31:07+08:00">
+                2018-05-21
               </time>
             
 
@@ -313,7 +329,7 @@
 
           
           
-             <span id="/2018/02/06/Mac版本微信QQ防撤回/" class="leancloud_visitors" data-flag-title="Mac版本微信QQ防撤回">
+             <span id="/2018/05/21/一次 iOS CTF 实战 WriteUp/" class="leancloud_visitors" data-flag-title="一次 iOS CTF 实战 WriteUp">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -344,24 +360,58 @@
       
 
       
-        <p>本文需要用到的工具：</p>
-<ul>
-<li>hopper disassembler</li>
-<li>Mac版本微信QQ</li>
+        <ul>
+<li><h5 id="准备"><a href="#准备" class="headerlink" title="准备"></a>准备</h5></li>
 </ul>
-<p>我是一个刚刚接触逆向的iOS开发者，本着实践出真知的理念在网上搜索资料，开始自己动手研究。看完这篇文章您将实现Mac版本微信QQ的消息防撤回功能。</p>
-<h4 id="Mac版本微信"><a href="#Mac版本微信" class="headerlink" title="Mac版本微信"></a>Mac版本微信</h4><p>1.首先从App Store下载微信安装。<br>2.找到应用程序中的微信，右击显示包内容，找到MacOS文件夹下面的WeChat，这就是微信的可执行文件。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/4263020-415230e3090ed99e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="微信位置.png"></p>
-<p><img src="http://upload-images.jianshu.io/upload_images/4263020-5558878b7fed8f35.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="微信可执行文件.png"></p>
-<p>3.把微信的可执行文件WeChat拷贝到桌面备用。<br>4.这时候要拿出我们的关键工具：hopper disassembler  ，把桌面的WeChat直接拖到hopper里面进行编译。这个时候需要等待的时间可能会久一点。</p>
-<p>5.下图是编译完成后的样子，右下角的红点working消失，表示编译完成。<br><img src="http://upload-images.jianshu.io/upload_images/4263020-cb78427a5c9a68fe.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="编译完成后.png"></p>
-<p>6.然后在左侧的搜索栏直接查找关键函数 <code>onRevokeMsg</code></p>
-<p>7.这个时候开始修改汇编代码：鼠标点击函数中第一行的 <code>rbp</code>，然后按 <code>Option + A</code>，输入<code>ret</code>，并点击 <code>Assembler and Go Next</code>，此时窗口会跳到下一行，点击 <code>ESC</code> 退出即可。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/4263020-5bd5979d26051447.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="修改汇编代码.png"></p>
-<p>8.此时点击 <code>hift + Command + E</code>  重新生成修改后的微信可执行文件。</p>
-<p>9.把修改后的WeChat复制到 <code>/Applications/WeChat.app/Contents/MacOS</code> 替换原来的WeChat，并关闭微信重新打开，此时别人无法撤回你的消息。Well done!  </p>
-<h4 id="Mac版本QQ"><a href="#Mac版本QQ" class="headerlink" title="Mac版本QQ"></a>Mac版本QQ</h4><p>1.准备工作同上。首先从App Store下载QQ安装，去应用程序里面找到QQ，右击显示包内容，找到Contents/MacOS/QQ，把QQ复制到桌面，然后把QQ拖进hopper编译。<br>2.左侧搜索<code>handleRecallNotify</code>函数，鼠标点击函数中第一行的 <code>rbp</code>，然后按 <code>Option + A</code>，输入<code>ret</code>，并点击 <code>Assembler and Go Next</code>，此时窗口会跳到下一行，点击 <code>ESC</code> 退出。最后点击 <code>hift + Command + E</code>  重新生成修改后的QQ可QQ执行文件。<br>3.把修改后的QQ复制到 <code>/Applications/QQ.app/Contents/MacOS</code> 替换原来的QQ。重新打开QQ。</p>
-<p>以后还会更新关于逆向的文章，有兴趣的伙伴可以多多交流。我的WeChat：<code>337223400</code>。</p>
+<p>今天拿到了一道题，这里是下载地址：<a href="https://github.com/dwj1210/iOS-CTF" target="_blank" rel="noopener">Github</a>，首先解压缩包括一个ipa和一个deb文件。<img src="/images/Xnip2018-05-21_01-50-42.jpg" alt="Xnip2018-05-21_01-50-42"></p>
+<p>拿到题目我一般会先干两件事，一是把Mach-O扔到IDA里面反编译。二是把ipa装到手机上跑起来。我是习惯使用MonkeyDev来安装调试的。</p>
+<ul>
+<li><h5 id="开始"><a href="#开始" class="headerlink" title="开始"></a>开始</h5></li>
+</ul>
+<p>首先把程序跑到手机上，而这个应用也就只有一个界面。</p>
+<p><img src="/images/IMG_1322.PNG" alt="main"></p>
+<p>看到这个界面的第一反应就是去找这个 <code>getflag</code> 按钮的点击事件。</p>
+<p><img src="/images/屏幕快照 2018-05-21 上午2.00.55.png" alt="MonkeyDev"></p>
+<p>点击红线处按钮使程序暂停下来，在右侧可以看到按钮在内存中的地址。之后使用lldb命令拿到按钮的点击事件 <code>getflag:</code> 。</p>
+<p>此时找到了按钮的点击事件，那么处理输入内容是否正确的验证也一定在这里面。我们这就去IDA里面看看这个方法。</p>
+<p><img src="/images/Xnip2018-05-21_02-05-07.jpg" alt="IDA"></p>
+<p>下面我们就来一点一点分析这个方法。</p>
+<p><img src="/images/Xnip2018-05-21_02-06-19.jpg" alt="IDA"></p>
+<p>首先进入到这个方法，可以看到他从名为 <code>password</code> 的<code>UITextField</code> 里面取了输入的flag，又拿到了flag的长度，并对长度做了比较，如果长度不等于32直接跳到 <code>LABEL_15</code> 。</p>
+<p><img src="/images/Xnip2018-05-21_02-10-23.jpg" alt="IDA"></p>
+<p>所以我们拿到了第一条重要的信息：flag的长度一定是32。</p>
+<p>接着继续往下分析代码。<img src="/images/Xnip2018-05-21_02-12-37.jpg" alt="IDA"></p>
+<p>可以看到他拿到我们输入的 <code>flag</code> 和 <code>plain</code> 属性的值分别进行了一次MD5加密，之后做了一次比较。如果两个值相等就弹框提示 <code>Sorry, you missed the flag!</code> 。</p>
+<p>到现在，我认为我们不用着急往下继续看代码，先验证一下之前的推测。</p>
+<p>先看一下 <code>viewDidLoad</code> 方法。发现 <code>plain</code> 是从本地文件读取出来的。我们直接找这个文件看看 <code>plain</code> 到底是什么。<img src="/images/Xnip2018-05-21_02-23-47.jpg" alt="IDA"></p>
+<p>打开文件看到这个字符串以 <code>=</code> 号结尾，首先想到的是 <code>base64</code> 编码。所以直接解码拿到这段字符串 <code>n0_jok1ng_7hi2_real1y_n0t_fla9:(</code> 。</p>
+<p><img src="/images/Xnip2018-05-21_02-26-05.jpg" alt="base64"></p>
+<p>拿到 <code>plain</code> 的值之后回到程序，把它输入弹框中，发现确实得到了一个 <code>Sorry, you missed the flag!</code> 的提示，也验证了我们之前的分析。</p>
+<p>好的，我们继续往下看代码。</p>
+<p><img src="/images/Xnip2018-05-21_02-15-39.jpg" alt="IDA"></p>
+<p>大致瞅了一眼发现先是进行了各种骚操作验证并且弹了个框提示 <code>Congratulation!</code> ，看起来这里就是验证flag是否正确的地方。</p>
+<p>但是最开始是先判断 <code>self.fg</code> 才可以进来的，那么我们就动态调试一下看看到底能不能进这个if判断。</p>
+<p>使用 <code>MonkeyDev</code> 编写hook代码，hook <code>getflag:</code> 方法并设置断点。在输入框中输入 <code>n0_jok1ng_7hi2_real1y_n0t_fla9:(</code> ，发现程序停下来后 <code>fg</code> 的值 为 <code>false</code> 。这就让我们十分纳闷。代码中并没有改变 <code>fg</code> 的值，但他是 <code>false</code> 的话是永远不可能进入到验证 <code>flag</code> 是否正确的函数中的。</p>
+<p><img src="/images/Xnip2018-05-21_02-35-53.jpg" alt="Xnip2018-05-21_02-35-53"></p>
+<p>这一筹莫展之际，我们想到了：哎。。不对啊，还有一个deb文件还没用上呢。怎么把他给忘了。</p>
+<p>解压缩deb文件发现里面有个 <code>Tweak.dylib</code> ，先把他扔到IDA里面看看是干啥的。</p>
+<p><img src="/images/Xnip2018-05-21_02-44-02.jpg" alt="IDA"></p>
+<p>首先看到一个 <code>InitFunc</code> 里面使用 <code>MSHookMessageEx</code> hook了 <code>generate</code> 方法。双击 <code>sub_7BC8</code> 进去看看。<img src="/images/Xnip2018-05-21_02-43-01.jpg" alt="IDA"></p>
+<p>我们发现他重写了 <code>generate</code> ，而先前 <code>generate</code> 又是给 <code>pd</code>  赋值的方法，并发现 <code>fg</code> 的值也和他有关。因为之前是判断 <code>pd</code> 的值如果等于 <code>233333333333</code> 并且和 <code>1</code> 做了一次抑或，所以 <code>fg</code> 的值为 <code>false</code> ，而现在 <code>pd</code> 的值变了，所以 <code>fg</code> 也随之会变成 <code>true</code> 。这样一切都能解释的通了。</p>
+<p>接下来我们就应该向ipa中注入动态库，最简单的办法就是把这个 <code>dylib</code> 拷贝到 <code>/Library/MobileSubstrate/DynamicLibraries/</code> 目录下，让程序运行的时候加载他。</p>
+<p><img src="/images/Xnip2018-05-21_02-54-56.jpg" alt="Terminal"></p>
+<p>重新运行程序，输入 <code>n0_jok1ng_7hi2_real1y_n0t_fla9:(</code> 。我们发现 <code>fg</code> 和 <code>pd</code> 都如我们预期发现了变化。</p>
+<p><img src="/images/Xnip2018-05-21_02-56-51.jpg" alt="MonkeyDev"></p>
+<p>接下来我们就可以好好研究验证 <code>flag</code> 的这段代码了。</p>
+<p><img src="/images/Xnip2018-05-21_02-15-39 2.jpg" alt="IDA"></p>
+<p> 先来分析标注的这段代码，发现这 <code>flag</code> 的前16位应该和 <code>pd</code> 的前16位是相等的。</p>
+<p><img src="/images/Xnip2018-05-21_02-15-39 3.jpg" alt="IDA"></p>
+<p>看完这段代码，整个验证过程就很清晰明了了。接下来要做的就是写个脚本拿到16位之后的后半段 <code>flag</code> 。</p>
+<p>下面是我用OC写的代码：<img src="/images/Xnip2018-05-21_03-20-04.jpg" alt="code"></p>
+<p>运行打印：<code>_3asy_23333333:)</code></p>
+<p>之后和 <code>pd</code> 的前半段相拼接。得到：<code>by_7he0s_ho0k_ls_3asy_23333333:)</code> 。</p>
+<p><img src="/images/IMG_0015.PNG" alt="success"></p>
+<p>拿到 <code>flag</code> 验证，发现正确，大功告成～</p>
 
       
     </div>
@@ -377,6 +427,12 @@
 
     <footer class="post-footer">
       
+        <div class="post-tags">
+          
+            <a href="/tags/CTF/" rel="tag"><i class="fa fa-tag"></i> CTF</a>
+          
+        </div>
+      
 
       
       
@@ -386,8 +442,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/01/20/hello-world/" rel="next" title="Hello World">
-                <i class="fa fa-chevron-left"></i> Hello World
+              <a href="/2018/05/16/ZipperDown漏洞浅析/" rel="next" title="ZipperDown漏洞浅析">
+                <i class="fa fa-chevron-left"></i> ZipperDown漏洞浅析
               </a>
             
           </div>
@@ -396,8 +452,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2018/03/18/iOS应用安全测试/" rel="prev" title="iOS应用安全测试">
-                iOS应用安全测试 <i class="fa fa-chevron-right"></i>
+              <a href="/2019/07/10/dyld 源码初探/" rel="prev" title="dyld 源码初探">
+                dyld 源码初探 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -523,7 +579,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#Mac版本微信"><span class="nav-number">1.</span> <span class="nav-text">Mac版本微信</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Mac版本QQ"><span class="nav-number">2.</span> <span class="nav-text">Mac版本QQ</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-5"><a class="nav-link" href="#准备"><span class="nav-number">1.</span> <span class="nav-text">准备</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#开始"><span class="nav-number">2.</span> <span class="nav-text">开始</span></a></li></ol></div>
             
 
           </div>

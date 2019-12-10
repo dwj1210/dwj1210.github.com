@@ -78,7 +78,7 @@
 <link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Hexo, NexT" />
+  <meta name="keywords" content="移动安全," />
 
 
 
@@ -94,12 +94,13 @@
 
 
 
-<meta name="description" content="如何逆向 React Native 应用在工作或者兴趣研究中，我们经常会遇到一些带有签名字段或者是加密后的数据包。 而数据的加密，是为了保证数据在链路传输过程中即便被中间人攻击，也无法获取到明文的用户信息。签名字段则是为了保证数据传输的完整性，保证数据不会被中间人篡改。 今天就拿一个简单的 RN 应用来分享下，对于 RN 应用如何逆向出数据包的签名字段算法。 抓包 可以看到 “sign” 字段应就">
+<meta name="description" content="在工作或者兴趣研究中，我们经常会遇到一些带有签名字段或者是加密后的数据包。 而数据的加密，是为了保证数据在链路传输过程中即便被中间人攻击，也无法获取到明文的用户信息。签名字段则是为了保证数据传输的完整性，保证数据不会被中间人篡改。 今天就拿一个简单的 RN 应用来分享下，对于 RN 应用如何逆向出数据包的签名字段算法。 抓包 可以看到 “sign” 字段应就是签名字段。 逆向0x00我们先用 ID">
+<meta name="keywords" content="移动安全">
 <meta property="og:type" content="article">
-<meta property="og:title" content="dwj1210">
+<meta property="og:title" content="如何逆向 React Native 应用">
 <meta property="og:url" content="http://yoursite.com/2019/12/10/如何逆向 React Native 应用/index.html">
 <meta property="og:site_name" content="dwj1210">
-<meta property="og:description" content="如何逆向 React Native 应用在工作或者兴趣研究中，我们经常会遇到一些带有签名字段或者是加密后的数据包。 而数据的加密，是为了保证数据在链路传输过程中即便被中间人攻击，也无法获取到明文的用户信息。签名字段则是为了保证数据传输的完整性，保证数据不会被中间人篡改。 今天就拿一个简单的 RN 应用来分享下，对于 RN 应用如何逆向出数据包的签名字段算法。 抓包 可以看到 “sign” 字段应就">
+<meta property="og:description" content="在工作或者兴趣研究中，我们经常会遇到一些带有签名字段或者是加密后的数据包。 而数据的加密，是为了保证数据在链路传输过程中即便被中间人攻击，也无法获取到明文的用户信息。签名字段则是为了保证数据传输的完整性，保证数据不会被中间人篡改。 今天就拿一个简单的 RN 应用来分享下，对于 RN 应用如何逆向出数据包的签名字段算法。 抓包 可以看到 “sign” 字段应就是签名字段。 逆向0x00我们先用 ID">
 <meta property="og:image" content="http://yoursite.com/2019/12/10/如何逆向%20React%20Native%20应用/images/Snipaste_2019-12-09_17-24-22.png">
 <meta property="og:image" content="http://yoursite.com/2019/12/10/如何逆向%20React%20Native%20应用/images/Snipaste_2019-12-09_17-19-58.png">
 <meta property="og:image" content="http://yoursite.com/2019/12/10/如何逆向%20React%20Native%20应用/images/Snipaste_2019-12-09_17-53-36.png">
@@ -107,10 +108,10 @@
 <meta property="og:image" content="http://yoursite.com/2019/12/10/如何逆向%20React%20Native%20应用/images/Snipaste_2019-12-09_18-07-50.png">
 <meta property="og:image" content="http://yoursite.com/2019/12/10/如何逆向%20React%20Native%20应用/images/Snipaste_2019-12-09_18-08-08.png">
 <meta property="og:image" content="http://yoursite.com/2019/12/10/如何逆向%20React%20Native%20应用/images/Snipaste_2019-12-09_18-20-00.png">
-<meta property="og:updated_time" content="2019-12-10T02:45:12.480Z">
+<meta property="og:updated_time" content="2019-12-10T02:49:52.095Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="dwj1210">
-<meta name="twitter:description" content="如何逆向 React Native 应用在工作或者兴趣研究中，我们经常会遇到一些带有签名字段或者是加密后的数据包。 而数据的加密，是为了保证数据在链路传输过程中即便被中间人攻击，也无法获取到明文的用户信息。签名字段则是为了保证数据传输的完整性，保证数据不会被中间人篡改。 今天就拿一个简单的 RN 应用来分享下，对于 RN 应用如何逆向出数据包的签名字段算法。 抓包 可以看到 “sign” 字段应就">
+<meta name="twitter:title" content="如何逆向 React Native 应用">
+<meta name="twitter:description" content="在工作或者兴趣研究中，我们经常会遇到一些带有签名字段或者是加密后的数据包。 而数据的加密，是为了保证数据在链路传输过程中即便被中间人攻击，也无法获取到明文的用户信息。签名字段则是为了保证数据传输的完整性，保证数据不会被中间人篡改。 今天就拿一个简单的 RN 应用来分享下，对于 RN 应用如何逆向出数据包的签名字段算法。 抓包 可以看到 “sign” 字段应就是签名字段。 逆向0x00我们先用 ID">
 <meta name="twitter:image" content="http://yoursite.com/2019/12/10/如何逆向%20React%20Native%20应用/images/Snipaste_2019-12-09_17-24-22.png">
 
 
@@ -146,7 +147,7 @@
 
 
 
-  <title> | dwj1210</title>
+  <title>如何逆向 React Native 应用 | dwj1210</title>
   
 
 
@@ -286,7 +287,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline"></h1>
+          <h1 class="post-title" itemprop="name headline">如何逆向 React Native 应用</h1>
         
 
         <div class="post-meta">
@@ -298,7 +299,7 @@
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-12-10T10:42:13+08:00">
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-12-10T10:49:07+08:00">
                 2019-12-10
               </time>
             
@@ -316,7 +317,7 @@
 
           
           
-             <span id="/2019/12/10/如何逆向 React Native 应用/" class="leancloud_visitors" data-flag-title="">
+             <span id="/2019/12/10/如何逆向 React Native 应用/" class="leancloud_visitors" data-flag-title="如何逆向 React Native 应用">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -347,7 +348,7 @@
       
 
       
-        <h1 id="如何逆向-React-Native-应用"><a href="#如何逆向-React-Native-应用" class="headerlink" title="如何逆向 React Native 应用"></a>如何逆向 React Native 应用</h1><p>在工作或者兴趣研究中，我们经常会遇到一些带有签名字段或者是加密后的数据包。</p>
+        <p>在工作或者兴趣研究中，我们经常会遇到一些带有签名字段或者是加密后的数据包。</p>
 <p>而数据的加密，是为了保证数据在链路传输过程中即便被中间人攻击，也无法获取到明文的用户信息。签名字段则是为了保证数据传输的完整性，保证数据不会被中间人篡改。</p>
 <p>今天就拿一个简单的 RN 应用来分享下，对于 RN 应用如何逆向出数据包的签名字段算法。</p>
 <h3 id="抓包"><a href="#抓包" class="headerlink" title="抓包"></a>抓包</h3><p><img src="images/Snipaste_2019-12-09_17-24-22.png" alt="Snipaste_2019-12-09_17-24-22"></p>
@@ -388,6 +389,12 @@
     
 
     <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/移动安全/" rel="tag"><i class="fa fa-tag"></i> 移动安全</a>
+          
+        </div>
       
 
       
@@ -531,7 +538,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#如何逆向-React-Native-应用"><span class="nav-number">1.</span> <span class="nav-text">如何逆向 React Native 应用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#抓包"><span class="nav-number">1.0.1.</span> <span class="nav-text">抓包</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#逆向"><span class="nav-number">1.0.2.</span> <span class="nav-text">逆向</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#0x00"><span class="nav-number">1.0.2.1.</span> <span class="nav-text">0x00</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#0x01"><span class="nav-number">1.0.2.2.</span> <span class="nav-text">0x01</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#0x02"><span class="nav-number">1.0.2.3.</span> <span class="nav-text">0x02</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#0x03"><span class="nav-number">1.0.2.4.</span> <span class="nav-text">0x03</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#0x04"><span class="nav-number">1.0.2.5.</span> <span class="nav-text">0x04</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#0x05"><span class="nav-number">1.0.2.6.</span> <span class="nav-text">0x05</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#0x06"><span class="nav-number">1.0.2.7.</span> <span class="nav-text">0x06</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结"><span class="nav-number">1.0.3.</span> <span class="nav-text">总结</span></a></li></ol></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#抓包"><span class="nav-number">1.</span> <span class="nav-text">抓包</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#逆向"><span class="nav-number">2.</span> <span class="nav-text">逆向</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#0x00"><span class="nav-number">2.1.</span> <span class="nav-text">0x00</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#0x01"><span class="nav-number">2.2.</span> <span class="nav-text">0x01</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#0x02"><span class="nav-number">2.3.</span> <span class="nav-text">0x02</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#0x03"><span class="nav-number">2.4.</span> <span class="nav-text">0x03</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#0x04"><span class="nav-number">2.5.</span> <span class="nav-text">0x04</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#0x05"><span class="nav-number">2.6.</span> <span class="nav-text">0x05</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#0x06"><span class="nav-number">2.7.</span> <span class="nav-text">0x06</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li></ol></div>
             
 
           </div>

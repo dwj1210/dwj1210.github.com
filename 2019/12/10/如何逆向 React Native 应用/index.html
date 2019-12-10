@@ -101,18 +101,18 @@
 <meta property="og:url" content="http://yoursite.com/2019/12/10/如何逆向 React Native 应用/index.html">
 <meta property="og:site_name" content="dwj1210">
 <meta property="og:description" content="在工作或者兴趣研究中，我们经常会遇到一些带有签名字段或者是加密后的数据包。 而数据的加密，是为了保证数据在链路传输过程中即便被中间人攻击，也无法获取到明文的用户信息。签名字段则是为了保证数据传输的完整性，保证数据不会被中间人篡改。 今天就拿一个简单的 RN 应用来分享下，对于 RN 应用如何逆向出数据包的签名字段算法。 抓包 可以看到 “sign” 字段应就是签名字段。 逆向0x00我们先用 ID">
-<meta property="og:image" content="http://yoursite.com/2019/12/10/如何逆向%20React%20Native%20应用/images/Snipaste_2019-12-09_17-24-22.png">
-<meta property="og:image" content="http://yoursite.com/2019/12/10/如何逆向%20React%20Native%20应用/images/Snipaste_2019-12-09_17-19-58.png">
-<meta property="og:image" content="http://yoursite.com/2019/12/10/如何逆向%20React%20Native%20应用/images/Snipaste_2019-12-09_17-53-36.png">
-<meta property="og:image" content="http://yoursite.com/2019/12/10/如何逆向%20React%20Native%20应用/images/Snipaste_2019-12-09_16-57-35.png">
-<meta property="og:image" content="http://yoursite.com/2019/12/10/如何逆向%20React%20Native%20应用/images/Snipaste_2019-12-09_18-07-50.png">
-<meta property="og:image" content="http://yoursite.com/2019/12/10/如何逆向%20React%20Native%20应用/images/Snipaste_2019-12-09_18-08-08.png">
-<meta property="og:image" content="http://yoursite.com/2019/12/10/如何逆向%20React%20Native%20应用/images/Snipaste_2019-12-09_18-20-00.png">
-<meta property="og:updated_time" content="2019-12-10T02:49:52.095Z">
+<meta property="og:image" content="http://yoursite.com/images/Snipaste_2019-12-09_17-24-22.png">
+<meta property="og:image" content="http://yoursite.com/images/Snipaste_2019-12-09_17-19-58.png">
+<meta property="og:image" content="http://yoursite.com/images/Snipaste_2019-12-09_17-53-36.png">
+<meta property="og:image" content="http://yoursite.com/images/Snipaste_2019-12-09_16-57-35.png">
+<meta property="og:image" content="http://yoursite.com/images/Snipaste_2019-12-09_18-07-50.png">
+<meta property="og:image" content="http://yoursite.com/images/Snipaste_2019-12-09_18-08-08.png">
+<meta property="og:image" content="http://yoursite.com/images/Snipaste_2019-12-09_18-20-00.png">
+<meta property="og:updated_time" content="2019-12-10T02:56:28.846Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="如何逆向 React Native 应用">
 <meta name="twitter:description" content="在工作或者兴趣研究中，我们经常会遇到一些带有签名字段或者是加密后的数据包。 而数据的加密，是为了保证数据在链路传输过程中即便被中间人攻击，也无法获取到明文的用户信息。签名字段则是为了保证数据传输的完整性，保证数据不会被中间人篡改。 今天就拿一个简单的 RN 应用来分享下，对于 RN 应用如何逆向出数据包的签名字段算法。 抓包 可以看到 “sign” 字段应就是签名字段。 逆向0x00我们先用 ID">
-<meta name="twitter:image" content="http://yoursite.com/2019/12/10/如何逆向%20React%20Native%20应用/images/Snipaste_2019-12-09_17-24-22.png">
+<meta name="twitter:image" content="http://yoursite.com/images/Snipaste_2019-12-09_17-24-22.png">
 
 
 
@@ -351,27 +351,27 @@
         <p>在工作或者兴趣研究中，我们经常会遇到一些带有签名字段或者是加密后的数据包。</p>
 <p>而数据的加密，是为了保证数据在链路传输过程中即便被中间人攻击，也无法获取到明文的用户信息。签名字段则是为了保证数据传输的完整性，保证数据不会被中间人篡改。</p>
 <p>今天就拿一个简单的 RN 应用来分享下，对于 RN 应用如何逆向出数据包的签名字段算法。</p>
-<h3 id="抓包"><a href="#抓包" class="headerlink" title="抓包"></a>抓包</h3><p><img src="images/Snipaste_2019-12-09_17-24-22.png" alt="Snipaste_2019-12-09_17-24-22"></p>
+<h3 id="抓包"><a href="#抓包" class="headerlink" title="抓包"></a>抓包</h3><p><img src="/images/Snipaste_2019-12-09_17-24-22.png" alt="Snipaste_2019-12-09_17-24-22"></p>
 <p>可以看到 “sign” 字段应就是签名字段。</p>
 <h3 id="逆向"><a href="#逆向" class="headerlink" title="逆向"></a>逆向</h3><h4 id="0x00"><a href="#0x00" class="headerlink" title="0x00"></a>0x00</h4><p>我们先用 IDA 反编译一下二进制，然后尝试搜索下 “trParam” 字符串发现并没有我们需要的结果。</p>
-<h4 id="0x01"><a href="#0x01" class="headerlink" title="0x01"></a>0x01</h4><p>然后用 lldb 挂上应用看下视图发现，应用视图类使用了大量  RCTxxx 。<img src="images/Snipaste_2019-12-09_17-19-58.png" alt="Snipaste_2019-12-09_17-19-58"></p>
+<h4 id="0x01"><a href="#0x01" class="headerlink" title="0x01"></a>0x01</h4><p>然后用 lldb 挂上应用看下视图发现，应用视图类使用了大量  RCTxxx 。<img src="/images/Snipaste_2019-12-09_17-19-58.png" alt="Snipaste_2019-12-09_17-19-58"></p>
 <p>由此可以推断出应用使用了 React Native 混合开发模式。而 RN 应用的主要逻辑代码均为 js 实现。</p>
 <h4 id="0x02"><a href="#0x02" class="headerlink" title="0x02"></a>0x02</h4><p>解压缩安装包，进入 .app 目录，可以找到应用的 js 源代码，应该就是这个文件。</p>
-<p><img src="images/Snipaste_2019-12-09_17-53-36.png" alt="Snipaste_2019-12-09_17-53-36"></p>
+<p><img src="/images/Snipaste_2019-12-09_17-53-36.png" alt="Snipaste_2019-12-09_17-53-36"></p>
 <p>打开查看 jsbundle 的代码发现全部经过了压缩混淆，可读性为 0。</p>
-<p><img src="images/Snipaste_2019-12-09_16-57-35.png" alt="Snipaste_2019-12-09_16-57-35"></p>
+<p><img src="/images/Snipaste_2019-12-09_16-57-35.png" alt="Snipaste_2019-12-09_16-57-35"></p>
 <h4 id="0x03"><a href="#0x03" class="headerlink" title="0x03"></a>0x03</h4><p>这个时候我们需要一个 <a href="https://tool.oschina.net/codeformat/js" title="js 在线格式化" target="_blank" rel="noopener">js 在线格式化</a> 帮我们格式化一下 js 代码。虽然变量名字和函数名都经过了无意义的混淆，但是经过格式化后的代码还是有很强的可读性。</p>
 <h4 id="0x04"><a href="#0x04" class="headerlink" title="0x04"></a>0x04</h4><p>在 js 代码中搜索数据包中的字符串发现可以直接定位到字段拼接的位置。</p>
-<p><img src="images/Snipaste_2019-12-09_18-07-50.png" alt="Snipaste_2019-12-09_18-07-50"></p>
+<p><img src="/images/Snipaste_2019-12-09_18-07-50.png" alt="Snipaste_2019-12-09_18-07-50"></p>
 <p>从代码片段中可以看到 timestamp 是一个时间戳，nonce 是一个随机数，而 sign 则是由 nonce 拼接 timestamp 最后 md5 后的结果。</p>
-<p><img src="images/Snipaste_2019-12-09_18-08-08.png" alt="Snipaste_2019-12-09_18-08-08"></p>
+<p><img src="/images/Snipaste_2019-12-09_18-08-08.png" alt="Snipaste_2019-12-09_18-08-08"></p>
 <p>在这里可以看到 trParam 是对传入的变量 e md5 后的结果。但是我们并不知道这个 e 代表什么。</p>
 <h4 id="0x05"><a href="#0x05" class="headerlink" title="0x05"></a>0x05</h4><p>我们尝试在 js 代码中添加 console.log 来打印关键信息，但是发现日志并没有输出到日志中。</p>
 <p>另起思路，给 JSContext 类添加方法来通过 js 调用 OC 方法来打印。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">#import &lt;JavaScriptCore/JavaScriptCore.h&gt;</span><br><span class="line">CHDeclareClass(JSContext)</span><br><span class="line">CHOptimizedMethod0(self, id, JSContext, init) &#123;</span><br><span class="line"></span><br><span class="line">    self = CHSuper0(JSContext, init);</span><br><span class="line">    self[@&quot;NSLog&quot;] = ^(NSString *format)&#123;</span><br><span class="line">        NSLog(@&quot;%@&quot;,format);</span><br><span class="line">    &#125;;</span><br><span class="line">    return self;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">CHConstructor&#123;</span><br><span class="line"></span><br><span class="line">    CHLoadLateClass(JSContext);</span><br><span class="line">    CHClassHook0(JSContext, init);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>如果你发现你的代码报错了，可能是忘记在 hook 代码中导入头文件。</p>
 <p>实际插入的代码：</p>
-<p><img src="images/Snipaste_2019-12-09_18-20-00.png" alt="Snipaste_2019-12-09_18-20-00"></p>
+<p><img src="/images/Snipaste_2019-12-09_18-20-00.png" alt="Snipaste_2019-12-09_18-20-00"></p>
 <h4 id="0x06"><a href="#0x06" class="headerlink" title="0x06"></a>0x06</h4><p>我们使用 MonKeyDev 重打包安装到手机，在实际运行过程中就能在控制台看到相应的日志输出了。</p>
 <p>而此处的变量 e 其实就是用户手机号经过 AES 加密之后的数据，而 trParam 则是手机号经过 AES 然后 md5 后的数据了。该部分就不在展示了。</p>
 <h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>对于 RN 应用确实存在无法动态调试 js 代码的问题。但是我们可以通过插入 log 的方式动态追踪关键函数的入参和返回值。</p>

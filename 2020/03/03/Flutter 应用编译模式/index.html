@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="应用安全," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="前言为什么会有这篇博客？是因为在应用安全测试中遇到了一个纯 Flutter 开发的应用，因为之前对 Flutter 了解较少，所以开始从 Flutter 环境搭建到写一个 Flutter Demo 开始学习 Flutter 应用。 Flutter Flutter 是谷歌的移动 UI 框架，可以快速在 iOS 和 Android 上构建高质量的原生用户界面。（更多的时候 Flutter 会被当作一种">
+<meta name="keywords" content="应用安全">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Flutter 应用编译模式">
+<meta property="og:url" content="http://yoursite.com/2020/03/03/Flutter 应用编译模式/index.html">
+<meta property="og:site_name" content="dwj1210">
+<meta property="og:description" content="前言为什么会有这篇博客？是因为在应用安全测试中遇到了一个纯 Flutter 开发的应用，因为之前对 Flutter 了解较少，所以开始从 Flutter 环境搭建到写一个 Flutter Demo 开始学习 Flutter 应用。 Flutter Flutter 是谷歌的移动 UI 框架，可以快速在 iOS 和 Android 上构建高质量的原生用户界面。（更多的时候 Flutter 会被当作一种">
+<meta property="og:image" content="http://yoursite.com/images/Flutter_1.PNG">
+<meta property="og:image" content="http://yoursite.com/images/Flutter_2.PNG">
+<meta property="og:image" content="http://yoursite.com/images/Flutter_3.PNG">
+<meta property="og:updated_time" content="2020-03-03T10:02:26.915Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Flutter 应用编译模式">
+<meta name="twitter:description" content="前言为什么会有这篇博客？是因为在应用安全测试中遇到了一个纯 Flutter 开发的应用，因为之前对 Flutter 了解较少，所以开始从 Flutter 环境搭建到写一个 Flutter Demo 开始学习 Flutter 应用。 Flutter Flutter 是谷歌的移动 UI 框架，可以快速在 iOS 和 Android 上构建高质量的原生用户界面。（更多的时候 Flutter 会被当作一种">
+<meta name="twitter:image" content="http://yoursite.com/images/Flutter_1.PNG">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    sidebar: {"position":"left","display":"hide","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2020/03/03/Flutter 应用编译模式/"/>
+
+
+
+
+
+  <title>Flutter 应用编译模式 | dwj1210</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">dwj1210</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/03/03/Flutter 应用编译模式/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="代伟佳WeChat:337223400">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="dwj1210">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Flutter 应用编译模式</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-03-03T17:59:00+08:00">
+                2020-03-03
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2020/03/03/Flutter 应用编译模式/" class="leancloud_visitors" data-flag-title="Flutter 应用编译模式">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">Visitors </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>为什么会有这篇博客？是因为在应用安全测试中遇到了一个纯 Flutter 开发的应用，因为之前对 Flutter 了解较少，所以开始从 Flutter 环境搭建到写一个 Flutter Demo 开始学习 Flutter 应用。</p>
+<h2 id="Flutter"><a href="#Flutter" class="headerlink" title="Flutter"></a>Flutter</h2><ul>
+<li>Flutter 是谷歌的移动 UI 框架，可以快速在 iOS 和 Android 上构建高质量的原生用户界面。（更多的时候 Flutter 会被当作一种跨平台开发方案使用）</li>
+<li>Flutter 可以与现有的代码一起工作。</li>
+</ul>
+<p>开源地址：<a href="https://github.com/flutter/flutter" target="_blank" rel="noopener">https://github.com/flutter/flutter</a></p>
+<p>Flutter 采用 Dart 语言开发，Dart 也是谷歌开发的计算机编程语言。</p>
+<h3 id="Flutter-amp-Dart-编译模式"><a href="#Flutter-amp-Dart-编译模式" class="headerlink" title="Flutter &amp; Dart 编译模式"></a>Flutter &amp; Dart 编译模式</h3><ul>
+<li><p>Dart 的编译模式：</p>
+<ul>
+<li>JIT（Just In Time 即时编译）<ul>
+<li>Script：在 PC 命令行调用 dart vm 执行 dart 源代码文件即是这种模式</li>
+<li>Script Snapshot：和上一个不同的是，这里载入的是已经 token 化的 dart 源代码，提前执行了上一步的 lexer 步骤</li>
+<li>Application Snapshot：这种模式来源于 dart vm 直接载入源码后 dump 出数据。dart vm 通过这种数据启动会更快。不过值得一提的是这种模式是区分架构的</li>
+</ul>
+</li>
+<li>AOT（Ahead Of Time 事前编译）<ul>
+<li>直接将 dart 源码编译出 .S 文件，然后通过汇编器生成对应架构的代码。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>Flutter 的编译模式：</p>
+<ul>
+<li>JIT<ul>
+<li>Script：和 Dart 的 Script 模式一样，但是没有开启使用</li>
+<li>Script Snapshot：也是和 Dart 的 Script Snapshot 模式一样，也没有开启使用</li>
+<li>Kernel Snapshot：Dart 的 bytecode 模式，在某种程度上类似 JVM。在 Flutter 项目中也被叫做 Core Snapshot，它是和设备架构无关的</li>
+</ul>
+</li>
+<li>AOT<ul>
+<li>Core JIT: 一种编译后的二进制格式，程序的数据和指令被打包成特殊的二进制，在运行时加载。事实上Core JIT 也被叫做 AOT Blobs, 是 AOT 的一种</li>
+<li>AOT Assembly: 和 Dart 的 AOT 模式一样</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="Debug-环境中的-Flutter"><a href="#Debug-环境中的-Flutter" class="headerlink" title="Debug 环境中的 Flutter"></a>Debug 环境中的 Flutter</h3><p>在开发阶段，执行 flutter run 命令就可以将 flutter App 跑起来，Flutter 也提供了例如：r（Hot reload）、R（Hot restart）等命令来进行界面、代码等热更新功能。为了方便 UI 快速成型，同时也需要比较高的性能来进行视图渲染，所以 Flutter 在 Debug 下使用了 Kernel Snapshot 编译模式，会生成如下产物：</p>
+<p><img src="/images/Flutter_1.PNG" alt=""></p>
+<ol>
+<li>isolate_snapshot_data: 加速 isolate 启动的数据，和业务无关</li>
+<li>vm_snapshot_data: 加速 Dart VM 启动的数据，和业务无关</li>
+<li>kernel_blob.bin: 业务代码产物</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">➜  my_app flutter run</span><br><span class="line">Launching lib/main.dart on iPhone in debug mode...</span><br><span class="line"></span><br><span class="line">Found saved certificate choice &quot;iPhone Developer: xxx@163.com</span><br><span class="line">(F9CZLE42Q8)&quot;. To clear, use &quot;flutter config&quot;.</span><br><span class="line">Signing iOS app for device deployment using developer identity: &quot;iPhone</span><br><span class="line">Developer: xxx@163.com (F9CZLE42Q8)&quot;</span><br><span class="line">Running Xcode build...</span><br><span class="line"></span><br><span class="line"> └─Compiling, linking and signing...                        14.6s</span><br><span class="line">Xcode build done.                                           20.6s</span><br><span class="line"></span><br><span class="line">Installing and launching...                                        27.8s</span><br><span class="line">Syncing files to device iPhone...                                  206ms</span><br><span class="line"></span><br><span class="line">Flutter run key commands.</span><br><span class="line">r Hot reload. 🔥🔥🔥</span><br><span class="line">R Hot restart.</span><br><span class="line">h Repeat this help message.</span><br><span class="line">d Detach (terminate &quot;flutter run&quot; but leave application running).</span><br><span class="line">c Clear the screen</span><br><span class="line">q Quit (terminate the application on the device).</span><br><span class="line">An Observatory debugger and profiler on iPhone is available at:</span><br><span class="line">http://localhost:1024</span><br></pre></td></tr></table></figure>
+<table>
+<thead>
+<tr>
+<th>项目/平台</th>
+<th>Android</th>
+<th>iOS</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>代码环境</td>
+<td>debug</td>
+<td>debug</td>
+</tr>
+<tr>
+<td>编译模式</td>
+<td>Kernel Snapshot</td>
+<td>Kernel Snapshot</td>
+</tr>
+<tr>
+<td>打包工具</td>
+<td>dart vm（2.0）</td>
+<td>dart vm（2.0）</td>
+</tr>
+<tr>
+<td>Flutter 命令</td>
+<td>flutter build bundle</td>
+<td>flutter build bundle</td>
+</tr>
+<tr>
+<td>打包产物</td>
+<td>flutter_assets/*</td>
+<td>flutter_assets/*</td>
+</tr>
+</tbody>
+</table>
+<h3 id="Release-环境中的-Flutter"><a href="#Release-环境中的-Flutter" class="headerlink" title="Release 环境中的 Flutter"></a>Release 环境中的 Flutter</h3><p>在生产阶段，应用需要的是非常快的速度，所以 Android 和 iOS  毫无意外地都选择了 AOT 打包。不过由于平台特性不同，打包模式也是天壤之别。</p>
+<table>
+<thead>
+<tr>
+<th>项目/平台</th>
+<th>Android</th>
+<th>Android(–build-shared-library)</th>
+<th>iOS</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>代码环境</td>
+<td>release</td>
+<td>release</td>
+<td>release</td>
+</tr>
+<tr>
+<td>编译模式</td>
+<td>Core JIT</td>
+<td>AOT Assembly</td>
+<td>AOT Assembly</td>
+</tr>
+<tr>
+<td>打包工具</td>
+<td>gen_snapshot</td>
+<td>gen_snapshot</td>
+<td>gen_snapshot</td>
+</tr>
+<tr>
+<td>Flutter 命令</td>
+<td>flutter build aot</td>
+<td>flutter build aot –build-shared-library</td>
+<td>flutter build aot –ios</td>
+</tr>
+<tr>
+<td>打包产物</td>
+<td>flutter_assets/*</td>
+<td>app.so</td>
+<td>App.framework</td>
+</tr>
+</tbody>
+</table>
+<p>App Store 审核条例不允许动态下发可执行二进制代码，所以 iOS 平台采用了 AOT Assembly 的编译模式。</p>
+<p>而 Android release 模式下支持两种编译模式：Core JIT 和 AOT Assembly 。<br>在 Android 的 Core JIT 打包中生成的产物有四个：<br>isolate_snapshot_data,、vm_snapshot_data、 isolate_snapshot_instr,、vm_snapshot_instr。<br>我们不认识的产物只有 2个：isolate_snapshot_instr和 vm_snapshot_instr，其实它俩代表着 vm 和 isolate 启动后所承载的指令等数据。</p>
+<p>Android 的 AOT Assembly 打包方式则是安卓共享库的形式，并且该处代码需要从 JNI 调用，远不如 Core JIT 的 Java API 方便。所以 Android 上默认使用 Core JIT 打包，而不是 AOT Assembly。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>iOS 平台中 Flutter 分别在 debug 和 release 两种模式下分别用了 JIT 和 AOT 编译模式。</p>
+<p>在 iOS Release 环境中 Flutter 相关代码的最终产物是 App.framework（由 Dart 代码生成）和 Flutter.framework（引擎和嵌入器）。<br><img src="/images/Flutter_2.PNG" alt=""></p>
+<p>App.framework 与 Flutter.framework 不同，App.framework 是原生机器码，与 AOT 模式中的 Dart 代码对应，而在 JIT 模式下，App.framework 只有几个简单的 API，Dart 代码存在于 snapshot_blob.bin 文件中。这部分代码的快照是带有简单标记的源代码的脚本快照。所有的注释和空格字符都被移除，常量被规格化，不存在机器代码、摇树优化或代码混淆。</p>
+<p>实际上，使用 Flutter 开发的 iOS 或 Android 项目仍然是标准的 iOS 或 Android 项目。iOS 端 Flutter 通过在 BuildPhase 中添加 shell 来生成并嵌入 App.framework 和 Flutter.framework。<br><img src="/images/Flutter_3.PNG" alt=""></p>
+<p>对应脚本目录：<br><code>~/flutter/packages/flutter_tools/bin/xcode_backend.sh</code><br>加载动态库、签名动态库、错误输出等功能。</p>
+<p>Android 中则通过 gradle 来添加 flutter.jar 和 vm/isolate_snapshot_data/instr(Android) 来将 Flutter 相关代码编译和嵌入原生 App 而已。</p>
+<p>所以这也是为什么闲鱼同时使用了 RN、Flutter 等多个跨平台框架的原因。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://flutterchina.club/" target="_blank" rel="noopener">https://flutterchina.club/</a><br><a href="https://proandroiddev.com/flutters-compilation-patterns-24e139d14177?gi=44afeb587bd5" target="_blank" rel="noopener">https://proandroiddev.com/flutters-compilation-patterns-24e139d14177?gi=44afeb587bd5</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/应用安全/" rel="tag"><i class="fa fa-tag"></i> 应用安全</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/12/10/如何逆向 React Native 应用/" rel="next" title="如何逆向 React Native 应用">
+                <i class="fa fa-chevron-left"></i> 如何逆向 React Native 应用
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="代伟佳WeChat:337223400" />
+          <p class="site-author-name" itemprop="name">代伟佳WeChat:337223400</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">11</span>
+                <span class="site-state-item-name">posts</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">tags</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Flutter"><span class="nav-number">2.</span> <span class="nav-text">Flutter</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Flutter-amp-Dart-编译模式"><span class="nav-number">2.1.</span> <span class="nav-text">Flutter &amp; Dart 编译模式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Debug-环境中的-Flutter"><span class="nav-number">2.2.</span> <span class="nav-text">Debug 环境中的 Flutter</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Release-环境中的-Flutter"><span class="nav-number">2.3.</span> <span class="nav-text">Release 环境中的 Flutter</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结"><span class="nav-number">2.4.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">3.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">代伟佳WeChat:337223400</span>
+</div>
+
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="https://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Muse
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.4.js"></script>
+  <script>AV.initialize("Tv0ap1PiX5he09oRLIDxPDFq-gzGzoHsz", "oNp2foyUytnAWmG6y9Pun0TY");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

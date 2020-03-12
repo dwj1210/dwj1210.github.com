@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="移动安全," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="本篇文章主要讲什么是虚函数、什么是虚函数表，以及在 C++ 中一个对象的内存布局是什么样的。 C++ 是一门面向对象的语言，跟 OC 一样有三大特性：继承、封装、多态。C++ 中的多态是通过虚函数重写的方式来实现的。 从开发角度了解什么是虚函数虚函数就是父类中由 virtual 修饰的函数。 普通类：源代码：123456789101112131415#include&amp;lt;iostream&amp;gt;">
+<meta name="keywords" content="移动安全">
+<meta property="og:type" content="article">
+<meta property="og:title" content="C++ 虚函数表原理及对象内存结构分析">
+<meta property="og:url" content="http://yoursite.com/2020/03/12/C++ 虚函数表原理及对象内存结构分析/index.html">
+<meta property="og:site_name" content="dwj1210">
+<meta property="og:description" content="本篇文章主要讲什么是虚函数、什么是虚函数表，以及在 C++ 中一个对象的内存布局是什么样的。 C++ 是一门面向对象的语言，跟 OC 一样有三大特性：继承、封装、多态。C++ 中的多态是通过虚函数重写的方式来实现的。 从开发角度了解什么是虚函数虚函数就是父类中由 virtual 修饰的函数。 普通类：源代码：123456789101112131415#include&amp;lt;iostream&amp;gt;">
+<meta property="og:image" content="http://yoursite.com/images/vtable_1.png">
+<meta property="og:image" content="http://yoursite.com/images/vtable_2.png">
+<meta property="og:image" content="http://yoursite.com/images/vtable_3.png">
+<meta property="og:image" content="http://yoursite.com/images/vtable_4.png">
+<meta property="og:image" content="http://yoursite.com/images/vtable_5.png">
+<meta property="og:updated_time" content="2020-03-12T09:58:55.157Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="C++ 虚函数表原理及对象内存结构分析">
+<meta name="twitter:description" content="本篇文章主要讲什么是虚函数、什么是虚函数表，以及在 C++ 中一个对象的内存布局是什么样的。 C++ 是一门面向对象的语言，跟 OC 一样有三大特性：继承、封装、多态。C++ 中的多态是通过虚函数重写的方式来实现的。 从开发角度了解什么是虚函数虚函数就是父类中由 virtual 修饰的函数。 普通类：源代码：123456789101112131415#include&amp;lt;iostream&amp;gt;">
+<meta name="twitter:image" content="http://yoursite.com/images/vtable_1.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    sidebar: {"position":"left","display":"hide","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2020/03/12/C++ 虚函数表原理及对象内存结构分析/"/>
+
+
+
+
+
+  <title>C++ 虚函数表原理及对象内存结构分析 | dwj1210</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">dwj1210</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/03/12/C++ 虚函数表原理及对象内存结构分析/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="代伟佳WeChat:337223400">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="dwj1210">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">C++ 虚函数表原理及对象内存结构分析</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-03-12T17:55:07+08:00">
+                2020-03-12
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2020/03/12/C++ 虚函数表原理及对象内存结构分析/" class="leancloud_visitors" data-flag-title="C++ 虚函数表原理及对象内存结构分析">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">Visitors </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>本篇文章主要讲什么是虚函数、什么是虚函数表，以及在 C++ 中一个对象的内存布局是什么样的。</p>
+<p>C++ 是一门面向对象的语言，跟 OC 一样有三大特性：继承、封装、多态。<br>C++ 中的多态是通过虚函数重写的方式来实现的。</p>
+<h3 id="从开发角度了解什么是虚函数"><a href="#从开发角度了解什么是虚函数" class="headerlink" title="从开发角度了解什么是虚函数"></a>从开发角度了解什么是虚函数</h3><p>虚函数就是父类中由 virtual 修饰的函数。</p>
+<h4 id="普通类："><a href="#普通类：" class="headerlink" title="普通类："></a>普通类：</h4><p>源代码：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Base</span> &#123;</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        Base():base_int(<span class="number">1</span>),base_char(<span class="string">'d'</span>)&#123;&#125;;</span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">test</span><span class="params">()</span></span>&#123; <span class="built_in">cout</span>&lt;&lt;<span class="string">"Base Print()"</span>&lt;&lt;<span class="built_in">endl</span>; &#125;</span><br><span class="line">    <span class="keyword">protected</span>:</span><br><span class="line">        <span class="keyword">int</span> base_int;</span><br><span class="line">        <span class="keyword">char</span> base_char;                                   </span><br><span class="line">&#125;;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    Base b;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>一个 Base 类，有两个成员变量分别是 base_int 和 base_char，在初始化的时候分别赋值。</p>
+<p>调试过程：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">dwj@dwj-virtual-machine:~/C++Demo$ gdb ./demo1</span><br><span class="line">Reading symbols <span class="keyword">from</span> ./demo1...done.</span><br><span class="line">(gdb) b <span class="number">14</span></span><br><span class="line">Breakpoint <span class="number">1</span> at <span class="number">0x400749</span>: file demo1.cpp, line <span class="number">14.</span></span><br><span class="line">(gdb) run</span><br><span class="line">Starting program: /home/dwj/C++Demo/demo1 </span><br><span class="line"></span><br><span class="line">Breakpoint <span class="number">1</span>, main () at demo1.cpp:<span class="number">14</span></span><br><span class="line"><span class="number">14</span>	    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">(gdb) p b</span><br><span class="line">$<span class="number">1</span> = &#123;base_int = <span class="number">1</span>, base_char = <span class="number">100</span> <span class="string">'d'</span>&#125;</span><br></pre></td></tr></table></figure></p>
+<p>通过 <code>p b</code> 命令可以查看到对象内存结构中有两个成员变量，并且已经被赋值。</p>
+<h4 id="存在虚函数的类："><a href="#存在虚函数的类：" class="headerlink" title="存在虚函数的类："></a>存在虚函数的类：</h4><p>源代码：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Base</span> &#123;</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        Base():base_int(<span class="number">1</span>),base_char(<span class="string">'d'</span>)&#123;&#125;;</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">test</span><span class="params">()</span></span>&#123; <span class="built_in">cout</span>&lt;&lt;<span class="string">"Base Print()"</span>&lt;&lt;<span class="built_in">endl</span>; &#125;</span><br><span class="line">    <span class="keyword">protected</span>:</span><br><span class="line">        <span class="keyword">int</span> base_int;</span><br><span class="line">        <span class="keyword">char</span> base_char;                             </span><br><span class="line">&#125;;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    Base b;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>一个 Base 类，有两个成员变量分别是 base_int 和 base_char，还有一个用 virtual 修饰的虚函数 test()。</p>
+<p>调试过程：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">dwj@dwj-virtual-machine:~/C++Demo$ gdb ./demo2 </span><br><span class="line">Reading symbols <span class="keyword">from</span> ./demo2...done.</span><br><span class="line">(gdb) b <span class="number">14</span></span><br><span class="line">Breakpoint <span class="number">1</span> at <span class="number">0x400959</span>: file demo2.cpp, line <span class="number">14.</span></span><br><span class="line">(gdb) run</span><br><span class="line">Starting program: /home/dwj/C++Demo/demo2 </span><br><span class="line"></span><br><span class="line">Breakpoint <span class="number">1</span>, main () at demo2.cpp:<span class="number">14</span></span><br><span class="line"><span class="number">14</span>	    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">(gdb) p b</span><br><span class="line">$<span class="number">1</span> = &#123;_vptr.Base = <span class="number">0x400ad8</span> &lt;vtable <span class="keyword">for</span> Base+<span class="number">16</span>&gt;, base_int = <span class="number">1</span>, base_char = <span class="number">100</span> <span class="string">'d'</span>&#125;</span><br><span class="line">(gdb) info vtbl b</span><br><span class="line">vtable <span class="keyword">for</span> <span class="string">'Base'</span> @ <span class="number">0x400ad8</span> (subobject @ <span class="number">0x7fffffffdde0</span>):</span><br><span class="line">[<span class="number">0</span>]: <span class="number">0x4009fe</span> &lt;Base::test()&gt;</span><br></pre></td></tr></table></figure></p>
+<p>通过 <code>p b</code> 命令可以查看到对象内存结构中有两个成员变量，并且已经被赋值，除了这两个成员变量外，前面还有一个 Base 的虚函数指针，使用 <code>info vtbl b</code> 命令可以看到这个虚函数指针指向的内存空间是一个数组，数组中有一个元素，这个元素就是对象的 test() 虚函数指针。</p>
+<h4 id="存在虚函数的类并且子类没有重写虚函数"><a href="#存在虚函数的类并且子类没有重写虚函数" class="headerlink" title="存在虚函数的类并且子类没有重写虚函数"></a>存在虚函数的类并且子类没有重写虚函数</h4><p>源代码：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Base</span> &#123;</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        Base():base_int(<span class="number">1</span>),base_char(<span class="string">'d'</span>)&#123;&#125;;</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">test</span><span class="params">()</span></span>&#123; <span class="built_in">cout</span>&lt;&lt;<span class="string">"Base Print()"</span>&lt;&lt;<span class="built_in">endl</span>; &#125;</span><br><span class="line">    <span class="keyword">protected</span>:</span><br><span class="line">        <span class="keyword">int</span> base_int;</span><br><span class="line">        <span class="keyword">char</span> base_char;                             </span><br><span class="line">&#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">sub_Base</span>:</span> <span class="keyword">public</span> Base&#123;</span><br><span class="line">    <span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">int</span> sub_Base_int;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    Base b;</span><br><span class="line">    sub_Base sub_b;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>一个 Base 类，有两个成员变量分别是 base_int 和 base_char，还有一个用 virtual 修饰的虚函数 test()。<br>一个 sub_Base 类继承于 Base 类，有一个自己的成员变量 sub_Base_int。</p>
+<p>调试过程：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">dwj@dwj-virtual-machine:~/C++Demo$ gdb ./demo3</span><br><span class="line">Reading symbols <span class="keyword">from</span> ./demo3...done.</span><br><span class="line">(gdb) b <span class="number">19</span></span><br><span class="line">Breakpoint <span class="number">1</span> at <span class="number">0x4009b5</span>: file demo3.cpp, line <span class="number">19.</span></span><br><span class="line">(gdb) run</span><br><span class="line">Starting program: /home/dwj/C++Demo/demo3 </span><br><span class="line"></span><br><span class="line">Breakpoint <span class="number">1</span>, main () at demo3.cpp:<span class="number">19</span></span><br><span class="line"><span class="number">19</span>	    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">(gdb) p b</span><br><span class="line">$<span class="number">1</span> = &#123;_vptr.Base = <span class="number">0x400b70</span> &lt;vtable <span class="keyword">for</span> Base+<span class="number">16</span>&gt;, base_int = <span class="number">1</span>, base_char = <span class="number">100</span> <span class="string">'d'</span>&#125;</span><br><span class="line">(gdb) p sub_b</span><br><span class="line">$<span class="number">2</span> = &#123;&lt;Base&gt; = &#123;_vptr.Base = <span class="number">0x400b58</span> &lt;vtable <span class="keyword">for</span> sub_Base+<span class="number">16</span>&gt;, base_int = <span class="number">1</span>, base_char = <span class="number">100</span> <span class="string">'d'</span>&#125;, sub_Base_int = <span class="number">-8480</span>&#125;</span><br><span class="line">(gdb) info vtbl b</span><br><span class="line">vtable <span class="keyword">for</span> <span class="string">'Base'</span> @ <span class="number">0x400b70</span> (subobject @ <span class="number">0x7fffffffddd0</span>):</span><br><span class="line">[<span class="number">0</span>]: <span class="number">0x400a4e</span> &lt;Base::test()&gt;</span><br><span class="line">(gdb) info vtbl sub_b</span><br><span class="line">vtable <span class="keyword">for</span> <span class="string">'sub_Base'</span> @ <span class="number">0x400b58</span> (subobject @ <span class="number">0x7fffffffdde0</span>):</span><br><span class="line">[<span class="number">0</span>]: <span class="number">0x400a4e</span> &lt;Base::test()&gt;</span><br></pre></td></tr></table></figure></p>
+<p>除了和前一个 demo 调试一致的结果外，我们还发现 sub_Base 对象也有一个虚函数表指针，并且虚函数表指针指向内存空间的函数指针和父类 Base 中的虚函数表中的函数指针地址完全一致。</p>
+<h4 id="存在虚函数的类并且子类重写虚函数"><a href="#存在虚函数的类并且子类重写虚函数" class="headerlink" title="存在虚函数的类并且子类重写虚函数"></a>存在虚函数的类并且子类重写虚函数</h4><p>源代码：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Base</span> &#123;</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        Base():base_int(<span class="number">1</span>),base_char(<span class="string">'d'</span>)&#123;&#125;;</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">test</span><span class="params">()</span></span>&#123; <span class="built_in">cout</span>&lt;&lt;<span class="string">"Base Print()"</span>&lt;&lt;<span class="built_in">endl</span>; &#125;</span><br><span class="line">    <span class="keyword">protected</span>:</span><br><span class="line">        <span class="keyword">int</span> base_int;</span><br><span class="line">        <span class="keyword">char</span> base_char;                             </span><br><span class="line">&#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">sub_Base</span>:</span> <span class="keyword">public</span> Base&#123;</span><br><span class="line">    <span class="keyword">private</span>:</span><br><span class="line">        <span class="keyword">int</span> sub_Base_int;</span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">test</span><span class="params">()</span> </span>&#123; <span class="built_in">cout</span>&lt;&lt;<span class="string">"sub_Base print()"</span>&lt;&lt;<span class="built_in">endl</span>; &#125;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    Base b;</span><br><span class="line">    sub_Base sub_b;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>一个 Base 类，有两个成员变量分别是 base_int 和 base_char，还有一个用 virtual 修饰的虚函数 test()。<br>一个 sub_Base 类继承于 Base 类，有一个自己的成员变量 sub_Base_int，并且重写了父类的虚函数实现。</p>
+<p>调试过程：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">dwj@dwj-virtual-machine:~/C++Demo$ gdb ./demo4</span><br><span class="line">Reading symbols <span class="keyword">from</span> ./demo4...done.</span><br><span class="line">(gdb) b <span class="number">21</span></span><br><span class="line">Breakpoint <span class="number">1</span> at <span class="number">0x4009b5</span>: file demo4.cpp, line <span class="number">21.</span></span><br><span class="line">(gdb) run</span><br><span class="line">Starting program: /home/dwj/C++Demo/demo4 </span><br><span class="line"></span><br><span class="line">Breakpoint <span class="number">1</span>, main () at demo4.cpp:<span class="number">21</span></span><br><span class="line"><span class="number">21</span>	    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">(gdb) p b</span><br><span class="line">$<span class="number">1</span> = &#123;_vptr.Base = <span class="number">0x400ba0</span> &lt;vtable <span class="keyword">for</span> Base+<span class="number">16</span>&gt;, base_int = <span class="number">1</span>, base_char = <span class="number">100</span> <span class="string">'d'</span>&#125;</span><br><span class="line">(gdb) p sub_b</span><br><span class="line">$<span class="number">2</span> = &#123;&lt;Base&gt; = &#123;_vptr.Base = <span class="number">0x400b88</span> &lt;vtable <span class="keyword">for</span> sub_Base+<span class="number">16</span>&gt;, base_int = <span class="number">1</span>, base_char = <span class="number">100</span> <span class="string">'d'</span>&#125;, sub_Base_int = <span class="number">-8480</span>&#125;</span><br><span class="line">(gdb) info vtbl b</span><br><span class="line">vtable <span class="keyword">for</span> <span class="string">'Base'</span> @ <span class="number">0x400ba0</span> (subobject @ <span class="number">0x7fffffffddd0</span>):</span><br><span class="line">[<span class="number">0</span>]: <span class="number">0x400a4e</span> &lt;Base::test()&gt;</span><br><span class="line">(gdb) info vtbl sub_b</span><br><span class="line">vtable <span class="keyword">for</span> <span class="string">'sub_Base'</span> @ <span class="number">0x400b88</span> (subobject @ <span class="number">0x7fffffffdde0</span>):</span><br><span class="line">[<span class="number">0</span>]: <span class="number">0x400a7a</span> &lt;sub_Base::test()&gt;</span><br></pre></td></tr></table></figure></p>
+<p>在这个调试过程中我们发现 sub_Base 对象的虚函数表指针指向内存空间里的函数指针和父类 Base 中的虚函数表中的函数指针地址不再一致。</p>
+<h4 id="结论："><a href="#结论：" class="headerlink" title="结论："></a>结论：</h4><p>C++ 类如果定义了用 virtual 修饰的虚函数，那么他的对象内存中就会存在一个 8 字节（64位）的虚函数表指针，这个指针指向一块连续的内存空间，也就是虚函数表，虚函数表是一个数组，数组中存放了类定义的虚函数指针。<br>如果子类继承了父类，并且父类中存在虚函数表，那么子类也会继承父类的虚函数表。当子类没有重写父类的虚函数时，子类虚函数表中保存的是父类的函数指针，当子类重写了父类的虚函数时，子类函数指针就会覆盖虚函数表中父类的函数指针。</p>
+<h3 id="从逆向看-C-对象内存结构"><a href="#从逆向看-C-对象内存结构" class="headerlink" title="从逆向看 C++ 对象内存结构"></a>从逆向看 C++ 对象内存结构</h3><p>我们还是写一个 C++ demo，Base 类有两个成员变量，两个虚函数。来看看这个对象在内存中的结构：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Base</span> &#123;</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">    Base():base_int(<span class="number">10</span>),base_char(<span class="string">'D'</span>)&#123;&#125;;</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">testa</span><span class="params">(<span class="keyword">int</span> arg)</span></span>&#123; <span class="built_in">cout</span>&lt;&lt;<span class="string">"Base Print()"</span>&lt;&lt; arg &lt;&lt;<span class="built_in">endl</span>; &#125;</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">testb</span><span class="params">(<span class="keyword">int</span> arg)</span></span>&#123; <span class="built_in">cout</span>&lt;&lt;<span class="string">"Base Print()"</span>&lt;&lt; arg &lt;&lt;<span class="built_in">endl</span>; &#125;</span><br><span class="line">    <span class="keyword">protected</span>:</span><br><span class="line">        <span class="keyword">int</span> base_int;</span><br><span class="line">        <span class="keyword">char</span> base_char;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">const</span> <span class="keyword">char</span> * argv[])</span> </span>&#123;</span><br><span class="line">    Base b;</span><br><span class="line">    b.testa(<span class="number">20</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>断点到 b.testa(20) 这行，以下为调试过程：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">(lldb) p &amp;b</span><br><span class="line">(Base *) $<span class="number">0</span> = <span class="number">0x00007ffeefbff540</span></span><br><span class="line">(lldb) x <span class="number">0x00007ffeefbff540</span></span><br><span class="line"><span class="number">0x7ffeefbff540</span>: <span class="number">38</span> <span class="number">20</span> <span class="number">00</span> <span class="number">00</span> <span class="number">01</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">0</span>a <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">44</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span>  <span class="number">8</span> ..........D...</span><br><span class="line"><span class="number">0x7ffeefbff550</span>: <span class="number">88</span> f5 bf ef fe <span class="number">7</span>f <span class="number">00</span> <span class="number">00</span> <span class="number">01</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span>  ................</span><br><span class="line">(lldb) x <span class="number">0x0000000100002038</span></span><br><span class="line"><span class="number">0x100002038</span>: <span class="number">50</span> <span class="number">11</span> <span class="number">00</span> <span class="number">00</span> <span class="number">01</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> d0 <span class="number">11</span> <span class="number">00</span> <span class="number">00</span> <span class="number">01</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span>  P...............</span><br><span class="line"><span class="number">0x100002048</span>: <span class="number">60</span> <span class="number">36</span> <span class="number">99</span> <span class="number">92</span> ff <span class="number">7</span>f <span class="number">00</span> <span class="number">00</span> <span class="number">4</span>c <span class="number">1</span>f <span class="number">00</span> <span class="number">00</span> <span class="number">01</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span>  `<span class="number">6.</span>.....L.......</span><br><span class="line">(lldb) b <span class="number">0x0000000100001150</span></span><br><span class="line">Breakpoint <span class="number">6</span>: where = C++Test`Base::testa(int) at main.cpp:<span class="number">18</span>, address = <span class="number">0x0000000100001150</span></span><br><span class="line">(lldb) b <span class="number">0x00000001000011d0</span></span><br><span class="line">Breakpoint <span class="number">7</span>: where = C++Test`Base::testb(int) at main.cpp:<span class="number">19</span>, address = <span class="number">0x00000001000011d0</span></span><br><span class="line">(lldb) po <span class="number">0x0a</span></span><br><span class="line"><span class="number">10</span></span><br><span class="line"></span><br><span class="line">(lldb) po <span class="number">0x44</span></span><br><span class="line"><span class="number">68</span></span><br><span class="line"></span><br><span class="line">(lldb) p char(<span class="number">68</span>)</span><br><span class="line">(char) $<span class="number">2</span> = <span class="string">'D'</span></span><br><span class="line">(lldb)</span><br></pre></td></tr></table></figure></p>
+<p>从内存结构中查看虚函数表指针：<br><img src="/images/vtable_1.png" alt=""></p>
+<p>从内存结构中查看成员变量：<br><img src="/images/vtable_2.png" alt=""></p>
+<p>从虚函数指针内存看对象的虚函数指针数组：<br><img src="/images/vtable_3.png" alt=""></p>
+<p>对比 IDA 中反编译结果，可以证实我们拿到了 Base 类两个虚函数指针：<br><img src="/images/vtable_4.png" alt=""></p>
+<p><img src="/images/vtable_5.png" alt=""></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/移动安全/" rel="tag"><i class="fa fa-tag"></i> 移动安全</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/03/03/Flutter 应用编译模式/" rel="next" title="Flutter 应用编译模式">
+                <i class="fa fa-chevron-left"></i> Flutter 应用编译模式
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="代伟佳WeChat:337223400" />
+          <p class="site-author-name" itemprop="name">代伟佳WeChat:337223400</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">posts</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">tags</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#从开发角度了解什么是虚函数"><span class="nav-number">1.</span> <span class="nav-text">从开发角度了解什么是虚函数</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#普通类："><span class="nav-number">1.1.</span> <span class="nav-text">普通类：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#存在虚函数的类："><span class="nav-number">1.2.</span> <span class="nav-text">存在虚函数的类：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#存在虚函数的类并且子类没有重写虚函数"><span class="nav-number">1.3.</span> <span class="nav-text">存在虚函数的类并且子类没有重写虚函数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#存在虚函数的类并且子类重写虚函数"><span class="nav-number">1.4.</span> <span class="nav-text">存在虚函数的类并且子类重写虚函数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#结论："><span class="nav-number">1.5.</span> <span class="nav-text">结论：</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#从逆向看-C-对象内存结构"><span class="nav-number">2.</span> <span class="nav-text">从逆向看 C++ 对象内存结构</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">代伟佳WeChat:337223400</span>
+</div>
+
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="https://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Muse
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.4.js"></script>
+  <script>AV.initialize("Tv0ap1PiX5he09oRLIDxPDFq-gzGzoHsz", "oNp2foyUytnAWmG6y9Pun0TY");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

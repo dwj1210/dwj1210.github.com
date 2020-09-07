@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="逆向," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="前言  在安卓防护发展到第五代甚至第六代加壳之后，大家对于 iOS  应用的防护也越来越重视，从一开始 iOS 应用的裸奔，到现在通过检测运行环境，字符串、函数名混淆，控制流混淆，花指令混淆等等各种手段来保护应用代码，今天我们就通过一个例子来分析下如何去花指令混淆，并编写 IDAPython 脚本进行 patch  手动分析花指令混淆  IDA 不能正常反汇编代码，全部是一堆莫名的十六进制字符，">
+<meta name="keywords" content="逆向">
+<meta property="og:type" content="article">
+<meta property="og:title" content="从手撕花指令到 IDAPython 脚本">
+<meta property="og:url" content="http://yoursite.com/2020/09/07/从手撕花指令到 IDAPython 脚本/index.html">
+<meta property="og:site_name" content="dwj1210">
+<meta property="og:description" content="前言  在安卓防护发展到第五代甚至第六代加壳之后，大家对于 iOS  应用的防护也越来越重视，从一开始 iOS 应用的裸奔，到现在通过检测运行环境，字符串、函数名混淆，控制流混淆，花指令混淆等等各种手段来保护应用代码，今天我们就通过一个例子来分析下如何去花指令混淆，并编写 IDAPython 脚本进行 patch  手动分析花指令混淆  IDA 不能正常反汇编代码，全部是一堆莫名的十六进制字符，">
+<meta property="og:image" content="http://yoursite.com/images/idapython1.png">
+<meta property="og:image" content="https://s3.in.chaitin.net/hackmd/uploads/upload_fc735d719188f7aaac5ec10463dfaa8a.png">
+<meta property="og:image" content="https://s3.in.chaitin.net/hackmd/uploads/upload_6211ebfd371d466f34763bd7b5af9ef7.png">
+<meta property="og:image" content="https://s3.in.chaitin.net/hackmd/uploads/upload_b20568a3cb8553fa1cbae5221f9bf8e7.png">
+<meta property="og:image" content="https://s3.in.chaitin.net/hackmd/uploads/upload_1879d0054ea92a943ffd8b147dc7662c.png">
+<meta property="og:image" content="https://s3.in.chaitin.net/hackmd/uploads/upload_92ea0bc10f96148f91796069e20ed913.png">
+<meta property="og:image" content="https://s3.in.chaitin.net/hackmd/uploads/upload_ec48853bb04732edd02d687286c75b58.png">
+<meta property="og:image" content="https://s3.in.chaitin.net/hackmd/uploads/upload_60f6bb6e40d26918c0ef1078d774fc45.png">
+<meta property="og:image" content="https://s3.in.chaitin.net/hackmd/uploads/upload_91b2ecdc9bcc276e7ada7343a66193b7.png">
+<meta property="og:image" content="https://s3.in.chaitin.net/hackmd/uploads/upload_62ec7860b1ceb8afaa3e22a1f373a5c6.png">
+<meta property="og:image" content="https://s3.in.chaitin.net/hackmd/uploads/upload_3f85f06d543d61103faa8ca1dafddfa7.png">
+<meta property="og:image" content="https://s3.in.chaitin.net/hackmd/uploads/upload_eafe93a81daf673abffc7763f9f597e6.png">
+<meta property="og:image" content="https://s3.in.chaitin.net/hackmd/uploads/upload_f1ad1194f9995141527005e64a1402bb.png">
+<meta property="og:image" content="https://s3.in.chaitin.net/hackmd/uploads/upload_e7ee37ba661f185014c96b876115c4c5.png">
+<meta property="og:image" content="https://s3.in.chaitin.net/hackmd/uploads/upload_96688ae8ed6c9c76e138dec87739e084.png">
+<meta property="og:image" content="https://s3.in.chaitin.net/hackmd/uploads/upload_4dd87b4f9ea8579f4ac374084a93aaaf.png">
+<meta property="og:updated_time" content="2020-09-07T06:18:27.106Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="从手撕花指令到 IDAPython 脚本">
+<meta name="twitter:description" content="前言  在安卓防护发展到第五代甚至第六代加壳之后，大家对于 iOS  应用的防护也越来越重视，从一开始 iOS 应用的裸奔，到现在通过检测运行环境，字符串、函数名混淆，控制流混淆，花指令混淆等等各种手段来保护应用代码，今天我们就通过一个例子来分析下如何去花指令混淆，并编写 IDAPython 脚本进行 patch  手动分析花指令混淆  IDA 不能正常反汇编代码，全部是一堆莫名的十六进制字符，">
+<meta name="twitter:image" content="http://yoursite.com/images/idapython1.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    sidebar: {"position":"left","display":"hide","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2020/09/07/从手撕花指令到 IDAPython 脚本/"/>
+
+
+
+
+
+  <title>从手撕花指令到 IDAPython 脚本 | dwj1210</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">dwj1210</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/09/07/从手撕花指令到 IDAPython 脚本/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="代伟佳WeChat:337223400">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="dwj1210">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">从手撕花指令到 IDAPython 脚本</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-09-07T14:14:07+08:00">
+                2020-09-07
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2020/09/07/从手撕花指令到 IDAPython 脚本/" class="leancloud_visitors" data-flag-title="从手撕花指令到 IDAPython 脚本">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">Visitors </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <ul>
+<li>前言</li>
+</ul>
+<p>在安卓防护发展到第五代甚至第六代加壳之后，大家对于 iOS  应用的防护也越来越重视，从一开始 iOS 应用的裸奔，到现在通过检测运行环境，字符串、函数名混淆，控制流混淆，花指令混淆等等各种手段来保护应用代码，今天我们就通过一个例子来分析下如何去花指令混淆，并编写 IDAPython 脚本进行 patch</p>
+<ul>
+<li>手动分析花指令混淆</li>
+</ul>
+<p>IDA 不能正常反汇编代码，全部是一堆莫名的十六进制字符，而伪代码则是只有一句 JUMPOUT()，完全看不到伪代码，甚至看不到正常的汇编代码</p>
+<p>汇编代码：<br><img src="/images/idapython1.png" alt=""><br>伪代码：<br><img src="https://s3.in.chaitin.net/hackmd/uploads/upload_fc735d719188f7aaac5ec10463dfaa8a.png" alt=""></p>
+<p>首先我们就先来动态调试一下这段代码，看下到底是什么。<br>首先我们对 <code>+[RPSDK start:rpCompleted:withVC:]</code> 方法下断点，然后使用 frida 主动调用下这个方法<br><img src="https://s3.in.chaitin.net/hackmd/uploads/upload_6211ebfd371d466f34763bd7b5af9ef7.png" alt=""></p>
+<p>接着此时我们可以看到 LLDB 调试器断点触发，然后我们在 BR X21 这行汇编代码再下一个断点，看看 X21 的值是多少<br><img src="https://s3.in.chaitin.net/hackmd/uploads/upload_b20568a3cb8553fa1cbae5221f9bf8e7.png" alt=""></p>
+<p>输入命令 c 使程序继续执行，并暂停到 BR X21，打印 X21 的值<br><img src="https://s3.in.chaitin.net/hackmd/uploads/upload_1879d0054ea92a943ffd8b147dc7662c.png" alt=""></p>
+<p>暂且不关心这个 X21 的值是怎么算出来的，我们通过打印可以发现 X21 的值是五行汇编之后的一个地址，所以 BR X21 则是跳到了 0x105308510 这行汇编，输入 si 命令，应用执行到 0x105308510</p>
+<p>接着来思考下为什么应用在动态执行过程中，可以还原正常的汇编代码，而 IDA 反汇编器却无法正常反汇编呢？<br>既然从汇编层面得不到解释，就从更深一层找找原因，首先来打印下此时应用 PC 指针的内存，PC 指针指向的是当前运行的汇编地址，通过打印 PC 指针指向的内存可以看到此时应用执行的机器码<br><img src="https://s3.in.chaitin.net/hackmd/uploads/upload_92ea0bc10f96148f91796069e20ed913.png" alt=""><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">(lldb) x/16bx $pc</span><br><span class="line">0x105308510: 0x5b 0x08 0x80 0x52 0xfb 0x03 0x00 0xb9</span><br><span class="line">0x105308518: 0x29 0x00 0x00 0x10 0x3a 0x01 0x00 0x98</span><br></pre></td></tr></table></figure></p>
+<p>接下来在 IDA 中查看汇编的机器码<br>在 Options - General - Number of opcode bytes 中输入 16，并点击 OK<br><img src="https://s3.in.chaitin.net/hackmd/uploads/upload_ec48853bb04732edd02d687286c75b58.png" alt=""></p>
+<p>然后通过比较发现在这一串莫名的十六进制字符，原来就是应用的机器码<br><img src="https://s3.in.chaitin.net/hackmd/uploads/upload_60f6bb6e40d26918c0ef1078d774fc45.png" alt=""></p>
+<p>由此我们猜测，可能是由于 IDA 无法正常识别某些机器码，所以也就无法正常反汇编代码，导致应用正常逻辑的汇编代码被隐藏起来了<br>既然这些机器码无法被 IDA 正常识别，且应用执行过程中也并不会执行这些代码，所以我就手动把这些无法被识别的机器码 patch 成 1F 20 03 D5，也就是汇编代码的 NOP<br><img src="https://s3.in.chaitin.net/hackmd/uploads/upload_91b2ecdc9bcc276e7ada7343a66193b7.png" alt=""></p>
+<p>在完成 patch 那些不能别正确识别的机器码后，我们按 C 键，惊喜的发现已经可以正常反汇编成汇编代码了<br><img src="https://s3.in.chaitin.net/hackmd/uploads/upload_62ec7860b1ceb8afaa3e22a1f373a5c6.png" alt=""></p>
+<p>接下来我们断点到 BR X9，并查看 X9 的值<br><img src="https://s3.in.chaitin.net/hackmd/uploads/upload_3f85f06d543d61103faa8ca1dafddfa7.png" alt=""></p>
+<p>发现 X9 的值也就是之后的第六行汇编的地址，接下来就把 BR X9 后面的五行汇编代码 patch 成 NOP，并按 C 键转成代码<br><img src="https://s3.in.chaitin.net/hackmd/uploads/upload_eafe93a81daf673abffc7763f9f597e6.png" alt=""></p>
+<p>接下来以此类推，将该方法中所有不可以被正确识别的机器码 patch 成 NOP，并转成汇编代码，最后 点击该方法最后一行代码点 E 键，修改方法的结尾，这样就可以恢复出该方法完整正常的汇编代码了<br>接着我们按 F5 发现伪代码依然是<br><img src="https://s3.in.chaitin.net/hackmd/uploads/upload_f1ad1194f9995141527005e64a1402bb.png" alt=""></p>
+<p>这是因为代码中存在 BR X21 这样的跳转汇编，IDA 在静态分析中并不知道这个 X21 的地址是多少，所以认为是跳出了当前方法，伪代码依然是 JUMPOUT()<br>接下来我们可以通过查看 X21 的计算逻辑来 patch 这行汇编，使其是跳转到一个地址，而不是一个寄存器值的地址<br>而偷懒的办法是结合前面的动态调试分析发现所有的 <code>BR 寄存器</code> 语句，都是跳转到之后的第六条汇编指令执行<br><img src="https://s3.in.chaitin.net/hackmd/uploads/upload_e7ee37ba661f185014c96b876115c4c5.png" alt=""></p>
+<p>发现规律之后，就可以将 <code>BR 寄存器</code> 的机器码 patch 成 <code>06 00 00 14</code>，这条机器码的意思就是跳转到当前地址之后的第六条汇编语句的地址，其中 14 代表的是汇编指令 B，而 06 代表往后跳转多少条汇编语句，比如当前地址是 <code>0x100A3BE7C</code>，当前机器码为 <code>06 00 00 14</code>，那么当前汇编语句伪代码即 <code>B loc_100A3BE94</code>，他是如何计算出来的呢？就是  0x100A3BE7C + 0x6 * 4</p>
+<p>在把全部的 <code>BR 寄存器</code>，patch 完成后<br><img src="https://s3.in.chaitin.net/hackmd/uploads/upload_96688ae8ed6c9c76e138dec87739e084.png" alt=""></p>
+<p>按 F5 查看伪代码<br><img src="https://s3.in.chaitin.net/hackmd/uploads/upload_4dd87b4f9ea8579f4ac374084a93aaaf.png" alt=""><br>此时我们完成了花指令混淆 patch 的整个过程</p>
+<ul>
+<li>IDAPython 脚本</li>
+</ul>
+<p>手动 patch 一个方法已经很累了，更别说手动 patch 几十个方法，所以在我们完成分析之后，就可以编写 IDAPython 脚本来进行自动的 patch 工作</p>
+<p>整个思路就是，我们输入一个地址，脚本会往后循环遍历一百行进行检索<br>当检索到机器码为 <code>xx xx 1F D6</code>，且上一条汇编语句的指令为 <code>MOV</code> 或者 <code>STR</code>，则将当前地址机器码 patch 为 <code>06 00 00 14</code>，将后面五条汇编语句 patch 为 <code>1F 20 03 D5</code><br>通过 idc.Byte() 函数来获取机器码，idc.PrevHead() 函数获取上一条汇编代码，GetMnem() 函数来获取汇编指令<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">def ida_patch(baseAddr):</span><br><span class="line">    i = 1</span><br><span class="line">    while i &lt;= 100:</span><br><span class="line">        if idc.Byte(baseAddr+2) == 0x1F and idc.Byte(baseAddr+3) == 0xD6 and (GetMnem(idc.PrevHead(baseAddr)) == &quot;MOV&quot; or GetMnem(idc.PrevHead(baseAddr)) == &quot;STR&quot;):</span><br><span class="line">            print(hex(idc.Byte(baseAddr+0)), hex(idc.Byte(baseAddr+1)), hex(idc.Byte(baseAddr+2)), hex(idc.Byte(baseAddr+3)))</span><br><span class="line">            idc.PatchByte(baseAddr, 0x06)</span><br><span class="line">            idc.PatchByte(baseAddr+1, 0x00)</span><br><span class="line">            idc.PatchByte(baseAddr+2, 0x00)</span><br><span class="line">            idc.PatchByte(baseAddr+3, 0x14)</span><br><span class="line">            j = 4</span><br><span class="line">            while j &lt;= 23:</span><br><span class="line">                idc.PatchByte(baseAddr+j, 0x1F)</span><br><span class="line">                idc.PatchByte(baseAddr+j+1, 0x20)</span><br><span class="line">                idc.PatchByte(baseAddr+j+2, 0x03)</span><br><span class="line">                idc.PatchByte(baseAddr+j+3, 0xD5)</span><br><span class="line">                j += 4</span><br><span class="line">        baseAddr += 4</span><br><span class="line">        i += 1</span><br></pre></td></tr></table></figure></p>
+<p>到此为止我们就完成了从手撕花指令混淆到 IDAPython 脚本的整个过程，去花指令混淆的思路就是通过观察花指令的规律并进行相应的 patch</p>
+<ul>
+<li>参考学习</li>
+</ul>
+<p><a href="https://armconverter.com/" target="_blank" rel="noopener">https://armconverter.com/</a><br><a href="https://unit42.paloaltonetworks.com/?search_field=idapython&amp;pg=1#all" target="_blank" rel="noopener">https://unit42.paloaltonetworks.com/?search_field=idapython&amp;pg=1#all</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/逆向/" rel="tag"><i class="fa fa-tag"></i> 逆向</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/08/06/利用 URL Scheme 远程窃取用户 token/" rel="next" title="利用 URL Scheme 远程窃取用户 token">
+                <i class="fa fa-chevron-left"></i> 利用 URL Scheme 远程窃取用户 token
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview sidebar-panel sidebar-panel-active">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="代伟佳WeChat:337223400" />
+          <p class="site-author-name" itemprop="name">代伟佳WeChat:337223400</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">14</span>
+                <span class="site-state-item-name">posts</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">tags</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">代伟佳WeChat:337223400</span>
+</div>
+
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="https://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Muse
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.4.js"></script>
+  <script>AV.initialize("Tv0ap1PiX5he09oRLIDxPDFq-gzGzoHsz", "oNp2foyUytnAWmG6y9Pun0TY");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

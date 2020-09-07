@@ -97,13 +97,13 @@
 <meta name="description" content="前言  在安卓防护发展到第五代甚至第六代加壳之后，大家对于 iOS  应用的防护也越来越重视，从一开始 iOS 应用的裸奔，到现在通过检测运行环境，字符串、函数名混淆，控制流混淆，花指令混淆等等各种手段来保护应用代码，今天我们就通过一个例子来分析下如何去花指令混淆，并编写 IDAPython 脚本进行 patch  手动分析花指令混淆  IDA 不能正常反汇编代码，全部是一堆莫名的十六进制字符，">
 <meta name="keywords" content="逆向">
 <meta property="og:type" content="article">
-<meta property="og:title" content="从手撕花指令到 IDAPython 脚本">
-<meta property="og:url" content="http://yoursite.com/2020/09/07/从手撕花指令到 IDAPython 脚本/index.html">
+<meta property="og:title" content="从手撕花指令混淆到 IDAPython 脚本">
+<meta property="og:url" content="http://yoursite.com/2020/09/07/从手撕花指令混淆到 IDAPython 脚本/index.html">
 <meta property="og:site_name" content="dwj1210">
 <meta property="og:description" content="前言  在安卓防护发展到第五代甚至第六代加壳之后，大家对于 iOS  应用的防护也越来越重视，从一开始 iOS 应用的裸奔，到现在通过检测运行环境，字符串、函数名混淆，控制流混淆，花指令混淆等等各种手段来保护应用代码，今天我们就通过一个例子来分析下如何去花指令混淆，并编写 IDAPython 脚本进行 patch  手动分析花指令混淆  IDA 不能正常反汇编代码，全部是一堆莫名的十六进制字符，">
-<meta property="og:image" content="http://yoursite.com/images/idapython1.png">
-<meta property="og:image" content="https://s3.in.chaitin.net/hackmd/uploads/upload_fc735d719188f7aaac5ec10463dfaa8a.png">
-<meta property="og:image" content="https://s3.in.chaitin.net/hackmd/uploads/upload_6211ebfd371d466f34763bd7b5af9ef7.png">
+<meta property="og:image" content="http://yoursite.com/images/idapython_1.png">
+<meta property="og:image" content="http://yoursite.com/images/idapython_2.png">
+<meta property="og:image" content="http://yoursite.com/images/idapython_3.png">
 <meta property="og:image" content="https://s3.in.chaitin.net/hackmd/uploads/upload_b20568a3cb8553fa1cbae5221f9bf8e7.png">
 <meta property="og:image" content="https://s3.in.chaitin.net/hackmd/uploads/upload_1879d0054ea92a943ffd8b147dc7662c.png">
 <meta property="og:image" content="https://s3.in.chaitin.net/hackmd/uploads/upload_92ea0bc10f96148f91796069e20ed913.png">
@@ -117,11 +117,11 @@
 <meta property="og:image" content="https://s3.in.chaitin.net/hackmd/uploads/upload_e7ee37ba661f185014c96b876115c4c5.png">
 <meta property="og:image" content="https://s3.in.chaitin.net/hackmd/uploads/upload_96688ae8ed6c9c76e138dec87739e084.png">
 <meta property="og:image" content="https://s3.in.chaitin.net/hackmd/uploads/upload_4dd87b4f9ea8579f4ac374084a93aaaf.png">
-<meta property="og:updated_time" content="2020-09-07T06:18:27.106Z">
+<meta property="og:updated_time" content="2020-09-07T06:21:17.492Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="从手撕花指令到 IDAPython 脚本">
+<meta name="twitter:title" content="从手撕花指令混淆到 IDAPython 脚本">
 <meta name="twitter:description" content="前言  在安卓防护发展到第五代甚至第六代加壳之后，大家对于 iOS  应用的防护也越来越重视，从一开始 iOS 应用的裸奔，到现在通过检测运行环境，字符串、函数名混淆，控制流混淆，花指令混淆等等各种手段来保护应用代码，今天我们就通过一个例子来分析下如何去花指令混淆，并编写 IDAPython 脚本进行 patch  手动分析花指令混淆  IDA 不能正常反汇编代码，全部是一堆莫名的十六进制字符，">
-<meta name="twitter:image" content="http://yoursite.com/images/idapython1.png">
+<meta name="twitter:image" content="http://yoursite.com/images/idapython_1.png">
 
 
 
@@ -150,13 +150,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2020/09/07/从手撕花指令到 IDAPython 脚本/"/>
+  <link rel="canonical" href="http://yoursite.com/2020/09/07/从手撕花指令混淆到 IDAPython 脚本/"/>
 
 
 
 
 
-  <title>从手撕花指令到 IDAPython 脚本 | dwj1210</title>
+  <title>从手撕花指令混淆到 IDAPython 脚本 | dwj1210</title>
   
 
 
@@ -279,7 +279,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/09/07/从手撕花指令到 IDAPython 脚本/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/09/07/从手撕花指令混淆到 IDAPython 脚本/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="代伟佳WeChat:337223400">
@@ -296,7 +296,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">从手撕花指令到 IDAPython 脚本</h1>
+          <h1 class="post-title" itemprop="name headline">从手撕花指令混淆到 IDAPython 脚本</h1>
         
 
         <div class="post-meta">
@@ -326,7 +326,7 @@
 
           
           
-             <span id="/2020/09/07/从手撕花指令到 IDAPython 脚本/" class="leancloud_visitors" data-flag-title="从手撕花指令到 IDAPython 脚本">
+             <span id="/2020/09/07/从手撕花指令混淆到 IDAPython 脚本/" class="leancloud_visitors" data-flag-title="从手撕花指令混淆到 IDAPython 脚本">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -365,8 +365,8 @@
 <li>手动分析花指令混淆</li>
 </ul>
 <p>IDA 不能正常反汇编代码，全部是一堆莫名的十六进制字符，而伪代码则是只有一句 JUMPOUT()，完全看不到伪代码，甚至看不到正常的汇编代码</p>
-<p>汇编代码：<br><img src="/images/idapython1.png" alt=""><br>伪代码：<br><img src="https://s3.in.chaitin.net/hackmd/uploads/upload_fc735d719188f7aaac5ec10463dfaa8a.png" alt=""></p>
-<p>首先我们就先来动态调试一下这段代码，看下到底是什么。<br>首先我们对 <code>+[RPSDK start:rpCompleted:withVC:]</code> 方法下断点，然后使用 frida 主动调用下这个方法<br><img src="https://s3.in.chaitin.net/hackmd/uploads/upload_6211ebfd371d466f34763bd7b5af9ef7.png" alt=""></p>
+<p>汇编代码：<br><img src="/images/idapython_1.png" alt=""><br>伪代码：<br><img src="/images/idapython_2.png" alt=""></p>
+<p>首先我们就先来动态调试一下这段代码，看下到底是什么。<br>首先我们对 <code>+[RPSDK start:rpCompleted:withVC:]</code> 方法下断点，然后使用 frida 主动调用下这个方法<br><img src="/images/idapython_3.png" alt=""></p>
 <p>接着此时我们可以看到 LLDB 调试器断点触发，然后我们在 BR X21 这行汇编代码再下一个断点，看看 X21 的值是多少<br><img src="https://s3.in.chaitin.net/hackmd/uploads/upload_b20568a3cb8553fa1cbae5221f9bf8e7.png" alt=""></p>
 <p>输入命令 c 使程序继续执行，并暂停到 BR X21，打印 X21 的值<br><img src="https://s3.in.chaitin.net/hackmd/uploads/upload_1879d0054ea92a943ffd8b147dc7662c.png" alt=""></p>
 <p>暂且不关心这个 X21 的值是怎么算出来的，我们通过打印可以发现 X21 的值是五行汇编之后的一个地址，所以 BR X21 则是跳到了 0x105308510 这行汇编，输入 si 命令，应用执行到 0x105308510</p>
